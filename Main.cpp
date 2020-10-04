@@ -43,8 +43,16 @@ int main()
 	// start render loop
 	while (!glfwWindowShouldClose(window))
 	{
+		// input
 		processInput(window);
-		
+
+		// render
+		// set the colour to lurid green
+		glClearColor(0.1f, 0.97f, 0.05f, 1.0f);
+		// apply that lurid green all over the shop
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		// check and call events and swap the buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
