@@ -9,7 +9,9 @@ int create_vertex_shader();
 int create_fragment_shader();
 int create_shader_program(int vert_id, int frag_id);
 
+float map_to_range(float X, float A, float B, float C, float D);
 
+int mouseState = GLFW_RELEASE;
 GLFWwindow* window;
 
 const char* vertexShaderSource = "#version 330 core\n"
@@ -149,8 +151,15 @@ void create_window(int width, int height)
 		exit(-2);
 	}
 
-	printf("hello there, mr window");
+	printf("hello there, mr window\n");
 }
+
+
+float map_to_range(float X, float A, float B, float C, float D)
+{
+	return (X - A) * ((D - C) / (B - A)) + C;
+}
+
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -163,6 +172,23 @@ void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+	int newMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+	double x, y;
+	if (newMouseState == GLFW_PRESS && mouseState == GLFW_RELEASE)
+	{
+		mouseState = GLFW_PRESS;
+		glfwGetCursorPos(window, &x, &y);
+		std::cout 
+			<< "X:" << 
+			map_to_range((float) x, 0.0f, 800.0f, -1.0f, 1.0f) 
+			<< ", Y:" << 
+			map_to_range((float) y, 0.0f, 600.0f, 1.0f, -1.0f)
+			<< std::endl;
+	}
+	else if (mouseState == GLFW_PRESS && newMouseState == GLFW_RELEASE)
+	{
+		mouseState = GLFW_RELEASE;
+	}
 }
 
 
