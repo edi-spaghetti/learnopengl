@@ -30,10 +30,14 @@ const char* fragmentShaderSource = "#version 330 core\n"
 
 // vertex data
 const float vertices[] = {
-	  0.5f,  0.5f, 0.0f,
-	  0.5f, -0.5f, 0.0f,
-	 -0.5f, -0.5f, 0.0f,
-	 -0.5f,  0.5f, 0.0f
+	// triangle 1
+	-1.0f , 0.0f, 0.0f,
+	-0.5f, 1.0f, 0.0f,
+	 0.0f , 0.0f, 0.0f,
+	// triangle 2
+	 0.0f , 0.0f, 0.0f,
+	 0.5f, 1.0f, 0.0f,
+	 1.0f , 0.0f, 0.0f
 };
 
 unsigned int indices[] = {
@@ -57,7 +61,7 @@ int main()
 	unsigned int VBO, VAO, EBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
+	//glGenBuffers(1, &EBO);
 
 	// bind the vertex array
 	glBindVertexArray(VAO);
@@ -71,15 +75,15 @@ int main()
 	glEnableVertexAttribArray(0);
 
 	// bind and set element buffers
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// unbind VBO, VAO and EBO
 	glBindBuffer(GL_ARRAY_BUFFER, 0);	
 	glBindVertexArray(0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// start render loop
 	while (!glfwWindowShouldClose(window))
@@ -95,14 +99,14 @@ int main()
 
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(vertices[0]));
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glDrawElements(
+		/*glDrawElements(
 			GL_TRIANGLES,
 			sizeof(indices) / sizeof(indices[0]),
 			GL_UNSIGNED_INT,
 			0
-		);
+		);*/
 
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);
@@ -111,7 +115,7 @@ int main()
 
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
+	//glDeleteBuffers(1, &EBO);
 	glDeleteProgram(shaderProgram);
 
 	// clean up
