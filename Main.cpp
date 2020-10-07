@@ -5,6 +5,11 @@
 void create_window(int width, int height);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
+void create_vertex_buffers(
+	const float vertices[], int vSize,
+	unsigned int* VAO, unsigned int* VBO,
+	unsigned int* EBO = NULL, 
+	const float indices[] = NULL, int iSize = -1);
 int create_vertex_shader();
 int create_fragment_shader();
 int create_shader_program(int vert_id, int frag_id);
@@ -29,14 +34,14 @@ const char* fragmentShaderSource = "#version 330 core\n"
 	"}\n\0";
 
 // vertex data
-const float vertices[] = {
-	// triangle 1
+const float jamal[] = {
 	-1.0f , 0.0f, 0.0f,
 	-0.5f, 1.0f, 0.0f,
 	 0.0f , 0.0f, 0.0f,
-	// triangle 2
+};
+const float persephone[] = {
 	 0.0f , 0.0f, 0.0f,
-	 0.5f, 1.0f, 0.0f,
+	 0.5f, -1.0f, 0.0f,
 	 1.0f , 0.0f, 0.0f
 };
 
@@ -58,30 +63,11 @@ int main()
 	int shaderProgram = create_shader_program(vertexShader, fragmentShader);
 
 	//generate array and buffer objects
-	unsigned int VBO, VAO, EBO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	//glGenBuffers(1, &EBO);
-
-	// bind the vertex array
-	glBindVertexArray(VAO);
-
-	// bind and set vertex buffers
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// configure vertex attributes
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	// bind and set element buffers
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	// unbind VBO, VAO and EBO
-	glBindBuffer(GL_ARRAY_BUFFER, 0);	
-	glBindVertexArray(0);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	unsigned int pVBO, pVAO;
+	unsigned int jVBO;
+	unsigned int jVAO ;
+	create_vertex_buffers(jamal, sizeof(jamal), &jVAO, &jVBO);
+	create_vertex_buffers(persephone, sizeof(persephone), &pVAO, &pVBO);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -98,23 +84,18 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glUseProgram(shaderProgram);
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(vertices[0]));
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		/*glDrawElements(
-			GL_TRIANGLES,
-			sizeof(indices) / sizeof(indices[0]),
-			GL_UNSIGNED_INT,
-			0
-		);*/
+		glBindVertexArray(jVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(pVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
+	glDeleteVertexArrays(1, &jVAO);
+	glDeleteBuffers(1, &jVBO);
 	//glDeleteBuffers(1, &EBO);
 	glDeleteProgram(shaderProgram);
 
@@ -165,7 +146,6 @@ float map_to_range(float X, float A, float B, float C, float D)
 }
 
 
-
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
@@ -192,6 +172,48 @@ void processInput(GLFWwindow* window)
 	else if (mouseState == GLFW_PRESS && newMouseState == GLFW_RELEASE)
 	{
 		mouseState = GLFW_RELEASE;
+	}
+}
+
+
+void create_vertex_buffers(
+	const float vertices[], int vSize,
+	unsigned int* VAO, unsigned int* VBO, 
+	unsigned int* EBO, const float indices[], int iSize)
+{
+	glGenVertexArrays(1, VAO);
+	glGenBuffers(1, VBO);
+	
+	if (EBO != NULL)
+	{
+		glGenBuffers(1, EBO);
+	}
+
+	// bind the vertex array
+	glBindVertexArray(*VAO);
+
+	// bind and set vertex buffers
+	glBindBuffer(GL_ARRAY_BUFFER, *VBO);
+	glBufferData(GL_ARRAY_BUFFER, vSize, vertices, GL_STATIC_DRAW);
+
+	// bind and set element buffers
+	if (EBO != NULL && iSize != -1 && EBO != NULL)
+	{
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, iSize, indices, GL_STATIC_DRAW);
+	}
+
+	// configure vertex attributes
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// unbind VBO, VAO and EBO
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	if (EBO != NULL)
+	{
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 }
 
