@@ -1,6 +1,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 void create_window(int width, int height);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -10,28 +12,15 @@ void create_vertex_buffers(
 	unsigned int* VAO, unsigned int* VBO,
 	unsigned int* EBO = NULL, 
 	const float indices[] = NULL, int iSize = -1);
-int create_vertex_shader();
-int create_fragment_shader();
-int create_shader_program(int vert_id, int frag_id);
+static std::string read_shader_file(const char* shader_file);
+int create_vertex_shader(const char* path);
+int create_fragment_shader(const char* path);
+int create_shader_program(const char* vert_path, const char* frag_path);
 
 float map_to_range(float X, float A, float B, float C, float D);
 
 int mouseState = GLFW_RELEASE;
 GLFWwindow* window;
-
-const char* vertexShaderSource = "#version 330 core\n"
-	"layout (location = 0) in vec3 aPos;\n"
-	"void main()\n"
-	"{\n"
-	"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-	"}\0";
-
-const char* fragmentShaderSource = "#version 330 core\n"
-	"out vec4 FragColor;\n"
-	"void main()\n"
-	"{\n"
-	"    FragColor = vec4(1.0f, 0.69f, 0.4f, 1.0f);\n"
-	"}\n\0";
 
 // vertex data
 const float jamal[] = {
@@ -57,15 +46,13 @@ int main()
 	// guess what this does
 	create_window(800, 600);
 
-	// build and compile shader program
-	int vertexShader = create_vertex_shader();
-	int fragmentShader = create_fragment_shader();
-	int shaderProgram = create_shader_program(vertexShader, fragmentShader);
+	// build and compile shader programs for each array
+	int jShader = create_shader_program("default.vs", "default.fs");
+	int pShader = create_shader_program("default.vs", "fancy.fs");
 
 	//generate array and buffer objects
 	unsigned int pVBO, pVAO;
-	unsigned int jVBO;
-	unsigned int jVAO ;
+	unsigned int jVBO, jVAO ;
 	create_vertex_buffers(jamal, sizeof(jamal), &jVAO, &jVBO);
 	create_vertex_buffers(persephone, sizeof(persephone), &pVAO, &pVBO);
 
@@ -83,9 +70,11 @@ int main()
 		// fill er up
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glUseProgram(shaderProgram);
+		glUseProgram(jShader);
 		glBindVertexArray(jVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glUseProgram(pShader);
 		glBindVertexArray(pVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -97,7 +86,9 @@ int main()
 	glDeleteVertexArrays(1, &jVAO);
 	glDeleteBuffers(1, &jVBO);
 	//glDeleteBuffers(1, &EBO);
-	glDeleteProgram(shaderProgram);
+
+	glDeleteProgram(jShader);
+	glDeleteProgram(pShader);
 
 	// clean up
 	glfwTerminate();
@@ -164,6 +155,7 @@ void processInput(GLFWwindow* window)
 		glfwGetCursorPos(window, &x, &y);
 		std::cout 
 			<< "X:" << 
+			// TODO: make this dynamic to window size (e.g. if it resizes)
 			map_to_range((float) x, 0.0f, 800.0f, -1.0f, 1.0f) 
 			<< ", Y:" << 
 			map_to_range((float) y, 0.0f, 600.0f, 1.0f, -1.0f)
@@ -218,10 +210,30 @@ void create_vertex_buffers(
 }
 
 
-int create_vertex_shader()
+static std::string read_shader_file(const char* shader_file)
 {
+	std::ifstream file(shader_file);
+	if (!file) return std::string();
+
+	file.clear();
+	file.seekg(0, std::ios_base::beg);
+
+	std::stringstream sstr;
+	sstr << file.rdbuf();
+	file.close();
+
+	return sstr.str();
+}
+
+
+int create_vertex_shader(const char* path)
+{
+	// read fragment shader source from file at path
+	std::string source = read_shader_file(path);
+	const char* shader_source = source.c_str();
+	
 	int vid = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vid, 1, &vertexShaderSource, NULL);
+	glShaderSource(vid, 1, &shader_source, NULL);
 	glCompileShader(vid);
 
 	int success;
@@ -237,10 +249,14 @@ int create_vertex_shader()
 }
 
 
-int create_fragment_shader()
+int create_fragment_shader(const char* path)
 {
+	// read fragment shader source from file at path
+	std::string source = read_shader_file(path);
+	const char* shader_source = source.c_str();
+	
 	int fid = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fid, 1, &fragmentShaderSource, NULL);
+	glShaderSource(fid, 1, &shader_source, NULL);
 	glCompileShader(fid);
 
 	int success;
@@ -256,9 +272,12 @@ int create_fragment_shader()
 }
 
 
-int create_shader_program(int vert_id, int frag_id)
+int create_shader_program(const char* vert_path, const char* frag_path)
 {
 	int prog_id = glCreateProgram();
+	int vert_id = create_vertex_shader(vert_path);
+	int frag_id = create_fragment_shader(frag_path);
+
 	glAttachShader(prog_id, vert_id);
 	glAttachShader(prog_id, frag_id);
 	glLinkProgram(prog_id);
