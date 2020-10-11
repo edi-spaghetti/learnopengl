@@ -57,6 +57,10 @@ int main()
 	create_vertex_buffers(persephone, sizeof(persephone), &pVAO, &pVBO);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	int nrAttributes;
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
+	std::cout << "Max number vertex attributes supported: " << nrAttributes << std::endl;
+
 
 	// start render loop
 	while (!glfwWindowShouldClose(window))
