@@ -79,6 +79,12 @@ int main()
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glUseProgram(pShader);
+
+		float timeValue = glfwGetTime();
+		float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+		int vertexColorLocation = glGetUniformLocation(pShader, "ourColor");
+		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+		
 		glBindVertexArray(pVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
