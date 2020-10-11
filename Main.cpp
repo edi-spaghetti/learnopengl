@@ -8,7 +8,7 @@ void create_window(int width, int height);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void create_vertex_buffers(
-	const float vertices[], int vSize,
+	const float vertices[], int vSize, int vLen, int numAttributes,
 	unsigned int* VAO, unsigned int* VBO,
 	unsigned int* EBO = NULL, 
 	const float indices[] = NULL, int iSize = -1);
@@ -24,9 +24,10 @@ GLFWwindow* window;
 
 // vertex data
 const float jamal[] = {
-	-1.0f , 0.0f, 0.0f,
-	-0.5f, 1.0f, 0.0f,
-	 0.0f , 0.0f, 0.0f,
+    // position             // colours
+	-1.0f , 0.0f, 0.0f,     1.0f,  0.0f,  0.0f,
+	-0.5f, 1.0f, 0.0f,      0.0f,  1.0f,  0.0f,
+	 0.0f , 0.0f, 0.0f,     0.0f,  0.0f,  1.0f
 };
 const float persephone[] = {
 	 0.0f , 0.0f, 0.0f,
@@ -47,14 +48,14 @@ int main()
 	create_window(800, 600);
 
 	// build and compile shader programs for each array
-	int jShader = create_shader_program("default.vs", "default.fs");
+	int jShader = create_shader_program("colourShape.vs", "colourShape.fs");
 	int pShader = create_shader_program("default.vs", "fancy.fs");
 
 	//generate array and buffer objects
 	unsigned int pVBO, pVAO;
 	unsigned int jVBO, jVAO ;
-	create_vertex_buffers(jamal, sizeof(jamal), &jVAO, &jVBO);
-	create_vertex_buffers(persephone, sizeof(persephone), &pVAO, &pVBO);
+	create_vertex_buffers(jamal, sizeof(jamal), 6, 1, &jVAO, &jVBO);
+	create_vertex_buffers(persephone, sizeof(persephone), 3, 0, &pVAO, &pVBO);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	int nrAttributes;
@@ -179,7 +180,7 @@ void processInput(GLFWwindow* window)
 
 
 void create_vertex_buffers(
-	const float vertices[], int vSize,
+	const float vertices[], int vSize, int vLen, int numAttributes,
 	unsigned int* VAO, unsigned int* VBO, 
 	unsigned int* EBO, const float indices[], int iSize)
 {
@@ -205,9 +206,14 @@ void create_vertex_buffers(
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, iSize, indices, GL_STATIC_DRAW);
 	}
 
-	// configure vertex attributes
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+	// generate vertex attributes per attribute in source data
+	for (int attr = 0; attr <= numAttributes; attr++)
+	{
+		int offset = 3 * attr * sizeof(float);
+		std::cout << attr << " " << offset << std::endl;		
+		glVertexAttribPointer(attr, 3, GL_FLOAT, GL_FALSE, vLen * sizeof(float), (void*) offset);
+		glEnableVertexAttribArray(attr);
+	}
 
 	// unbind VBO, VAO and EBO
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
