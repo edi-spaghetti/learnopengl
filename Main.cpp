@@ -45,9 +45,9 @@ Geometry persephone = {
 	3,
 	9 * sizeof(float),
 	{
-		0.0f, 0.0f, 0.0f,
-		0.5f,-1.0f, 0.0f,
-		1.0f, 0.0f, 0.0f
+		 0.5f, -0.5f, 0.0f, 
+		-0.5f, -0.5f, 0.0f,  
+		 0.0f,  0.5f, 0.0f
 	},
 
 	// elements
@@ -65,7 +65,7 @@ int main()
 
 	// construct shaders and load geometry
 	Shader jShader = Shader("colourShape.vs", "colourShape.fs", jamal);
-	Shader pShader = Shader("default.vs", "fancy.fs", persephone);
+	Shader pShader = Shader("fancy.vs", "fancy.fs", persephone);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	int nrAttributes;
@@ -87,12 +87,11 @@ int main()
 		// fill er up
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		pShader.update();
 		location += velocity;
 		jShader.setFloat("vLocation", location);
 
-		pShader.draw();
 		jShader.draw();
+		pShader.draw();
 
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);
