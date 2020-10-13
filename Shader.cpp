@@ -1,6 +1,7 @@
 #include "Shader.h"
 
-
+// construction and deconstruction
+// ---------------------------------------------------------------------------
 Shader::Shader(const char* vertPath, const char* fragPath, Geometry geo)
 {
 	ID = glCreateProgram();
@@ -44,7 +45,8 @@ Shader::~Shader()
 
 }
 
-
+// public functions
+// ---------------------------------------------------------------------------
 void Shader::draw()
 {
 	glUseProgram(ID);
@@ -68,7 +70,8 @@ void Shader::update()
 }
 
 
-
+// shader functions
+// ---------------------------------------------------------------------------
 std::string Shader::readShaderFile(const char* shader_file)
 {
 	std::ifstream file(shader_file);
@@ -132,7 +135,7 @@ int Shader::createFragmentShader(const char* path)
 
 
 // geometry functions
-// -----------------------------------------------------------------
+// ---------------------------------------------------------------------------
 void Shader::loadGeometry(Geometry geo)
 {
 	// cache the geometry on the shader
@@ -194,15 +197,18 @@ void Shader::loadGeometry(Geometry geo)
 
 void Shader::setBool(const std::string& name, bool value) const
 {
+	glUseProgram(ID);
 	glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
 }
 
 void Shader::setInt(const std::string& name, int value) const
 {
+	glUseProgram(ID);
 	glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }
 
 void Shader::setFloat(const std::string& name, float value) const
 {
+	glUseProgram(ID);
 	glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }

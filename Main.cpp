@@ -72,6 +72,8 @@ int main()
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
 	std::cout << "Max number vertex attributes supported: " << nrAttributes << std::endl;
 
+	float location = 0.0f;
+	float velocity = 0.0001f;
 
 	// start render loop
 	while (!glfwWindowShouldClose(window))
@@ -86,6 +88,9 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		pShader.update();
+		location += velocity;
+		jShader.setFloat("vLocation", location);
+
 		pShader.draw();
 		jShader.draw();
 

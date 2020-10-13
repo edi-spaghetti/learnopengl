@@ -15,6 +15,8 @@
 class Shader
 {
 public:
+	unsigned int ID;
+	
 	// creates a new shader program
 	Shader(const char* vertPath, const char* fragPath, Geometry geo);
 	~Shader();
@@ -30,7 +32,6 @@ public:
 	void setFloat(const std::string& name, float value) const;
 
 private:
-	unsigned int ID;
 	unsigned int VBO;
 	unsigned int VAO;
 	unsigned int EBO;	
