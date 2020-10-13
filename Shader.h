@@ -18,7 +18,7 @@ public:
 	unsigned int ID;
 	
 	// creates a new shader program
-	Shader(const char* vertPath, const char* fragPath, Geometry geo);
+	Shader(const char* vertPath, const char* fragPath, Geometry geo, const char* texPath = NULL);
 	~Shader();
 
 	// update shaders
@@ -40,10 +40,16 @@ private:
 	bool geometryLoaded = false;
 	bool elementBuffer = false;
 
+	unsigned int TEX;
+	bool texLoaded = false;
+
+	bool doLogging = true;
+
 	static std::string readShaderFile(const char* shader_file);
 	int createVertexShader(const char* path);
 	int createFragmentShader(const char* path);
 	void loadGeometry(Geometry geo);
+	void loadTexture(const char* path);
 };
 
 #endif

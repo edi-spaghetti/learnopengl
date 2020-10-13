@@ -1,8 +1,10 @@
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 #include "Shader.h"
 
 // construction and deconstruction
 // ---------------------------------------------------------------------------
-Shader::Shader(const char* vertPath, const char* fragPath, Geometry geo)
+Shader::Shader(const char* vertPath, const char* fragPath, Geometry geo, const char* texPath)
 {
 	ID = glCreateProgram();
 	int vert_id = Shader::createVertexShader(vertPath);
@@ -28,6 +30,10 @@ Shader::Shader(const char* vertPath, const char* fragPath, Geometry geo)
 	// load geometry
 	Shader::loadGeometry(geo);
 	geometryLoaded = true;
+
+	// load textures (if any)
+	Shader::loadTexture(texPath);
+	texLoaded = true;
 }
 
 
@@ -50,13 +56,37 @@ Shader::~Shader()
 void Shader::draw()
 {
 	glUseProgram(ID);
-	
-	if (elementBuffer) {
+	glBindVertexArray(VAO);
+
+	if (texLoaded)
+	{
+		//glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, TEX);
+		if (doLogging)
+		{
+			std::cout 
+				<< "BindTexture: texUnit=" << GL_TEXTURE0 
+				<< " tex=" << TEX << std::endl;
+		}
+	}
+
+	if (elementBuffer) 
+	{
+		glDrawElements(GL_TRIANGLES, geometry.dataLength, GL_UNSIGNED_INT, 0);
+		if (doLogging)
+		{
+			std::cout << "DrawElements: count=" << geometry.dataLength << std::endl;
+			doLogging = false;
+		}
 
 	}
 	else {
-		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, geometry.dataLength);
+		if (doLogging)
+		{
+			std::cout << "DrawArrays: count=" << geometry.dataLength << std::endl;
+			doLogging = false;
+		}
 	}
 }
 
@@ -149,6 +179,7 @@ void Shader::loadGeometry(Geometry geo)
 		
 		elementBuffer = true;
 		glGenBuffers(1, &EBO);
+		std::cout << "Generated Element Buffer " << EBO << std::endl;
 	}
 
 	// bind the vertex array
@@ -157,18 +188,26 @@ void Shader::loadGeometry(Geometry geo)
 	// bind and set data into vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, geo.dataSize, geo.data, GL_STATIC_DRAW);
+	std::cout << "VBO: size=" << geo.dataSize << std::endl;
 
 	// bind and set element buffers
 	if (geo.useIndices)
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, geo.iSize, geo.indices, GL_STATIC_DRAW);
+		std::cout << "EBO: size=" << geo.iSize << std::endl;
 	}
 
 	// generate vertex attributes per attribute in source data
 	for (int attr = 0; attr < geo.numAttributes; attr++)
 	{
-		unsigned int offset = geo.attributes[attr] * attr * sizeof(float);
+		int sum = 0;
+		for (int i = 0; i < attr; i++)
+		{
+			sum += geo.attributes[attr];
+		}
+		
+		unsigned int offset = sum * attr * sizeof(float);
 		
 		glVertexAttribPointer(
 			attr, 
@@ -179,6 +218,15 @@ void Shader::loadGeometry(Geometry geo)
 			(void*) offset
 		);
 		glEnableVertexAttribArray(attr);
+
+		std::cout 
+			<< "Attribute:"
+			<< " attr=" << attr
+			<< " sumAttr=" << sum
+			<< " lenAttr=" << geo.attributes[attr]
+			<< " stride=" << geo.stride 
+			<< " offset=" << offset 
+		<< std::endl;
 	}
 
 	// unbind VBO, VAO and EBO
@@ -189,6 +237,44 @@ void Shader::loadGeometry(Geometry geo)
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
+}
+
+
+// texture functions
+// ---------------------------------------------------------------------------
+void Shader::loadTexture(const char* path)
+{
+	// if no texture is specified, bail out now
+	if (!path) return;
+	
+	// bind texture
+	glGenTextures(1, &TEX);
+	glBindTexture(GL_TEXTURE_2D, TEX);
+
+	// set wrapping / filtering options
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
+	if (!data)
+	{
+		std::cout << "Failed to load texture at " << path << std::endl;
+		stbi_image_free(data);
+		return;
+	}
+
+	// generate the texture + mipmaps
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 
+		width, height, 
+		0, GL_RGB, GL_UNSIGNED_BYTE, 
+		data
+	);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	stbi_image_free(data);
 }
 
 

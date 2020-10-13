@@ -42,18 +42,52 @@ Geometry persephone = {
 	3 * sizeof(float),
 
 	// data
-	3,
-	9 * sizeof(float),
+	6,
+	12 * sizeof(float),
 	{
-		 0.5f, -0.5f, 0.0f, 
-		-0.5f, -0.5f, 0.0f,  
-		 0.0f,  0.5f, 0.0f
+		 0.5f,  0.5f, 0.0f,  // top right = 0
+		 0.5f, -0.5f, 0.0f,  // bottom right = 1
+		-0.5f, -0.5f, 0.0f,  // bottom left = 2
+		-0.5f,  0.5f, 0.0f,  // top left = 3
 	},
 
 	// elements
-	false,
-	0,
-	{}
+	true,
+	6,
+	6 * sizeof(int),
+    {
+	    0, 1, 2,
+		0, 2, 3
+    }
+};
+
+Geometry karen = {
+	// attributes
+	3,
+	{3, 3, 2},
+
+	// stride
+	8 * sizeof(float),
+
+	// data
+	6,
+	32 * sizeof(float),
+	{
+		// positions          // colors           // texture coords
+		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right = 0
+		 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right = 1
+		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left = 2
+		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left = 3
+    },
+
+	// elements
+	true,
+	6,
+	6 * sizeof(int),
+	{
+		0, 1, 3,
+		1, 2, 3
+	}
 };
 
 
@@ -64,8 +98,10 @@ int main()
 	GLFWwindow* window = createWindow(800, 600);
 
 	// construct shaders and load geometry
-	Shader jShader = Shader("colourShape.vs", "colourShape.fs", jamal);
-	Shader pShader = Shader("fancy.vs", "fancy.fs", persephone);
+	//Shader jShader = Shader("colourShape.vs", "colourShape.fs", jamal);
+	//Shader pShader = Shader("default.vs", "default.fs", persephone);
+	Shader kShader = Shader("posColTex.vs", "posColTex.fs", karen, "container.jpg");
+	//kShader.setInt("ourTexture", 0);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	int nrAttributes;
@@ -88,10 +124,11 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		location += velocity;
-		jShader.setFloat("vLocation", location);
+		//jShader.setFloat("vLocation", location);
 
-		jShader.draw();
-		pShader.draw();
+		//jShader.draw();
+		//pShader.draw();
+		kShader.draw();
 
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);
