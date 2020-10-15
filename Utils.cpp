@@ -95,4 +95,12 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 		shader->setFloat("zoom", shader->currentZoom);
 		std::cout << "set zoom to " << shader->currentZoom << std::endl;
 	}
+	else if (key == GLFW_KEY_LEFT)
+	{
+		shader->increaseTransparency();
+	}
+	else if (key == GLFW_KEY_RIGHT)
+	{
+		shader->decreaseTransparency();
+	}
 }

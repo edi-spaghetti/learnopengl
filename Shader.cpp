@@ -107,6 +107,44 @@ void Shader::update()
 }
 
 
+void Shader::increaseTransparency()
+{
+	if (currentAlpha < maxAlpha)
+	{
+		currentAlpha += alphaIncrement;
+	}
+
+	// if less than one increment away from max, set to max
+	// this avoids floating point precision problems
+	if ((maxAlpha - alphaIncrement) < currentAlpha) 
+	{ 
+		currentAlpha = maxAlpha; 
+	}
+
+	Shader::setFloat("alpha", currentAlpha);
+	std::cout << "currentAlpha=" << currentAlpha << std::endl;
+}
+
+
+void Shader::decreaseTransparency()
+{
+	if (currentAlpha > minAlpha)
+	{
+		currentAlpha -= alphaIncrement;
+	}
+
+	// if less than one increment away from minimum, set to minimum
+	// this avoids floating point precision problems
+	if (currentAlpha < (minAlpha + alphaIncrement))
+	{
+		currentAlpha = minAlpha;
+	}
+
+	Shader::setFloat("alpha", currentAlpha);
+	std::cout << "currentAlpha=" << currentAlpha << std::endl;
+}
+
+
 // shader functions
 // ---------------------------------------------------------------------------
 std::string Shader::readShaderFile(const char* shader_file)
@@ -267,6 +305,9 @@ void Shader::loadTextures(Texture* textures, unsigned int nTex)
 
 	Shader::setFloat("zoom", 0.0f);
 	std::cout << "Initialised zoom to 0.0f" << std::endl;
+
+	Shader::setFloat("alpha", currentAlpha);
+	std::cout << "Initalised alpha to " << currentAlpha << std::endl;
 }
 
 

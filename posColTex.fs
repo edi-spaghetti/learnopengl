@@ -8,6 +8,7 @@ uniform sampler2D container;
 uniform sampler2D awesomeface;
 
 uniform float zoom;
+uniform float alpha;
 
 float mapToRange(float X, float A, float B, float C, float D)
 {
@@ -24,6 +25,6 @@ void main()
     FragColor = mix(
         texture(container, zoomedTexCoord), 
         texture(awesomeface, zoomedTexCoord), 
-        0.2
+        alpha
     );
 }

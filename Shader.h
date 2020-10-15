@@ -20,6 +20,7 @@ class Shader
 public:
 	unsigned int ID;
 	float currentZoom = 0.0f;
+	float currentAlpha = 0.2f;
 
 	// creates a new shader program
 	Shader(
@@ -37,6 +38,9 @@ public:
 	void setInt(const std::string& name, int value) const;
 	void setFloat(const std::string& name, float value) const;
 
+	void increaseTransparency();
+	void decreaseTransparency();
+
 private:
 	unsigned int VBO;
 	unsigned int VAO;
@@ -49,6 +53,10 @@ private:
 	unsigned int numTextures;
 	Texture* texList;
 	bool texLoaded = false;
+
+	float maxAlpha = 1.0f;
+	float minAlpha = 0.0f;
+	float alphaIncrement = 0.05f;
 
 	bool doLogging = true;
 
