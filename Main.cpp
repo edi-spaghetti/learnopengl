@@ -75,10 +75,10 @@ Geometry karen = {
 	32 * sizeof(float),
 	{
 		// positions          // colors           // texture coords
-		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right = 0
-		 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right = 1
+		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   2.0f, 2.0f,   // top right = 0
+		 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   2.0f, 0.0f,   // bottom right = 1
 		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left = 2
-		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left = 3
+		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 2.0f    // top left = 3
     },
 
 	// elements
@@ -102,7 +102,10 @@ int main()
 	//Shader jShader = Shader("colourShape.vs", "colourShape.fs", jamal);
 	//Shader pShader = Shader("default.vs", "default.fs", persephone);
 	int nTextures = 2;
-	Texture textures[] = { Texture("container.jpg"), Texture("awesomeface.png", true, true) };
+	Texture textures[] = { 
+		Texture("container.jpg", false, false, GL_CLAMP_TO_EDGE), 
+		Texture("awesomeface.png", true, true) 
+	};
 
 	Shader kShader = Shader("posColTex.vs", "posColTex.fs", karen, textures, nTextures);
 	//kShader.setInt("ourTexture", 0);

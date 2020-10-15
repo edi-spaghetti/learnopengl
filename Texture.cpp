@@ -2,7 +2,7 @@
 #include "stb_image.h"
 #include "Texture.h"
 
-Texture::Texture(const char* path, bool flip, bool hasAlpha)
+Texture::Texture(const char* path, bool flip, bool hasAlpha, int wrapping, int filtering)
 {
 	// generate name without extension
 	// assumes no subfolders and filename is usable as variable name
@@ -21,10 +21,10 @@ Texture::Texture(const char* path, bool flip, bool hasAlpha)
 	glBindTexture(GL_TEXTURE_2D, ID);
 
 	// set wrapping / filtering options
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapping);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filtering);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filtering);
 
 	stbi_set_flip_vertically_on_load(flip);
 	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
@@ -61,6 +61,7 @@ Texture::Texture(const char* path, bool flip, bool hasAlpha)
 		doLogging = false;
 	}
 
+	loaded = true;
 }
 
 Texture::~Texture()
