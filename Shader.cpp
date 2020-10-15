@@ -204,10 +204,10 @@ void Shader::loadGeometry(Geometry geo)
 		int sum = 0;
 		for (int i = 0; i < attr; i++)
 		{
-			sum += geo.attributes[attr];
+			sum += geo.attributes[i];
 		}
 		
-		unsigned int offset = sum * attr * sizeof(float);
+		unsigned int offset = sum * sizeof(float);
 		
 		glVertexAttribPointer(
 			attr, 
