@@ -264,6 +264,9 @@ void Shader::loadTextures(Texture* textures, unsigned int nTex)
 			<< " ID=" << textures[i].ID 
 		<< std::endl;
 	};
+
+	Shader::setFloat("zoom", 0.0f);
+	std::cout << "Initialised zoom to 0.0f" << std::endl;
 }
 
 

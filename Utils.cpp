@@ -75,3 +75,24 @@ void processInput(GLFWwindow* window)
 		mouseState = GLFW_RELEASE;
 	}
 }
+
+
+void key_callback(GLFWwindow * window, int key, int scancode, int action, int mods)
+{
+	Shader* shader = (Shader*) glfwGetWindowUserPointer(window);
+
+	if (action != GLFW_PRESS) return;
+
+	if (key == GLFW_KEY_UP)
+	{
+		shader->currentZoom += 0.05;
+		shader->setFloat("zoom", shader->currentZoom);
+		std::cout << "set zoom to " << shader->currentZoom << std::endl;
+	}
+	else if (key == GLFW_KEY_DOWN)
+	{
+		shader->currentZoom -= 0.05;
+		shader->setFloat("zoom", shader->currentZoom);
+		std::cout << "set zoom to " << shader->currentZoom << std::endl;
+	}
+}

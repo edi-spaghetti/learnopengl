@@ -19,7 +19,8 @@ class Shader
 {
 public:
 	unsigned int ID;
-	
+	float currentZoom = 0.0f;
+
 	// creates a new shader program
 	Shader(
 		const char* vertPath, const char* fragPath,
