@@ -331,3 +331,10 @@ void Shader::setFloat(const std::string& name, float value) const
 	glUseProgram(ID);
 	glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
+
+void Shader::setMatrix(const std::string& name, glm::mat4 value) const
+{
+	glUseProgram(ID);
+	unsigned int transformLoc = glGetUniformLocation(ID, name.c_str());
+	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(value));
+}
