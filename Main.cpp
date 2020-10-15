@@ -122,13 +122,6 @@ int main()
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
 	std::cout << "Max number vertex attributes supported: " << nrAttributes << std::endl;
 
-	// matrix test
-	glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-	glm::mat4 trans = glm::mat4(1.0f);
-	trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
-	trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
-	std::cout << vec.x << vec.y << vec.z << std::endl;
-
 	float location = 0.0f;
 	float velocity = 0.0001f;
 
@@ -149,7 +142,7 @@ int main()
 
 		//jShader.draw();
 		//pShader.draw();
-		kShader.setMatrix("transform", trans);
+		kShader.update();
 		kShader.draw();
 
 		// check and call events and swap the buffers
