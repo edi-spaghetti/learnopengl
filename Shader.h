@@ -10,6 +10,9 @@
 #include <iostream>
 
 #include "Geometry.h"
+#include "Texture.h"
+
+const unsigned int MAX_TEXTURE_UNITS = 16;
 
 
 class Shader
@@ -18,7 +21,9 @@ public:
 	unsigned int ID;
 	
 	// creates a new shader program
-	Shader(const char* vertPath, const char* fragPath, Geometry geo, const char* texPath = NULL);
+	Shader(
+		const char* vertPath, const char* fragPath,
+		Geometry geo, Texture* textures = NULL, unsigned int nTex = 0);
 	~Shader();
 
 	// update shaders
@@ -40,7 +45,8 @@ private:
 	bool geometryLoaded = false;
 	bool elementBuffer = false;
 
-	unsigned int TEX;
+	unsigned int numTextures;
+	Texture* texList;
 	bool texLoaded = false;
 
 	bool doLogging = true;
@@ -49,7 +55,7 @@ private:
 	int createVertexShader(const char* path);
 	int createFragmentShader(const char* path);
 	void loadGeometry(Geometry geo);
-	void loadTexture(const char* path);
+	void loadTextures(Texture* textures = NULL, unsigned int nTex = 0);
 };
 
 #endif

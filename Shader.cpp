@@ -1,10 +1,10 @@
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 #include "Shader.h"
 
 // construction and deconstruction
 // ---------------------------------------------------------------------------
-Shader::Shader(const char* vertPath, const char* fragPath, Geometry geo, const char* texPath)
+Shader::Shader(
+	const char* vertPath, const char* fragPath, 
+	Geometry geo, Texture* textures, unsigned int nTex)
 {
 	ID = glCreateProgram();
 	int vert_id = Shader::createVertexShader(vertPath);
@@ -32,7 +32,7 @@ Shader::Shader(const char* vertPath, const char* fragPath, Geometry geo, const c
 	geometryLoaded = true;
 
 	// load textures (if any)
-	Shader::loadTexture(texPath);
+	Shader::loadTextures(textures, nTex);
 	texLoaded = true;
 }
 
@@ -60,13 +60,20 @@ void Shader::draw()
 
 	if (texLoaded)
 	{
-		//glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, TEX);
-		if (doLogging)
+		for (unsigned int i = 0; i < numTextures; i++)
 		{
-			std::cout 
-				<< "BindTexture: texUnit=" << GL_TEXTURE0 
-				<< " tex=" << TEX << std::endl;
+
+			// activate texture unit in order of array
+			glActiveTexture(GL_TEXTURE0 + i);
+
+			// bind the activated texture unit
+			glBindTexture(GL_TEXTURE_2D, texList[i].ID);
+			if (doLogging)
+			{
+				std::cout
+					<< "BindTexture: texIndex=" << i
+					<< " texID=" << texList[i].ID << std::endl;
+			}
 		}
 	}
 
@@ -93,7 +100,7 @@ void Shader::draw()
 void Shader::update()
 {
 	glUseProgram(ID);
-	float timeValue = glfwGetTime();
+	float timeValue = static_cast<float>(glfwGetTime());
 	float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
 	int vertexColorLocation = glGetUniformLocation(ID, "ourColor");
 	glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
@@ -240,41 +247,23 @@ void Shader::loadGeometry(Geometry geo)
 }
 
 
-// texture functions
-// ---------------------------------------------------------------------------
-void Shader::loadTexture(const char* path)
+void Shader::loadTextures(Texture* textures, unsigned int nTex)
 {
-	// if no texture is specified, bail out now
-	if (!path) return;
+	numTextures = nTex;
+	texList = textures;
 	
-	// bind texture
-	glGenTextures(1, &TEX);
-	glBindTexture(GL_TEXTURE_2D, TEX);
+	glUseProgram(ID);
 
-	// set wrapping / filtering options
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	int width, height, nrChannels;
-	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
-	if (!data)
+	for (unsigned int i = 0; i < nTex; i++)
 	{
-		std::cout << "Failed to load texture at " << path << std::endl;
-		stbi_image_free(data);
-		return;
-	}
+		Shader::setInt(textures[i].name, i);
 
-	// generate the texture + mipmaps
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 
-		width, height, 
-		0, GL_RGB, GL_UNSIGNED_BYTE, 
-		data
-	);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	stbi_image_free(data);
+		std::cout 
+			<< "Assigned sampler to texture unit"
+			<< " name=" << textures[i].name 
+			<< " ID=" << textures[i].ID 
+		<< std::endl;
+	};
 }
 
 

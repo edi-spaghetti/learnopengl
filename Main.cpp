@@ -7,6 +7,7 @@
 #include "Utils.h"
 #include "Shader.h"
 #include "Geometry.h"
+#include "Texture.h"
 
 
 Geometry jamal = {
@@ -97,10 +98,13 @@ int main()
 	// guess what this does
 	GLFWwindow* window = createWindow(800, 600);
 
-	// construct shaders and load geometry
+	// construct shaders and load geometry and textures
 	//Shader jShader = Shader("colourShape.vs", "colourShape.fs", jamal);
 	//Shader pShader = Shader("default.vs", "default.fs", persephone);
-	Shader kShader = Shader("posColTex.vs", "posColTex.fs", karen, "container.jpg");
+	int nTextures = 2;
+	Texture textures[] = { Texture("container.jpg"), Texture("awesomeface.png", true, true) };
+
+	Shader kShader = Shader("posColTex.vs", "posColTex.fs", karen, textures, nTextures);
 	//kShader.setInt("ourTexture", 0);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
