@@ -45,6 +45,9 @@ public:
 	void increaseTransparency();
 	void decreaseTransparency();
 
+	void translate(float x, float y);
+	void rotate(float angle);
+
 private:
 	unsigned int VBO;
 	unsigned int VAO;
@@ -61,6 +64,9 @@ private:
 	float maxAlpha = 1.0f;
 	float minAlpha = 0.0f;
 	float alphaIncrement = 0.05f;
+
+	// init transformation as id matrix
+	glm::mat4 currentTransformation = glm::mat4(1.0f);
 
 	bool doLogging = true;
 

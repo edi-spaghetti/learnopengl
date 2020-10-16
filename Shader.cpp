@@ -97,6 +97,25 @@ void Shader::draw()
 	}
 }
 
+void Shader::translate(float x, float y)
+{
+	currentTransformation = glm::translate(
+		currentTransformation, 
+		glm::vec3(x, y, 0.0f)
+	);
+}
+
+
+void Shader::rotate(float angle)
+{
+	currentTransformation = glm::rotate(
+		currentTransformation,
+		angle,
+		glm::vec3(0.0f, 0.0f, 1.0f)
+	);
+}
+
+
 void Shader::update()
 {
 	glm::mat4 trans = glm::mat4(1.0f);
@@ -104,7 +123,8 @@ void Shader::update()
 	trans = glm::rotate(trans, static_cast<float>(glfwGetTime()), glm::vec3(0.0f, 0.0f, 1.0f));
 	// move to bottom right
 	trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-	Shader::setMatrix("transform", trans);
+	Shader::setMatrix("transform", currentTransformation);
+	currentTransformation = glm::mat4(1.0f);
 }
 
 
