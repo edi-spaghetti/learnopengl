@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/random.hpp>
 
 #include "Utils.h"
 #include "Shader.h"
@@ -188,6 +189,17 @@ int main()
 
 	float location = 0.0f;
 	float velocity = 0.0001f;
+	
+	const int numCubes = 10;
+	glm::vec3 cubePositions[numCubes];
+	for (int i = 0; i < numCubes; i++)
+	{
+		cubePositions[i] = glm::vec3(
+			glm::linearRand(-2.0f, 2.0f),
+			glm::linearRand(-2.0f, 2.0f),
+			glm::linearRand(-2.0f, 2.0f)
+		);
+	}
 
 	// start render loop
 	while (!glfwWindowShouldClose(window))
@@ -204,14 +216,6 @@ int main()
 		location += velocity;
 		//jShader.setFloat("vLocation", location);
 
-		// rotate backwards with model matrix
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(
-			model, 
-			static_cast<float>(glfwGetTime()) * glm::radians(50.0f), 
-			glm::vec3(1.0f, 0.0f, 0.0f)
-		);
-		bShader.setMatrix("model", model);
 		// move back (= scene forwards) with the view matrix
 		glm::mat4 view = glm::mat4(1.0f);
 		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
@@ -220,17 +224,24 @@ int main()
 		glm::mat4 projection;
 		projection = glm::perspective(
 			// fov
-			glm::radians(45.0f), 
+			glm::radians(45.0f),
 			// aspect ratio
-			(float)width / (float)height, 
+			(float)width / (float)height,
 			// near and far clipping planes
 			0.1f, 100.0f
 		);
 		bShader.setMatrix("projection", projection);
 
-		//jShader.draw();
-		//pShader.draw();
-		bShader.draw();
+		for (int i = 0; i < numCubes; i++)
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			bShader.setMatrix("model", model);
+
+			bShader.draw();
+		}
 
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);
