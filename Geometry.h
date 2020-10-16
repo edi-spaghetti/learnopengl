@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
-const int MAX_DATA_SIZE = 32;
+const int MAX_DATA_SIZE = 180;
 const int MAX_ATTRIBUTES = 3;
 
 struct Geometry {

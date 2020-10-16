@@ -96,6 +96,64 @@ Geometry karen = {
 };
 
 
+Geometry balthazar = {
+    // attributes
+	2,
+    { 3, 2 },
+
+	// stride
+	5 * sizeof(float),
+
+	// data
+	36,
+	36 * 5 * sizeof(float),
+	{
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	},
+	false
+};
+
+
 int main()
 {
 
@@ -103,6 +161,8 @@ int main()
 	int width = 800;
 	int height = 600;
 	GLFWwindow* window = createWindow(width, height);
+
+	glEnable(GL_DEPTH_TEST);
 
 	// construct shaders and load geometry and textures
 	//Shader jShader = Shader("colourShape.vs", "colourShape.fs", jamal);
@@ -113,10 +173,12 @@ int main()
 		Texture("awesomeface.png", true, true) 
 	};
 
-	Shader kShader = Shader("CoordSystems.vs", "posColTex.fs", karen, textures, nTextures);
+	//Shader kShader = Shader("CoordSystems.vs", "posColTex.fs", karen, textures, nTextures);
+
+	Shader bShader = Shader("CoordSystems.vs", "posColTex.fs", balthazar, textures, nTextures);
 	//kShader.setInt("ourTexture", 0);
 
-	glfwSetWindowUserPointer(window, &kShader);
+	glfwSetWindowUserPointer(window, &bShader);
 	glfwSetKeyCallback(window, key_callback);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -137,19 +199,23 @@ int main()
 		// set the colour to pleasant green
 		glClearColor(0.0f, 0.6f, 0.029f, 1.0f);
 		// fill er up
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		location += velocity;
 		//jShader.setFloat("vLocation", location);
 
 		// rotate backwards with model matrix
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		kShader.setMatrix("model", model);
+		model = glm::rotate(
+			model, 
+			static_cast<float>(glfwGetTime()) * glm::radians(50.0f), 
+			glm::vec3(1.0f, 0.0f, 0.0f)
+		);
+		bShader.setMatrix("model", model);
 		// move back (= scene forwards) with the view matrix
 		glm::mat4 view = glm::mat4(1.0f);
 		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-		kShader.setMatrix("view", view);
+		bShader.setMatrix("view", view);
 
 		glm::mat4 projection;
 		projection = glm::perspective(
@@ -160,19 +226,11 @@ int main()
 			// near and far clipping planes
 			0.1f, 100.0f
 		);
-		kShader.setMatrix("projection", projection);
+		bShader.setMatrix("projection", projection);
 
 		//jShader.draw();
 		//pShader.draw();
-		kShader.translate(-0.5f, 0.5f);
-		kShader.rotate(static_cast<float>(glfwGetTime()));
-		kShader.update();
-		kShader.draw();
-
-		kShader.translate(0.5f, -0.5f);
-		kShader.scale(sin(glfwGetTime()));
-		kShader.update();
-		kShader.draw();
+		bShader.draw();
 
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);
