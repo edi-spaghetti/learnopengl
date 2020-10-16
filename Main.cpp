@@ -217,8 +217,15 @@ int main()
 		//jShader.setFloat("vLocation", location);
 
 		// move back (= scene forwards) with the view matrix
-		glm::mat4 view = glm::mat4(1.0f);
-		view = glm::translate(view, bShader.cameraPosition);
+		const float radius = 10.f;
+		float camX = sin(glfwGetTime()) * radius;
+		float camZ = cos(glfwGetTime()) * radius;
+		glm::mat4 view;
+		view = glm::lookAt(
+			glm::vec3(camX, 0.0f, camZ),
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 0.1f, 0.0f)
+		);
 		bShader.setMatrix("view", view);
 
 		glm::mat4 projection;
