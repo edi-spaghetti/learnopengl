@@ -116,13 +116,17 @@ void Shader::rotate(float angle)
 }
 
 
+void Shader::scale(float value)
+{
+	currentTransformation = glm::scale(
+		currentTransformation,
+		glm::vec3(value, value, value)
+	);
+}
+
+
 void Shader::update()
 {
-	glm::mat4 trans = glm::mat4(1.0f);
-	// rotate by                 this much               around the Z-axis
-	trans = glm::rotate(trans, static_cast<float>(glfwGetTime()), glm::vec3(0.0f, 0.0f, 1.0f));
-	// move to bottom right
-	trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
 	Shader::setMatrix("transform", currentTransformation);
 	currentTransformation = glm::mat4(1.0f);
 }

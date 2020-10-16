@@ -47,6 +47,7 @@ public:
 
 	void translate(float x, float y);
 	void rotate(float angle);
+	void scale(float value);
 
 private:
 	unsigned int VBO;

@@ -148,7 +148,7 @@ int main()
 		kShader.draw();
 
 		kShader.translate(0.5f, -0.5f);
-		kShader.rotate(-static_cast<float>(glfwGetTime()));
+		kShader.scale(sin(glfwGetTime()));
 		kShader.update();
 		kShader.draw();
 
