@@ -100,7 +100,9 @@ int main()
 {
 
 	// guess what this does
-	GLFWwindow* window = createWindow(800, 600);
+	int width = 800;
+	int height = 600;
+	GLFWwindow* window = createWindow(width, height);
 
 	// construct shaders and load geometry and textures
 	//Shader jShader = Shader("colourShape.vs", "colourShape.fs", jamal);
@@ -111,7 +113,7 @@ int main()
 		Texture("awesomeface.png", true, true) 
 	};
 
-	Shader kShader = Shader("posColTex.vs", "posColTex.fs", karen, textures, nTextures);
+	Shader kShader = Shader("CoordSystems.vs", "posColTex.fs", karen, textures, nTextures);
 	//kShader.setInt("ourTexture", 0);
 
 	glfwSetWindowUserPointer(window, &kShader);
@@ -129,7 +131,7 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		// input
-		processInput(window);
+		processInput(window, &width, &height);
 
 		// render
 		// set the colour to pleasant green
@@ -139,6 +141,26 @@ int main()
 
 		location += velocity;
 		//jShader.setFloat("vLocation", location);
+
+		// rotate backwards with model matrix
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		kShader.setMatrix("model", model);
+		// move back (= scene forwards) with the view matrix
+		glm::mat4 view = glm::mat4(1.0f);
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+		kShader.setMatrix("view", view);
+
+		glm::mat4 projection;
+		projection = glm::perspective(
+			// fov
+			glm::radians(45.0f), 
+			// aspect ratio
+			(float)width / (float)height, 
+			// near and far clipping planes
+			0.1f, 100.0f
+		);
+		kShader.setMatrix("projection", projection);
 
 		//jShader.draw();
 		//pShader.draw();

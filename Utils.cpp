@@ -52,8 +52,12 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 }
 
 
-void processInput(GLFWwindow* window)
+void processInput(GLFWwindow* window, int* width, int* height)
 {
+
+	// upate window dimension variables if changed
+	glfwGetWindowSize(window, width, height);
+
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 	int newMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
@@ -65,9 +69,9 @@ void processInput(GLFWwindow* window)
 		std::cout
 			<< "X:" <<
 			// TODO: make this dynamic to window size (e.g. if it resizes)
-			map_to_range((float)x, 0.0f, 800.0f, -1.0f, 1.0f)
+			map_to_range(x, 0.0f, *width, -1.0f, 1.0f)
 			<< ", Y:" <<
-			map_to_range((float)y, 0.0f, 600.0f, 1.0f, -1.0f)
+			map_to_range(y, 0.0f, *height, 1.0f, -1.0f)
 			<< std::endl;
 	}
 	else if (mouseState == GLFW_PRESS && newMouseState == GLFW_RELEASE)
