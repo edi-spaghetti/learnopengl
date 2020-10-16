@@ -125,6 +125,16 @@ void Shader::scale(float value)
 }
 
 
+void Shader::dolly(float value)
+{
+	cameraPosition = glm::vec3(
+		cameraPosition.x,
+		cameraPosition.y,
+		cameraPosition.z + value
+	);
+}
+
+
 void Shader::update()
 {
 	Shader::setMatrix("transform", currentTransformation);

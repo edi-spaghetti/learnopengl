@@ -24,6 +24,7 @@ public:
 	unsigned int ID;
 	float currentZoom = 0.0f;
 	float currentAlpha = 0.2f;
+	glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, -3.0f);
 
 	// creates a new shader program
 	Shader(
@@ -48,6 +49,8 @@ public:
 	void translate(float x, float y);
 	void rotate(float angle);
 	void scale(float value);
+
+	void dolly(float value);
 
 private:
 	unsigned int VBO;

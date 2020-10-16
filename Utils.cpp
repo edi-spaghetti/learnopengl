@@ -107,4 +107,12 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 	{
 		shader->decreaseTransparency();
 	}
+	else if (key == GLFW_KEY_W)
+	{
+		shader->dolly(1.0f);
+	}
+	else if (key == GLFW_KEY_S)
+	{
+		shader->dolly(-1.0f);
+	}
 }

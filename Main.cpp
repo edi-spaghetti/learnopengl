@@ -218,15 +218,15 @@ int main()
 
 		// move back (= scene forwards) with the view matrix
 		glm::mat4 view = glm::mat4(1.0f);
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+		view = glm::translate(view, bShader.cameraPosition);
 		bShader.setMatrix("view", view);
 
 		glm::mat4 projection;
 		projection = glm::perspective(
 			// fov
-			glm::radians(45.0f),
+			glm::radians(75.0f),
 			// aspect ratio
-			(float)width / (float)height,
+			((float)width * 2) / ((float)height * 1),
 			// near and far clipping planes
 			0.1f, 100.0f
 		);
