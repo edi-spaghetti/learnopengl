@@ -127,3 +127,11 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 	shader->updateCameraDirection(xpos, ypos);
 }
+
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	Shader* shader = (Shader*)glfwGetWindowUserPointer(window);
+
+	shader->updateFOV(static_cast<float>(yoffset));
+}

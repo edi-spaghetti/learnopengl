@@ -39,6 +39,11 @@ public:
 	float lastY = 300;
 	bool firstMouse = true;
 
+	// field of view, also used for zoom
+	float FOV = 45.0f;
+	const float maxFOV = 60.0f;
+	const float minFOV = 1.0f;
+
 	float deltaTime;
 	float lastFrame;
 	float currentFrame;
@@ -69,6 +74,7 @@ public:
 
 	void moveCamera(int key);
 	void updateCameraDirection(double xpos, double ypos);
+	void updateFOV(float yoffset);
 
 	void updateTime();
 

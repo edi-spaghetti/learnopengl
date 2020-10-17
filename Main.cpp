@@ -183,6 +183,7 @@ int main()
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	int nrAttributes;
@@ -233,7 +234,7 @@ int main()
 		glm::mat4 projection;
 		projection = glm::perspective(
 			// fov
-			glm::radians(45.0f),
+			glm::radians(bShader.FOV),
 			// aspect ratio
 			((float)width * 1) / ((float)height * 1),
 			// near and far clipping planes

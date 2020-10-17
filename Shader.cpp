@@ -182,6 +182,14 @@ void Shader::updateCameraDirection(double xpos, double ypos)
 }
 
 
+void Shader::updateFOV(float yoffset)
+{
+	FOV -= yoffset;
+	if (FOV < minFOV) FOV = minFOV;
+	if (FOV > maxFOV) FOV = maxFOV;
+}
+
+
 void Shader::updateTime()
 {
 	currentFrame = glfwGetTime();
