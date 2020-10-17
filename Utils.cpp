@@ -85,6 +85,17 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 {
 	Shader* shader = (Shader*) glfwGetWindowUserPointer(window);
 
+	// process camera movement first so we can have continuous movement
+	if (key == GLFW_KEY_W ||
+		key == GLFW_KEY_S ||
+		key == GLFW_KEY_A ||
+		key == GLFW_KEY_D)
+	{
+		shader->moveCamera(key);
+	}
+
+	// other actions are one-per-press, so if the key is 
+	// being held down end here
 	if (action != GLFW_PRESS) return;
 
 	if (key == GLFW_KEY_UP)
@@ -107,12 +118,12 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 	{
 		shader->decreaseTransparency();
 	}
-	else if (key == GLFW_KEY_W)
-	{
-		shader->dolly(1.0f);
-	}
-	else if (key == GLFW_KEY_S)
-	{
-		shader->dolly(-1.0f);
-	}
+}
+
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	Shader* shader = (Shader*)glfwGetWindowUserPointer(window);
+
+	shader->updateCameraDirection(xpos, ypos);
 }

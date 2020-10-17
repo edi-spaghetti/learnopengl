@@ -181,6 +181,8 @@ int main()
 
 	glfwSetWindowUserPointer(window, &bShader);
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouse_callback);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	int nrAttributes;
@@ -205,7 +207,10 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		// input
+		bShader.updateTime();
 		processInput(window, &width, &height);
+		bShader.screenWidth = width;
+		bShader.screenHeight = height;
 
 		// render
 		// set the colour to pleasant green
@@ -217,14 +222,11 @@ int main()
 		//jShader.setFloat("vLocation", location);
 
 		// move back (= scene forwards) with the view matrix
-		const float radius = 10.f;
-		float camX = sin(glfwGetTime()) * radius;
-		float camZ = cos(glfwGetTime()) * radius;
 		glm::mat4 view;
 		view = glm::lookAt(
-			glm::vec3(camX, 0.0f, camZ),
-			glm::vec3(0.0f, 0.0f, 0.0f),
-			glm::vec3(0.0f, 0.1f, 0.0f)
+			bShader.cameraPosition, 
+			bShader.cameraPosition + bShader.cameraFront, 
+			bShader.cameraUp
 		);
 		bShader.setMatrix("view", view);
 

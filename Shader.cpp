@@ -125,13 +125,68 @@ void Shader::scale(float value)
 }
 
 
-void Shader::dolly(float value)
+void Shader::moveCamera(int key)
 {
-	cameraPosition = glm::vec3(
-		cameraPosition.x,
-		cameraPosition.y,
-		cameraPosition.z + value
-	);
+	cameraSpeed = 2.5f * deltaTime;
+
+	if (key == GLFW_KEY_W)
+	{
+		cameraPosition += cameraSpeed * cameraFront;
+	}
+	else if (key == GLFW_KEY_S)
+	{
+		cameraPosition -= cameraSpeed * cameraFront;
+	}
+	else if (key == GLFW_KEY_A)
+	{
+		cameraPosition -= glm::normalize(
+			glm::cross(cameraFront, cameraUp)
+		) * cameraSpeed;
+	}
+	else if (key == GLFW_KEY_D)
+	{
+		cameraPosition += glm::normalize(
+			glm::cross(cameraFront, cameraUp)
+		) * cameraSpeed;
+	}
+}
+
+
+void Shader::updateCameraDirection(double xpos, double ypos)
+{
+	if (firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos;
+	lastX = xpos;
+	lastY = ypos;
+
+	xoffset *= camSensitivity;
+	yoffset *= camSensitivity;
+
+	yaw += xoffset;
+	pitch += yoffset;
+
+	if (pitch > 89.0f) pitch = 89.0f;
+	if (pitch < -89.0f) pitch = -89.0f;
+
+	cameraDirection.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	cameraDirection.y = sin(glm::radians(pitch));
+	cameraDirection.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	cameraFront = glm::normalize(cameraDirection);
+}
+
+
+void Shader::updateTime()
+{
+	currentFrame = glfwGetTime();
+	deltaTime = currentFrame - lastFrame;
+	lastFrame = currentFrame;
 }
 
 
