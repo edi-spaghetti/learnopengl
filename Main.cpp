@@ -13,6 +13,8 @@
 #include "Shader.h"
 #include "Geometry.h"
 #include "Texture.h"
+#include "Camera.h"
+#include "World.h"
 
 
 Geometry jamal = {
@@ -177,13 +179,14 @@ int main()
 	//Shader kShader = Shader("CoordSystems.vs", "posColTex.fs", karen, textures, nTextures);
 
 	Shader bShader = Shader("CoordSystems.vs", "posColTex.fs", balthazar, textures, nTextures);
-	//kShader.setInt("ourTexture", 0);
+	Camera camera = Camera();
+	World world = World(window, &camera, &bShader);
 
-	glfwSetWindowUserPointer(window, &bShader);
-	glfwSetKeyCallback(window, key_callback);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, scroll_callback);
+	// TODO: don't like this, not sure how to clean it up yet though
+	camera.world = &world;
+
+	// setup user controls
+	setupUserControls(window, &world);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	int nrAttributes;
@@ -208,10 +211,7 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		// input
-		bShader.updateTime();
-		processInput(window, &width, &height);
-		bShader.screenWidth = width;
-		bShader.screenHeight = height;
+		world.update();
 
 		// render
 		// set the colour to pleasant green
@@ -221,26 +221,6 @@ int main()
 
 		location += velocity;
 		//jShader.setFloat("vLocation", location);
-
-		// move back (= scene forwards) with the view matrix
-		glm::mat4 view;
-		view = glm::lookAt(
-			bShader.cameraPosition, 
-			bShader.cameraPosition + bShader.cameraFront, 
-			bShader.cameraUp
-		);
-		bShader.setMatrix("view", view);
-
-		glm::mat4 projection;
-		projection = glm::perspective(
-			// fov
-			glm::radians(bShader.FOV),
-			// aspect ratio
-			((float)width * 1) / ((float)height * 1),
-			// near and far clipping planes
-			0.1f, 100.0f
-		);
-		bShader.setMatrix("projection", projection);
 
 		for (int i = 0; i < numCubes; i++)
 		{

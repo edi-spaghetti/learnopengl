@@ -52,14 +52,27 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 }
 
 
+void setupUserControls(GLFWwindow* window, World* world)
+{
+	glfwSetWindowUserPointer(window, world);
+	glfwSetKeyCallback(window, key_callback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+}
+
+
+
 void processInput(GLFWwindow* window, int* width, int* height)
 {
 
 	// upate window dimension variables if changed
 	glfwGetWindowSize(window, width, height);
-
+	
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+
+	// refactor this to mouse button callback
 	int newMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 	double x, y;
 	if (newMouseState == GLFW_PRESS && mouseState == GLFW_RELEASE)
@@ -83,7 +96,7 @@ void processInput(GLFWwindow* window, int* width, int* height)
 
 void key_callback(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
-	Shader* shader = (Shader*) glfwGetWindowUserPointer(window);
+	World* world = (World*) glfwGetWindowUserPointer(window);
 
 	// process camera movement first so we can have continuous movement
 	if (key == GLFW_KEY_W ||
@@ -91,7 +104,7 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 		key == GLFW_KEY_A ||
 		key == GLFW_KEY_D)
 	{
-		shader->moveCamera(key);
+		world->camera->move(key);
 	}
 
 	// other actions are one-per-press, so if the key is 
@@ -100,38 +113,38 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 
 	if (key == GLFW_KEY_UP)
 	{
-		shader->currentZoom += 0.05;
-		shader->setFloat("zoom", shader->currentZoom);
-		std::cout << "set zoom to " << shader->currentZoom << std::endl;
+		world->shader->currentZoom += 0.05;
+		world->shader->setFloat("zoom", world->shader->currentZoom);
+		std::cout << "set zoom to " << world->shader->currentZoom << std::endl;
 	}
 	else if (key == GLFW_KEY_DOWN)
 	{
-		shader->currentZoom -= 0.05;
-		shader->setFloat("zoom", shader->currentZoom);
-		std::cout << "set zoom to " << shader->currentZoom << std::endl;
+		world->shader->currentZoom -= 0.05;
+		world->shader->setFloat("zoom", world->shader->currentZoom);
+		std::cout << "set zoom to " << world->shader->currentZoom << std::endl;
 	}
 	else if (key == GLFW_KEY_LEFT)
 	{
-		shader->increaseTransparency();
+		world->shader->increaseTransparency();
 	}
 	else if (key == GLFW_KEY_RIGHT)
 	{
-		shader->decreaseTransparency();
+		world->shader->decreaseTransparency();
 	}
 }
 
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	Shader* shader = (Shader*)glfwGetWindowUserPointer(window);
+	World* world = (World*)glfwGetWindowUserPointer(window);
 
-	shader->updateCameraDirection(xpos, ypos);
+	world->camera->updateDirection(xpos, ypos);
 }
 
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	Shader* shader = (Shader*)glfwGetWindowUserPointer(window);
+	World* world = (World*)glfwGetWindowUserPointer(window);
 
-	shader->updateFOV(static_cast<float>(yoffset));
+	world->camera->updateFOV(static_cast<float>(yoffset));
 }

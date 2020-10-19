@@ -25,29 +25,6 @@ public:
 	float currentZoom = 0.0f;
 	float currentAlpha = 0.2f;
 
-	int screenWidth = 800;
-	int screenHeight = 600;
-	glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
-	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	float cameraSpeed = 0.05f;
-	float pitch = 0.0f;
-	float yaw = -90.0f;  // init as -90 to point in correction direction
-	glm::vec3 cameraDirection;
-	const float camSensitivity = 0.1f;
-	float lastX = 400;
-	float lastY = 300;
-	bool firstMouse = true;
-
-	// field of view, also used for zoom
-	float FOV = 45.0f;
-	const float maxFOV = 60.0f;
-	const float minFOV = 1.0f;
-
-	float deltaTime;
-	float lastFrame;
-	float currentFrame;
-
 	// creates a new shader program
 	Shader(
 		const char* vertPath, const char* fragPath,
@@ -71,12 +48,6 @@ public:
 	void translate(float x, float y);
 	void rotate(float angle);
 	void scale(float value);
-
-	void moveCamera(int key);
-	void updateCameraDirection(double xpos, double ypos);
-	void updateFOV(float yoffset);
-
-	void updateTime();
 
 private:
 	unsigned int VBO;
