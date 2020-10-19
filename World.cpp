@@ -46,6 +46,7 @@ void World::updateView()
 		camera->position + camera->front,
 		camera->up
 	);
+
 	shader->setMatrix("view", view);
 }
 
