@@ -113,8 +113,42 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 
 	if (key == GLFW_KEY_1)
 	{
-		world->staticLight = ! world->staticLight;
+		world->staticLight = !world->staticLight;
 	}
+
+	// TODO: make this less repetitive
+	bool shaderAttributeChange;
+	bool checkAttrbuteKeys = false;
+	if (key == GLFW_KEY_PAGE_UP)
+	{
+		checkAttrbuteKeys = true;
+		shaderAttributeChange = true;
+	}
+	if (key == GLFW_KEY_PAGE_DOWN)
+	{
+		checkAttrbuteKeys = true;
+		shaderAttributeChange = false;
+	}
+
+	if (checkAttrbuteKeys)
+	{
+		if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+		{
+			world->shader->ambient.update(shaderAttributeChange);
+			std::cout << "ambient=" << world->shader->ambient.value << std::endl;
+		}
+		if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+		{
+			world->shader->specular.update(shaderAttributeChange);
+			std::cout << "specular=" << world->shader->specular.value << std::endl;
+		}
+		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+		{
+			world->shader->shininess.update(shaderAttributeChange);
+			std::cout << "shininess=" << world->shader->shininess.value << std::endl;
+		}
+	}
+
 
 	if (key == GLFW_KEY_UP)
 	{

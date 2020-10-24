@@ -14,6 +14,7 @@
 
 #include "Geometry.h"
 #include "Texture.h"
+#include "ScalarAttribute.h"
 
 const unsigned int MAX_TEXTURE_UNITS = 16;
 
@@ -51,6 +52,10 @@ public:
 	void translate(float x, float y);
 	void rotate(float angle);
 	void scale(float value);
+
+	ScalarAttribute ambient = ScalarAttribute(0.1f, 0.0f, 1.0f, 0.05f);
+	ScalarAttribute specular = ScalarAttribute(0.5f, 0.0f, 1.0f, 0.1f);
+	ScalarAttribute shininess = ScalarAttribute(5.0f, 1.0f, 8.0f, 1.0f);
 
 private:
 	unsigned int VBO;

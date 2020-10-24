@@ -18,6 +18,7 @@ void World::update()
 {
 	World::updateTime();
 	World::updateScreen();
+	World::updateAttributes();
 	World::updateView();
 	World::updateProjection();
 	World::updateModel();
@@ -35,6 +36,15 @@ void World::updateTime()
 void World::updateScreen()
 {
 	processInput(window, &screenWidth, &screenHeight);
+}
+
+
+void World::updateAttributes()
+{
+	// TODO: dynamic attributes
+	shader->setFloat("ambientStrength", shader->ambient.value);
+	shader->setFloat("specularStrength", shader->specular.value);
+	shader->setFloat("shininessPower", shader->shininess.value);
 }
 
 

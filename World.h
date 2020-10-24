@@ -40,6 +40,7 @@ public:
 	// support functions for update
 	void updateTime();
 	void updateScreen();
+	void updateAttributes();
 	void updateView();
 	void updateProjection();
 	void updateModel();
