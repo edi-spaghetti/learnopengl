@@ -302,42 +302,32 @@ int main()
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// set model matrix for light source at id matrix
-		glm::mat4 model = glm::mat4(1.0f);
-		// generate normal matrix from model matrix
-		glm::mat3 normalMatrix = glm::transpose(glm::inverse(model));
-		objectShader.setMatrix("model", model);
-		objectShader.setVec3("lightPos", lightPos.x, lightPos.y, lightPos.z);
-		objectShader.setMatrix("normalMatrix", normalMatrix);
-		objectShader.setVec3("viewPos", world.camera->position);
-		objectShader.draw();
-
 		 //TODO: object manager inside world class
 		 //copy world view and projection matrices
-		lightSourceShader.setMatrix("view", glm::lookAt(
-			camera.position,
-			camera.position + camera.front,
-			camera.up
-		));
-
-		lightSourceShader.setMatrix(
-			"projection", 
-			glm::perspective(
-				// fov
-				glm::radians(camera.FOV),
-				// aspect ratio
-				((float) world.screenWidth * 1) / ((float) world.screenHeight * 1),
-				// near and far clipping planes
-				0.1f, 100.0f
-			)
-		);
+		lightSourceShader.setMatrix("view", world.view);
+		lightSourceShader.setMatrix("projection", world.projection);
 
 		// move light source to another location and draw
-		model = glm::mat4(1.0f);
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, world.getLightRotationAngle(), glm::vec3(0.0, 1.0, 0.0));
+		
+		// recalculate light position after rotation
+		glm::vec3 newLightPos = glm::vec3(model * glm::vec4(lightPos, 1.0f));
+		
 		model = glm::translate(model, lightPos);
 		model = glm::scale(model, glm::vec3(0.2f));
 		lightSourceShader.setMatrix("model", model);
 		lightSourceShader.draw();
+
+		// set model matrix for light source at id matrix
+		model = glm::mat4(1.0f);
+		// generate normal matrix from model matrix
+		glm::mat3 normalMatrix = glm::transpose(glm::inverse(model));
+		objectShader.setMatrix("model", model);
+		objectShader.setVec3("lightPos", newLightPos);
+		objectShader.setMatrix("normalMatrix", normalMatrix);
+		objectShader.setVec3("viewPos", world.camera->position);
+		objectShader.draw();
 
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);

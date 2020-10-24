@@ -30,6 +30,10 @@ public:
 	float lastFrame;
 	float currentFrame;
 
+	// actions
+	bool staticLight = true;
+	float currentLightRotationAngle = 0.0f;
+
 	// main update function for everything contained inside world
 	void update();
 
@@ -40,6 +44,7 @@ public:
 	void updateProjection();
 	void updateModel();
 
+	float getLightRotationAngle();
 };
 
 #endif // !WORLD_H

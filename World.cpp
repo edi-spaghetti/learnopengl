@@ -37,6 +37,7 @@ void World::updateScreen()
 	processInput(window, &screenWidth, &screenHeight);
 }
 
+
 // creates a view matrix from camera and sets it on the shader
 void World::updateView()
 {
@@ -49,6 +50,7 @@ void World::updateView()
 
 	shader->setMatrix("view", view);
 }
+
 
 void World::updateProjection()
 {
@@ -67,4 +69,13 @@ void World::updateProjection()
 void World::updateModel()
 {
 	// leave blank for now
+}
+
+
+float World::getLightRotationAngle()
+{
+	if (staticLight) return glm::radians(currentLightRotationAngle);
+
+	currentLightRotationAngle += 0.05f;
+	return glm::radians(currentLightRotationAngle);
 }

@@ -111,6 +111,11 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 	// being held down end here
 	if (action != GLFW_PRESS) return;
 
+	if (key == GLFW_KEY_1)
+	{
+		world->staticLight = ! world->staticLight;
+	}
+
 	if (key == GLFW_KEY_UP)
 	{
 		world->shader->currentZoom += 0.05;
