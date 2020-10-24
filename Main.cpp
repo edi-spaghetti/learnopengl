@@ -309,6 +309,7 @@ int main()
 		objectShader.setMatrix("model", model);
 		objectShader.setVec3("lightPos", lightPos.x, lightPos.y, lightPos.z);
 		objectShader.setMatrix("normalMatrix", normalMatrix);
+		objectShader.setVec3("viewPos", world.camera->position);
 		objectShader.draw();
 
 		 //TODO: object manager inside world class
