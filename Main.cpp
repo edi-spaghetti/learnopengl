@@ -98,7 +98,6 @@ Geometry karen = {
 	}
 };
 
-
 Geometry balthazar = {
     // attributes
 	2,
@@ -156,6 +155,112 @@ Geometry balthazar = {
 	false
 };
 
+Geometry lightingCube = {
+	1,
+    {3},
+
+	3 * sizeof(float),
+	36,
+	36 * 3 * sizeof(float),
+	{
+	-0.5f, -0.5f, -0.5f,
+	 0.5f, -0.5f, -0.5f,
+	 0.5f,  0.5f, -0.5f,
+	 0.5f,  0.5f, -0.5f,
+	-0.5f,  0.5f, -0.5f,
+	-0.5f, -0.5f, -0.5f,
+
+	-0.5f, -0.5f,  0.5f,
+	 0.5f, -0.5f,  0.5f,
+	 0.5f,  0.5f,  0.5f,
+	 0.5f,  0.5f,  0.5f,
+	-0.5f,  0.5f,  0.5f,
+	-0.5f, -0.5f,  0.5f,
+
+	-0.5f,  0.5f,  0.5f,
+	-0.5f,  0.5f, -0.5f,
+	-0.5f, -0.5f, -0.5f,
+	-0.5f, -0.5f, -0.5f,
+	-0.5f, -0.5f,  0.5f,
+	-0.5f,  0.5f,  0.5f,
+
+	 0.5f,  0.5f,  0.5f,
+	 0.5f,  0.5f, -0.5f,
+	 0.5f, -0.5f, -0.5f,
+	 0.5f, -0.5f, -0.5f,
+	 0.5f, -0.5f,  0.5f,
+	 0.5f,  0.5f,  0.5f,
+
+	-0.5f, -0.5f, -0.5f,
+	 0.5f, -0.5f, -0.5f,
+	 0.5f, -0.5f,  0.5f,
+	 0.5f, -0.5f,  0.5f,
+	-0.5f, -0.5f,  0.5f,
+	-0.5f, -0.5f, -0.5f,
+
+	-0.5f,  0.5f, -0.5f,
+	 0.5f,  0.5f, -0.5f,
+	 0.5f,  0.5f,  0.5f,
+	 0.5f,  0.5f,  0.5f,
+	-0.5f,  0.5f,  0.5f,
+	-0.5f,  0.5f, -0.5f
+	},
+	false
+};
+
+Geometry litCube = {
+	1,
+	{3},
+
+	3 * sizeof(float),
+	36,
+	36 * 3 * sizeof(float),
+	{
+	-0.5f, -0.5f, -0.5f,
+	 0.5f, -0.5f, -0.5f,
+	 0.5f,  0.5f, -0.5f,
+	 0.5f,  0.5f, -0.5f,
+	-0.5f,  0.5f, -0.5f,
+	-0.5f, -0.5f, -0.5f,
+
+	-0.5f, -0.5f,  0.5f,
+	 0.5f, -0.5f,  0.5f,
+	 0.5f,  0.5f,  0.5f,
+	 0.5f,  0.5f,  0.5f,
+	-0.5f,  0.5f,  0.5f,
+	-0.5f, -0.5f,  0.5f,
+
+	-0.5f,  0.5f,  0.5f,
+	-0.5f,  0.5f, -0.5f,
+	-0.5f, -0.5f, -0.5f,
+	-0.5f, -0.5f, -0.5f,
+	-0.5f, -0.5f,  0.5f,
+	-0.5f,  0.5f,  0.5f,
+
+	 0.5f,  0.5f,  0.5f,
+	 0.5f,  0.5f, -0.5f,
+	 0.5f, -0.5f, -0.5f,
+	 0.5f, -0.5f, -0.5f,
+	 0.5f, -0.5f,  0.5f,
+	 0.5f,  0.5f,  0.5f,
+
+	-0.5f, -0.5f, -0.5f,
+	 0.5f, -0.5f, -0.5f,
+	 0.5f, -0.5f,  0.5f,
+	 0.5f, -0.5f,  0.5f,
+	-0.5f, -0.5f,  0.5f,
+	-0.5f, -0.5f, -0.5f,
+
+	-0.5f,  0.5f, -0.5f,
+	 0.5f,  0.5f, -0.5f,
+	 0.5f,  0.5f,  0.5f,
+	 0.5f,  0.5f,  0.5f,
+	-0.5f,  0.5f,  0.5f,
+	-0.5f,  0.5f, -0.5f
+	},
+	false
+};
+
 
 int main()
 {
@@ -168,19 +273,14 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	// construct shaders and load geometry and textures
-	//Shader jShader = Shader("colourShape.vs", "colourShape.fs", jamal);
-	//Shader pShader = Shader("default.vs", "default.fs", persephone);
-	int nTextures = 2;
-	Texture textures[] = { 
-		Texture("container.jpg", false, false, GL_CLAMP_TO_EDGE, GL_NEAREST), 
-		Texture("awesomeface.png", true, true) 
-	};
+	Shader objectShader = Shader("lightingObject.vs", "lightObject.fs", litCube);
+	objectShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+	objectShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
-	//Shader kShader = Shader("CoordSystems.vs", "posColTex.fs", karen, textures, nTextures);
+	Shader lightSourceShader = Shader("lightingObject.vs", "lightSource.fs", lightingCube);
 
-	Shader bShader = Shader("CoordSystems.vs", "posColTex.fs", balthazar, textures, nTextures);
 	Camera camera = Camera();
-	World world = World(window, &camera, &bShader);
+	World world = World(window, &camera, &objectShader);
 
 	// TODO: don't like this, not sure how to clean it up yet though
 	camera.world = &world;
@@ -188,24 +288,8 @@ int main()
 	// setup user controls
 	setupUserControls(window, &world);
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	int nrAttributes;
-	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
-	std::cout << "Max number vertex attributes supported: " << nrAttributes << std::endl;
-
-	float location = 0.0f;
-	float velocity = 0.0001f;
-	
-	const int numCubes = 10;
-	glm::vec3 cubePositions[numCubes];
-	for (int i = 0; i < numCubes; i++)
-	{
-		cubePositions[i] = glm::vec3(
-			glm::linearRand(-2.0f, 2.0f),
-			glm::linearRand(-2.0f, 2.0f),
-			glm::linearRand(-2.0f, 2.0f)
-		);
-	}
+	// global lighting position vector
+	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 	// start render loop
 	while (!glfwWindowShouldClose(window))
@@ -214,37 +298,41 @@ int main()
 		world.update();
 
 		// render
-		// set the colour to pleasant green
-		glClearColor(0.0f, 0.6f, 0.029f, 1.0f);
-		// fill er up
+		// set the colour to black-ish
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		location += velocity;
-		//jShader.setFloat("vLocation", location);
+		// set model matrix for light source at id matrix
+		glm::mat4 model = glm::mat4(1.0f);
+		objectShader.setMatrix("model", model);
+		objectShader.draw();
 
-		for (int i = 0; i < numCubes; i++)
-		{
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
+		 //TODO: object manager inside world class
+		 //copy world view and projection matrices
+		lightSourceShader.setMatrix("view", glm::lookAt(
+			camera.position,
+			camera.position + camera.front,
+			camera.up
+		));
 
-			if (i % 3 == 0)
-			{
-				model = glm::rotate(
-					model,
-					(float)glfwGetTime(),
-					glm::vec3(1.0f, 0.3f, 0.5f)
-				);
-			}
-			else
-			{
-				float angle = 20.0f * i;
-				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-			}
+		lightSourceShader.setMatrix(
+			"projection", 
+			glm::perspective(
+				// fov
+				glm::radians(camera.FOV),
+				// aspect ratio
+				((float) world.screenWidth * 1) / ((float) world.screenHeight * 1),
+				// near and far clipping planes
+				0.1f, 100.0f
+			)
+		);
 
-			bShader.setMatrix("model", model);
-
-			bShader.draw();
-		}
+		// move light source to another location and draw
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, lightPos);
+		model = glm::scale(model, glm::vec3(0.2f));
+		lightSourceShader.setMatrix("model", model);
+		lightSourceShader.draw();
 
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);

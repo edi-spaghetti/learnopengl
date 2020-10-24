@@ -30,6 +30,7 @@ public:
 	glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 	float speed = 0.05f;
+	float speedModifier = 50.0f;
 	float pitch = 0.0f;
 	float yaw = -90.0f;  // init as -90 to point in correction direction
 	glm::vec3 direction;

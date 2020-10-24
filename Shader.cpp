@@ -32,8 +32,11 @@ Shader::Shader(
 	geometryLoaded = true;
 
 	// load textures (if any)
-	Shader::loadTextures(textures, nTex);
-	texLoaded = true;
+	if (nTex > 0)
+	{
+		Shader::loadTextures(textures, nTex);
+		texLoaded = true;
+	}
 }
 
 
@@ -362,4 +365,11 @@ void Shader::setMatrix(const std::string& name, glm::mat4 value) const
 	glUseProgram(ID);
 	unsigned int transformLoc = glGetUniformLocation(ID, name.c_str());
 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(value));
+}
+
+void Shader::setVec3(const std::string& name, float x, float y, float z) const
+{
+	glUseProgram(ID);
+	unsigned int vecLoc = glGetUniformLocation(ID, name.c_str());
+	glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z);
 }

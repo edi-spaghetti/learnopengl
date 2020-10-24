@@ -14,7 +14,7 @@ Camera::~Camera()
 
 void Camera::move(int key)
 {
-	speed = 2.5f * world->deltaTime;
+	speed = speedModifier * world->deltaTime;
 
 	if (key == GLFW_KEY_W)
 	{
