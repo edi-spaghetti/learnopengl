@@ -305,6 +305,7 @@ int main()
 		// set model matrix for light source at id matrix
 		glm::mat4 model = glm::mat4(1.0f);
 		objectShader.setMatrix("model", model);
+		objectShader.setVec3("lightPos", lightPos.x, lightPos.y, lightPos.z);
 		objectShader.draw();
 
 		 //TODO: object manager inside world class
