@@ -367,6 +367,15 @@ void Shader::setMatrix(const std::string& name, glm::mat4 value) const
 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(value));
 }
 
+
+void Shader::setMatrix(const std::string& name, glm::mat3 value) const
+{
+	glUseProgram(ID);
+	unsigned int transformLoc = glGetUniformLocation(ID, name.c_str());
+	glUniformMatrix3fv(transformLoc, 1, GL_FALSE, glm::value_ptr(value));
+}
+
+
 void Shader::setVec3(const std::string& name, float x, float y, float z) const
 {
 	glUseProgram(ID);

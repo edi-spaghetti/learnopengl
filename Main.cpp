@@ -304,8 +304,11 @@ int main()
 
 		// set model matrix for light source at id matrix
 		glm::mat4 model = glm::mat4(1.0f);
+		// generate normal matrix from model matrix
+		glm::mat3 normalMatrix = glm::transpose(glm::inverse(model));
 		objectShader.setMatrix("model", model);
 		objectShader.setVec3("lightPos", lightPos.x, lightPos.y, lightPos.z);
+		objectShader.setMatrix("normalMatrix", normalMatrix);
 		objectShader.draw();
 
 		 //TODO: object manager inside world class
