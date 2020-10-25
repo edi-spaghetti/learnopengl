@@ -274,13 +274,12 @@ int main()
 
 	// construct shaders and load geometry and textures
 	Shader objectShader = Shader("lightObject.vs", "lightObject.fs", litCube);
-	objectShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-	objectShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-
 	Shader lightSourceShader = Shader("lightSource.vs", "lightSource.fs", lightingCube);
 
 	Camera camera = Camera();
-	World world = World(window, &camera, &objectShader);
+	// set up world with camera, objects and lights
+	// variables required by objects from lights are also set here
+	World world = World(window, &camera, &objectShader, &lightSourceShader);
 
 	// TODO: don't like this, not sure how to clean it up yet though
 	camera.world = &world;
@@ -303,11 +302,6 @@ int main()
 		// set the colour to black-ish
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		 //TODO: object manager inside world class
-		 //copy world view and projection matrices
-		lightSourceShader.setMatrix("view", world.view);
-		lightSourceShader.setMatrix("projection", world.projection);
 
 		// move light source to another location and draw
 		glm::mat4 model = glm::mat4(1.0f);
@@ -337,7 +331,7 @@ int main()
 		// set model matrix for light source at id matrix
 		model = glm::mat4(1.0f);
 		objectShader.setMatrix("model", model);
-		objectShader.setVec3("lightPos", newLightPos);
+		objectShader.setVec3("light.position", newLightPos);
 
 		if (world.shadeInViewSpace)
 		{

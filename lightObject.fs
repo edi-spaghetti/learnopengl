@@ -5,15 +5,25 @@ in vec4 gFragColor;
 out vec4 FragColor;
 
 uniform highp int toggleGouraudPhong = 0;
-  
-uniform highp vec3 objectColor;
-uniform highp vec3 lightColor;
-uniform highp vec3 lightPos;
-uniform highp vec3 viewPos;
 
-uniform highp float ambientStrength = 0.1;
-uniform highp float specularStrength = 0.5;
-uniform highp float shininessPower = 5.0;
+struct Material {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float shininess;
+};
+uniform Material material;
+
+struct Light {
+    vec3 position;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+uniform Light light;
+
+uniform highp vec3 viewPos;
 
 
 void main()
@@ -22,22 +32,23 @@ void main()
     if (!bool(toggleGouraudPhong))
     {
         // calculate ambient
-        vec3 ambient = ambientStrength * lightColor;
+        vec3 ambient = light.ambient * material.ambient;
 
         // calculate diffuse
         vec3 norm = normalize(Normal);
-        vec3 lightDir = normalize(lightPos - FragPos);
-        float diffuseMultiplier = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = diffuseMultiplier * lightColor;
+        vec3 lightDir = normalize(light.position - FragPos);
+        float diffMult = max(dot(norm, lightDir), 0.0);
+        vec3 diffuse = light.diffuse * (diffMult * material.diffuse);
 
         // calculate specular
         vec3 viewDir = normalize(viewPos - FragPos);
         vec3 reflectDir = reflect(-lightDir, norm);
-        float shininess = pow(2, shininessPower);
+        // TODO: ScalarAttribute support for scale factor (linear/exponential)
+        float shininess = pow(2, material.shininess);
         float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-        vec3 specular = specularStrength * spec * lightColor;
+        vec3 specular = light.specular * (spec * material.specular);
 
-        vec3 result = (ambient + diffuse + specular) * objectColor;
+        vec3 result = ambient + diffuse + specular;
         FragColor = vec4(result, 1.0);    
 	}
     else

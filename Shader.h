@@ -53,8 +53,9 @@ public:
 	void rotate(float angle);
 	void scale(float value);
 
-	ScalarAttribute ambient = ScalarAttribute(0.1f, 0.0f, 1.0f, 0.05f);
-	ScalarAttribute specular = ScalarAttribute(0.5f, 0.0f, 1.0f, 0.1f);
+	ScalarAttribute ambient = ScalarAttribute(0.2f, 0.0f, 1.0f, 0.05f);
+	ScalarAttribute diffuse = ScalarAttribute(0.5f, 0.0f, 1.0f, 0.05f);
+	ScalarAttribute specular = ScalarAttribute(1.0f, 0.0f, 1.0f, 0.05f);
 	ScalarAttribute shininess = ScalarAttribute(5.0f, 1.0f, 8.0f, 1.0f);
 
 private:

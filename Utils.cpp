@@ -146,43 +146,48 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 
 	if (checkAttrbuteKeys)
 	{
+		if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+		{
+			world->light->ambient.update(shaderAttributeChange);
+			std::cout << "light.ambient=" << world->light->ambient.value << std::endl;
+		}
 		if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
 		{
-			world->shader->ambient.update(shaderAttributeChange);
-			std::cout << "ambient=" << world->shader->ambient.value << std::endl;
+			world->light->diffuse.update(shaderAttributeChange);
+			std::cout << "light.diffuse=" << world->light->diffuse.value << std::endl;
 		}
 		if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
 		{
-			world->shader->specular.update(shaderAttributeChange);
-			std::cout << "specular=" << world->shader->specular.value << std::endl;
+			world->light->specular.update(shaderAttributeChange);
+			std::cout << "light.specular=" << world->light->specular.value << std::endl;
 		}
 		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
 		{
-			world->shader->shininess.update(shaderAttributeChange);
-			std::cout << "shininess=" << world->shader->shininess.value << std::endl;
+			world->object->shininess.update(shaderAttributeChange);
+			std::cout << "object.shininess=" << world->object->shininess.value << std::endl;
 		}
 	}
 
 
 	if (key == GLFW_KEY_UP)
 	{
-		world->shader->currentZoom += 0.05;
-		world->shader->setFloat("zoom", world->shader->currentZoom);
-		std::cout << "set zoom to " << world->shader->currentZoom << std::endl;
+		world->object->currentZoom += 0.05;
+		world->object->setFloat("zoom", world->object->currentZoom);
+		std::cout << "set zoom to " << world->object->currentZoom << std::endl;
 	}
 	else if (key == GLFW_KEY_DOWN)
 	{
-		world->shader->currentZoom -= 0.05;
-		world->shader->setFloat("zoom", world->shader->currentZoom);
-		std::cout << "set zoom to " << world->shader->currentZoom << std::endl;
+		world->object->currentZoom -= 0.05;
+		world->object->setFloat("zoom", world->object->currentZoom);
+		std::cout << "set zoom to " << world->object->currentZoom << std::endl;
 	}
 	else if (key == GLFW_KEY_LEFT)
 	{
-		world->shader->increaseTransparency();
+		world->object->increaseTransparency();
 	}
 	else if (key == GLFW_KEY_RIGHT)
 	{
-		world->shader->decreaseTransparency();
+		world->object->decreaseTransparency();
 	}
 }
 

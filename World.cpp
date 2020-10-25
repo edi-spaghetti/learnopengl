@@ -1,11 +1,30 @@
 #include "World.h"
 
 
-World::World(GLFWwindow* win, Camera* cam, Shader* shad)
+World::World(GLFWwindow* win, Camera* cam, Shader* obj, Shader* lgt)
 {
+
+	// TODO: multiple objects + layers
+	//       this will allow rendering geo to signify light source's position
+	//       without affecting how light hits the other objects / itself
+
 	window = win;
 	camera = cam;
-	shader = shad;
+	object = obj;
+	light = lgt;
+
+	// TODO: set up material management class from these presets;
+	//       http://devernay.free.fr/cours/opengl/materials.html
+	// initialise object material uniforms
+	object->setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+	object->setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+	object->setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+	object->setFloat("material.shininess", object->shininess.value);
+
+	// initalise light properties on objects
+	object->setVec3("light.ambient", glm::vec3(light->ambient.value));
+	object->setVec3("light.diffuse", glm::vec3(light->diffuse.value));
+	object->setVec3("light.specular", glm::vec3(light->specular.value));
 }
 
 World::~World()
@@ -41,17 +60,18 @@ void World::updateScreen()
 
 void World::updateAttributes()
 {
-	// TODO: dynamic attributes
-	shader->setFloat("ambientStrength", shader->ambient.value);
-	shader->setFloat("specularStrength", shader->specular.value);
-	shader->setFloat("shininessPower", shader->shininess.value);
+	// TODO: dynamically determine which attributes need to be set
+	object->setVec3("light.ambient", glm::vec3(light->ambient.value));
+	object->setVec3("light.diffuse", glm::vec3(light->diffuse.value));
+	object->setVec3("light.specular", glm::vec3(light->specular.value));
+	object->setFloat("material.shininess", object->shininess.value);
 	// TODO: support for other (e.g. boolean) attributes
-	shader->setBool("shadeInViewSpace", shadeInViewSpace);
-	shader->setInt("toggleGouraudPhong", int(toggleGouraudPhong));
+	object->setBool("shadeInViewSpace", shadeInViewSpace);
+	object->setInt("toggleGouraudPhong", int(toggleGouraudPhong));
 }
 
 
-// creates a view matrix from camera and sets it on the shader
+// creates a view matrix from camera and sets it on the object shader
 void World::updateView()
 {
 	// move back (= scene forwards) with the view matrix
@@ -61,7 +81,8 @@ void World::updateView()
 		camera->up
 	);
 
-	shader->setMatrix("view", view);
+	object->setMatrix("view", view);
+	light->setMatrix("view", view);
 }
 
 
@@ -75,7 +96,9 @@ void World::updateProjection()
 		// near and far clipping planes
 		0.1f, 100.0f
 	);
-	shader->setMatrix("projection", projection);
+
+	object->setMatrix("projection", projection);
+	light->setMatrix("projection", projection);
 }
 
 

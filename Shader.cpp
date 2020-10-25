@@ -7,6 +7,9 @@ Shader::Shader(
 	Geometry geo, Texture* textures, unsigned int nTex)
 {
 	ID = glCreateProgram();
+
+	// TODO: create shaders from templates so they are dynamically written
+	//       based on the requirements of the geometry + other settings
 	int vert_id = Shader::createVertexShader(vertPath);
 	int frag_id = Shader::createFragmentShader(fragPath);
 
