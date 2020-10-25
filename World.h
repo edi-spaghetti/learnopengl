@@ -31,8 +31,12 @@ public:
 	float currentFrame;
 
 	// actions
+	// ==========================================================================
+	// 1 Controls if the light spins or not
 	bool staticLight = true;
 	float currentLightRotationAngle = 0.0f;
+	// 2 Controls if the shading is calculated in view space or not
+	bool shadeInViewSpace = false;
 
 	// main update function for everything contained inside world
 	void update();

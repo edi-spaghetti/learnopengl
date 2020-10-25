@@ -290,6 +290,8 @@ int main()
 
 	// global lighting position vector
 	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+	// instantiate container for updated light position it moving it
+	glm::vec3 newLightPos;
 
 	// start render loop
 	while (!glfwWindowShouldClose(window))
@@ -312,7 +314,20 @@ int main()
 		model = glm::rotate(model, world.getLightRotationAngle(), glm::vec3(0.0, 1.0, 0.0));
 		
 		// recalculate light position after rotation
-		glm::vec3 newLightPos = glm::vec3(model * glm::vec4(lightPos, 1.0f));
+		// do this before adding world space translation because lightPos
+		// already is in world space, so multiplying the model after adding 
+		// translation would apply the translation twice
+		if (world.shadeInViewSpace)
+		{
+			newLightPos = glm::vec3(
+				world.view * model * glm::vec4(lightPos, 1.0f)
+			);
+		}
+		else
+		{
+
+			newLightPos = glm::vec3(model * glm::vec4(lightPos, 1.0f));
+		}
 		
 		model = glm::translate(model, lightPos);
 		model = glm::scale(model, glm::vec3(0.2f));
@@ -321,12 +336,24 @@ int main()
 
 		// set model matrix for light source at id matrix
 		model = glm::mat4(1.0f);
-		// generate normal matrix from model matrix
-		glm::mat3 normalMatrix = glm::transpose(glm::inverse(model));
 		objectShader.setMatrix("model", model);
 		objectShader.setVec3("lightPos", newLightPos);
-		objectShader.setMatrix("normalMatrix", normalMatrix);
-		objectShader.setVec3("viewPos", world.camera->position);
+
+		if (world.shadeInViewSpace)
+		{
+			objectShader.setVec3("viewPos", glm::vec3(0.0f));
+			// generate normal matrix from model-view matrix to get in view space
+			glm::mat3 normalMatrix = glm::transpose(glm::inverse(world.view * model));
+			objectShader.setMatrix("normalMatrix", normalMatrix);
+		}
+		else
+		{
+			objectShader.setVec3("viewPos", world.camera->position);
+			// generate normal matrix from model matrix
+			glm::mat3 normalMatrix = glm::transpose(glm::inverse(model));
+			objectShader.setMatrix("normalMatrix", normalMatrix);
+		}
+		
 		objectShader.draw();
 
 		// check and call events and swap the buffers

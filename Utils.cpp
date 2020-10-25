@@ -115,6 +115,13 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 	{
 		world->staticLight = !world->staticLight;
 	}
+	if (key == GLFW_KEY_2)
+	{
+		world->shadeInViewSpace = !world->shadeInViewSpace;
+		std::cout 
+			<< "Toggled shading in viewspace " << world->shadeInViewSpace 
+		<< std::endl;
+	}
 
 	// TODO: make this less repetitive
 	bool shaderAttributeChange;

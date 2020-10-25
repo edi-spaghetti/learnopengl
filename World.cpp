@@ -45,6 +45,8 @@ void World::updateAttributes()
 	shader->setFloat("ambientStrength", shader->ambient.value);
 	shader->setFloat("specularStrength", shader->specular.value);
 	shader->setFloat("shininessPower", shader->shininess.value);
+	// TODO: support for other (e.g. boolean) attributes
+	shader->setBool("shadeInViewSpace", shadeInViewSpace);
 }
 
 
