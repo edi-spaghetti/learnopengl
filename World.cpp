@@ -13,6 +13,8 @@ World::World(GLFWwindow* win, Camera* cam, Shader* obj, Shader* lgt)
 	object = obj;
 	light = lgt;
 
+	camera->world = this;
+
 	// TODO: set up material management class from these presets;
 	//       http://devernay.free.fr/cours/opengl/materials.html
 	// initialise object material uniforms

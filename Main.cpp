@@ -282,7 +282,7 @@ int main()
 	World world = World(window, &camera, &objectShader, &lightSourceShader);
 
 	// TODO: don't like this, not sure how to clean it up yet though
-	camera.world = &world;
+	//camera.world = &world;
 
 	// setup user controls
 	setupUserControls(window, &world);
