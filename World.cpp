@@ -47,6 +47,7 @@ void World::updateAttributes()
 	shader->setFloat("shininessPower", shader->shininess.value);
 	// TODO: support for other (e.g. boolean) attributes
 	shader->setBool("shadeInViewSpace", shadeInViewSpace);
+	shader->setInt("toggleGouraudPhong", int(toggleGouraudPhong));
 }
 
 

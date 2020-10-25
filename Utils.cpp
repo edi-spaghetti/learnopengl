@@ -122,6 +122,13 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 			<< "Toggled shading in viewspace " << world->shadeInViewSpace 
 		<< std::endl;
 	}
+	if (key == GLFW_KEY_3)
+	{
+		world->toggleGouraudPhong = !world->toggleGouraudPhong;
+		std::cout
+			<< "Toggled Gouraud/Phong shading " << world->toggleGouraudPhong
+			<< std::endl;
+	}
 
 	// TODO: make this less repetitive
 	bool shaderAttributeChange;

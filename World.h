@@ -37,6 +37,8 @@ public:
 	float currentLightRotationAngle = 0.0f;
 	// 2 Controls if the shading is calculated in view space or not
 	bool shadeInViewSpace = false;
+	// 3 Toggle shading in Gouraud or Phong
+	bool toggleGouraudPhong = false;
 
 	// main update function for everything contained inside world
 	void update();
