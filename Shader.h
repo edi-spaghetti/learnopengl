@@ -14,7 +14,9 @@
 
 #include "Geometry.h"
 #include "Texture.h"
-#include "ScalarAttribute.h"
+#include "Attributes.h"
+#include "Constants.h"
+
 
 const unsigned int MAX_TEXTURE_UNITS = 16;
 
@@ -53,10 +55,19 @@ public:
 	void rotate(float angle);
 	void scale(float value);
 
-	ScalarAttribute ambient = ScalarAttribute(0.2f, 0.0f, 1.0f, 0.05f);
-	ScalarAttribute diffuse = ScalarAttribute(0.5f, 0.0f, 1.0f, 0.05f);
-	ScalarAttribute specular = ScalarAttribute(1.0f, 0.0f, 1.0f, 0.05f);
-	ScalarAttribute shininess = ScalarAttribute(5.0f, 1.0f, 8.0f, 1.0f);
+	Attribute<glm::vec3> ambient = Attribute<glm::vec3>(
+		glm::vec3(0.2f), glm::vec3(0.0f), glm::vec3(1.0f), 
+		glm::vec3(0.05f), LINEAR_SCALE
+	);
+	Attribute<glm::vec3> diffuse = Attribute<glm::vec3>(
+		glm::vec3(0.5f), glm::vec3(0.0f), glm::vec3(1.0f),
+		glm::vec3(0.05f), LINEAR_SCALE
+		);
+	Attribute<glm::vec3> specular = Attribute<glm::vec3>(
+		glm::vec3(1.0f), glm::vec3(0.0f), glm::vec3(1.0f),
+		glm::vec3(0.05f), LINEAR_SCALE
+		);
+	Attribute<float> shininess = Attribute<float>(32.0f, 2.0f, 256.0f, 2.0f, EXPONENTIAL_SCALE);
 
 private:
 	unsigned int VBO;

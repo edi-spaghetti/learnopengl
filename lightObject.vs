@@ -60,9 +60,7 @@ void main()
         // calculate specular
         vec3 viewDir = normalize(viewPos - FragPos);
         vec3 reflectDir = reflect(-lightDir, norm);
-        // TODO: ScalarAttribute support for scale factor (linear/exponential)
-        float shininess = pow(2, material.shininess);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
         vec3 specular = light.specular * (spec * material.specular);
 
         vec3 result = ambient + diffuse + specular;

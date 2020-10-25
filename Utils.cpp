@@ -129,46 +129,90 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 			<< "Toggled Gouraud/Phong shading " << world->toggleGouraudPhong
 			<< std::endl;
 	}
-
-	// TODO: make this less repetitive
-	bool shaderAttributeChange;
-	bool checkAttrbuteKeys = false;
-	if (key == GLFW_KEY_PAGE_UP)
+	if (key == GLFW_KEY_EQUAL)
 	{
-		checkAttrbuteKeys = true;
-		shaderAttributeChange = true;
-	}
-	if (key == GLFW_KEY_PAGE_DOWN)
-	{
-		checkAttrbuteKeys = true;
-		shaderAttributeChange = false;
+		world->light->ambient.reset();
+		world->light->diffuse.reset();
+		world->light->specular.reset();
+		world->object->shininess.reset();
 	}
 
-	if (checkAttrbuteKeys)
+	int attributeChange = 0;
+	if (key == GLFW_KEY_PAGE_UP) attributeChange = ATTR_INCREASE;
+	if (key == GLFW_KEY_PAGE_DOWN) attributeChange = ATTR_DECREASE;
+
+	// detect key state for RGB and check against attribute change to 
+	// see if it should go up or down.
+	// TODO: according to this code we should be able to modify twp colours at once
+	//       e.g. get purple by holding down R and B. However, due to physical limitations
+	//       of the keyboard, only two character keys can be held down at once :(
+	int rChange = 0, gChange = 0, bChange = 0;
+	bool rPressed = glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS;
+	if (rPressed) rChange = attributeChange;
+
+	bool gPressed = glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS;
+	if (gPressed) gChange = attributeChange;
+
+	bool bPressed = glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS;
+	if (bPressed) bChange = attributeChange;
+
+	// set the values based on colour, attribute and modifier
+	if (attributeChange)
 	{
+
 		if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
 		{
-			world->light->ambient.update(shaderAttributeChange);
-			std::cout << "light.ambient=" << world->light->ambient.value << std::endl;
+			if (rPressed || gPressed || bPressed)
+			{
+				world->light->ambient.update(rChange, gChange, bChange);
+			}
+			else
+			{
+				world->light->ambient.update(attributeChange);
+			}
+
+			std::string vector = glm::to_string(world->light->ambient.value);
+			std::cout 
+				<< "light.ambient=" << vector 
+				<< " " << rChange << " " << gChange << " " << bChange
+				<< std::endl;
 		}
 		if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
 		{
-			world->light->diffuse.update(shaderAttributeChange);
-			std::cout << "light.diffuse=" << world->light->diffuse.value << std::endl;
+			if (rPressed || gPressed || bPressed)
+			{
+				world->light->diffuse.update(rChange, gChange, bChange);
+			}
+			else
+			{
+				world->light->diffuse.update(attributeChange);
+			}
+
+			std::string vector = glm::to_string(world->light->diffuse.value);
+			std::cout << "light.diffuse" << "=" << vector << std::endl;
 		}
 		if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
 		{
-			world->light->specular.update(shaderAttributeChange);
-			std::cout << "light.specular=" << world->light->specular.value << std::endl;
+			if (rPressed || gPressed || bPressed)
+			{
+				world->light->specular.update(rChange, gChange, bChange);
+			}
+			else
+			{
+				world->light->specular.update(attributeChange);
+			}
+
+			std::string vector = glm::to_string(world->light->specular.value);
+			std::cout << "light.specular" << "=" << vector << std::endl;
 		}
 		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
 		{
-			world->object->shininess.update(shaderAttributeChange);
+			world->object->shininess.update(attributeChange);
 			std::cout << "object.shininess=" << world->object->shininess.value << std::endl;
 		}
 	}
 
-
+	// Deprecated
 	if (key == GLFW_KEY_UP)
 	{
 		world->object->currentZoom += 0.05;
