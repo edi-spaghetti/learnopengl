@@ -272,17 +272,16 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 
+	MaterialManager matManager = MaterialManager();
+
 	// construct shaders and load geometry and textures
-	Shader objectShader = Shader("lightObject.vs", "lightObject.fs", litCube);
-	Shader lightSourceShader = Shader("lightSource.vs", "lightSource.fs", lightingCube);
+	Shader objectShader = Shader("lightObject.vs", "lightObject.fs", litCube, matManager.emerald);
+	Shader lightSourceShader = Shader("lightSource.vs", "lightSource.fs", lightingCube, Material());
 
 	Camera camera = Camera();
 	// set up world with camera, objects and lights
 	// variables required by objects from lights are also set here
 	World world = World(window, &camera, &objectShader, &lightSourceShader);
-
-	// TODO: don't like this, not sure how to clean it up yet though
-	//camera.world = &world;
 
 	// setup user controls
 	setupUserControls(window, &world);

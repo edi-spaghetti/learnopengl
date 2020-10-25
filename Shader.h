@@ -14,6 +14,7 @@
 
 #include "Geometry.h"
 #include "Texture.h"
+#include "Materials.h"
 #include "Attributes.h"
 #include "Constants.h"
 
@@ -31,7 +32,8 @@ public:
 	// creates a new shader program
 	Shader(
 		const char* vertPath, const char* fragPath,
-		Geometry geo, Texture* textures = NULL, unsigned int nTex = 0);
+		Geometry geo, Material mat,
+		Texture* textures = NULL, unsigned int nTex = 0);
 	~Shader();
 
 	// update shaders
@@ -55,19 +57,10 @@ public:
 	void rotate(float angle);
 	void scale(float value);
 
-	Attribute<glm::vec3> ambient = Attribute<glm::vec3>(
-		glm::vec3(0.2f), glm::vec3(0.0f), glm::vec3(1.0f), 
-		glm::vec3(0.05f), LINEAR_SCALE
-	);
-	Attribute<glm::vec3> diffuse = Attribute<glm::vec3>(
-		glm::vec3(0.5f), glm::vec3(0.0f), glm::vec3(1.0f),
-		glm::vec3(0.05f), LINEAR_SCALE
-		);
-	Attribute<glm::vec3> specular = Attribute<glm::vec3>(
-		glm::vec3(1.0f), glm::vec3(0.0f), glm::vec3(1.0f),
-		glm::vec3(0.05f), LINEAR_SCALE
-		);
-	Attribute<float> shininess = Attribute<float>(32.0f, 2.0f, 256.0f, 2.0f, EXPONENTIAL_SCALE);
+	Attribute<glm::vec3> ambient;
+	Attribute<glm::vec3> diffuse;
+	Attribute<glm::vec3> specular;
+	Attribute<float> shininess;
 
 private:
 	unsigned int VBO;
@@ -81,6 +74,9 @@ private:
 	unsigned int numTextures;
 	Texture* texList;
 	bool texLoaded = false;
+
+	Material material;
+	bool materialLoaded = false;
 
 	float maxAlpha = 1.0f;
 	float minAlpha = 0.0f;
@@ -96,6 +92,7 @@ private:
 	int createFragmentShader(const char* path);
 	void loadGeometry(Geometry geo);
 	void loadTextures(Texture* textures = NULL, unsigned int nTex = 0);
+	void loadMaterials(Material mat);
 };
 
 #endif

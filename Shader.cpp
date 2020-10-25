@@ -4,7 +4,8 @@
 // ---------------------------------------------------------------------------
 Shader::Shader(
 	const char* vertPath, const char* fragPath, 
-	Geometry geo, Texture* textures, unsigned int nTex)
+	Geometry geo, Material mat,
+	Texture* textures, unsigned int nTex)
 {
 	ID = glCreateProgram();
 
@@ -40,6 +41,10 @@ Shader::Shader(
 		Shader::loadTextures(textures, nTex);
 		texLoaded = true;
 	}
+
+	// load materials
+	Shader::loadMaterials(mat);
+	materialLoaded = true;
 }
 
 
@@ -339,6 +344,26 @@ void Shader::loadTextures(Texture* textures, unsigned int nTex)
 
 	Shader::setFloat("alpha", currentAlpha);
 	std::cout << "Initalised alpha to " << currentAlpha << std::endl;
+}
+
+
+void Shader::loadMaterials(Material mat) 
+{
+	material = mat;
+
+	ambient = Attribute<glm::vec3>(
+		material.ambient, glm::vec3(0.0f), glm::vec3(1.0f),
+		glm::vec3(0.05f), LINEAR_SCALE
+		);
+	diffuse = Attribute<glm::vec3>(
+		material.diffuse, glm::vec3(0.0f), glm::vec3(1.0f),
+		glm::vec3(0.05f), LINEAR_SCALE
+		);
+	specular = Attribute<glm::vec3>(
+		material.specular, glm::vec3(0.0f), glm::vec3(1.0f),
+		glm::vec3(0.05f), LINEAR_SCALE
+		);
+	shininess = Attribute<float>(material.shininess * 256, 2.0f, 256.0f, 2.0f, EXPONENTIAL_SCALE);
 }
 
 

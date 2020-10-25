@@ -20,6 +20,7 @@ glm::vec3 boundaryCheck(glm::vec3 value, glm::vec3 minValue,
 template <class T> class Attribute
 {
 public:
+	Attribute();
 	Attribute(T val, T minVal, T maxVal, T inc, const int scl);
 	~Attribute();
 
@@ -36,6 +37,11 @@ protected:
 	int scale;
 };
 
+
+template<class T> Attribute<T>::Attribute()
+{
+	// default constructer when attributes are declared but not initialised
+}
 
 template<class T> Attribute<T>::Attribute(
 	T val, T minVal, T maxVal, T inc, const int scl)

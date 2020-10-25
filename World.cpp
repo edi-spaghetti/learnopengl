@@ -15,12 +15,10 @@ World::World(GLFWwindow* win, Camera* cam, Shader* obj, Shader* lgt)
 
 	camera->world = this;
 
-	// TODO: set up material management class from these presets;
-	//       http://devernay.free.fr/cours/opengl/materials.html
 	// initialise object material uniforms
-	object->setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
-	object->setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
-	object->setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+	object->setVec3("material.ambient",object->ambient.value);
+	object->setVec3("material.diffuse", object->diffuse.value);
+	object->setVec3("material.specular", object->specular.value);
 	object->setFloat("material.shininess", object->shininess.value);
 
 	// initalise light properties on objects
