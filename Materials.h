@@ -8,6 +8,7 @@ class Material
 {
 public:
     Material();
+    Material(float amb, float diff, float spec, float shine);
     Material(glm::vec3 amb, glm::vec3 diff, glm::vec3 spec, float shine);
 
 	glm::vec3 ambient;

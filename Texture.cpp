@@ -2,14 +2,24 @@
 #include "stb_image.h"
 #include "Texture.h"
 
-Texture::Texture(const char* path, bool flip, bool hasAlpha, int wrapping, int filtering)
+Texture::Texture(const char* path, const char* varName, bool flip, 
+	bool hasAlpha, int wrapping, int filtering)
 {
 	// generate name without extension
 	// assumes no subfolders and filename is usable as variable name
 	std::string strPath = static_cast<std::string>(path);
 	std::string delimiter = ".";
 	std::string token = strPath.substr(0, strPath.find(delimiter));
-	name = token;
+
+	if (varName == NULL)
+	{
+		name = token;
+	}
+	else
+	{
+		name = static_cast<std::string>(varName);
+	}
+	
 
 	isFlipped = flip;
 

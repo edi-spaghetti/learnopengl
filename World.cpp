@@ -16,8 +16,12 @@ World::World(GLFWwindow* win, Camera* cam, Shader* obj, Shader* lgt)
 	camera->world = this;
 
 	// initialise object material uniforms
-	object->setVec3("material.ambient",object->ambient.value);
-	object->setVec3("material.diffuse", object->diffuse.value);
+	if (!object->texLoaded)
+	{
+		object->setVec3("material.ambient", object->ambient.value);
+		object->setVec3("material.diffuse", object->diffuse.value);
+	}
+
 	object->setVec3("material.specular", object->specular.value);
 	object->setFloat("material.shininess", object->shininess.value);
 

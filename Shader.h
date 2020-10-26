@@ -62,21 +62,22 @@ public:
 	Attribute<glm::vec3> specular;
 	Attribute<float> shininess;
 
+	bool geometryLoaded = false;
+	bool elementBuffer = false;
+	bool texLoaded = false;
+	bool materialLoaded = false;
+
 private:
 	unsigned int VBO;
 	unsigned int VAO;
 	unsigned int EBO;	
 
 	Geometry geometry;
-	bool geometryLoaded = false;
-	bool elementBuffer = false;
 
 	unsigned int numTextures;
 	Texture* texList;
-	bool texLoaded = false;
 
 	Material material;
-	bool materialLoaded = false;
 
 	float maxAlpha = 1.0f;
 	float minAlpha = 0.0f;

@@ -16,7 +16,7 @@ public:
 	std::string name;
 	bool isFlipped;
 
-	Texture(const char* path, 
+	Texture(const char* path, const char* varName = NULL,
 		bool flip = false, bool hasAlpha = false, 
 		int wrapping = GL_REPEAT, int filtering = GL_LINEAR);
 	~Texture();

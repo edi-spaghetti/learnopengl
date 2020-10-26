@@ -1,6 +1,7 @@
 #version 330 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -11,8 +12,7 @@ uniform bool shadeInViewSpace = false;
 uniform highp int toggleGouraudPhong = 0;
 
 struct Material {
-    vec3 ambient;
-    vec3 diffuse;
+    sampler2D diffuse;
     vec3 specular;
     float shininess;
 };
@@ -32,10 +32,11 @@ uniform highp vec3 viewPos;
 out vec3 Normal;
 out vec3 FragPos;
 out vec4 gFragColor;
+out vec2 TexCoords;
 
 void main()
 {
-    
+    TexCoords = aTexCoords;
     Normal = normalMatrix * aNormal;
     if (shadeInViewSpace)
     {
@@ -49,13 +50,13 @@ void main()
     if (bool(toggleGouraudPhong))
     {
         // calculate ambient
-        vec3 ambient = light.ambient * material.ambient;
+        vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
 
         // calculate diffuse
         vec3 norm = normalize(Normal);
         vec3 lightDir = normalize(light.position - FragPos);
         float diffMult = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = light.diffuse * (diffMult * material.diffuse);
+        vec3 diffuse = light.diffuse *  vec3(texture(material.diffuse, TexCoords));
 
         // calculate specular
         vec3 viewDir = normalize(viewPos - FragPos);
@@ -66,7 +67,6 @@ void main()
         vec3 result = ambient + diffuse + specular;
         gFragColor = vec4(result, 1.0);
 	}
-
 
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
