@@ -275,8 +275,11 @@ int main()
 
 	MaterialManager matManager = MaterialManager();
 
-	const int nTextures = 1;
-	Texture textures[nTextures] = { Texture("container2.png", "material.diffuse", false, true) };
+	const int nTextures = 2;
+	Texture textures[nTextures] = { 
+		Texture("container2.png", "material.diffuse", false, true), 
+		Texture("container2_specular.png", "material.specular", false, true)
+	};
 
 	// construct shaders and load geometry and textures
 	Shader objectShader = Shader(
