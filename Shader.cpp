@@ -143,6 +143,18 @@ void Shader::update()
 }
 
 
+void Shader::setPosition(glm::vec3 newPostion)
+{
+	if (!initPositionSet)
+	{
+		initPositionSet = true;
+		initPosition = newPostion;
+	}
+
+	position = newPostion;
+}
+
+
 void Shader::increaseTransparency()
 {
 	if (currentAlpha < maxAlpha)

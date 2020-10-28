@@ -36,10 +36,20 @@ public:
 		Texture* textures = NULL, unsigned int nTex = 0);
 	~Shader();
 
+	// world space position
+	bool initPositionSet = false;
+	glm::vec3 initPosition = glm::vec3(0.0f);
+	glm::vec3 position = glm::vec3(0.0f);
+	void setPosition(glm::vec3 newPostion);
+
 	// update shaders
 	void update();
 	// draw loaded geometry 
 	void draw();
+
+	void loadGeometry(Geometry geo);
+	void loadTextures(Texture* textures = NULL, unsigned int nTex = 0);
+	void loadMaterials(Material mat);
 
 	// set values of types
 	void setBool(const std::string& name, bool value) const;
@@ -62,6 +72,11 @@ public:
 	Attribute<glm::vec3> specular;
 	Attribute<float> shininess;
 
+	Geometry geometry;
+	unsigned int numTextures;
+	Texture* texList;
+	Material material;
+
 	bool geometryLoaded = false;
 	bool elementBuffer = false;
 	bool texLoaded = false;
@@ -71,13 +86,6 @@ private:
 	unsigned int VBO;
 	unsigned int VAO;
 	unsigned int EBO;	
-
-	Geometry geometry;
-
-	unsigned int numTextures;
-	Texture* texList;
-
-	Material material;
 
 	float maxAlpha = 1.0f;
 	float minAlpha = 0.0f;
@@ -91,9 +99,6 @@ private:
 	static std::string readShaderFile(const char* shader_file);
 	int createVertexShader(const char* path);
 	int createFragmentShader(const char* path);
-	void loadGeometry(Geometry geo);
-	void loadTextures(Texture* textures = NULL, unsigned int nTex = 0);
-	void loadMaterials(Material mat);
 };
 
 #endif

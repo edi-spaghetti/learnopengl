@@ -156,54 +156,55 @@ Geometry balthazar = {
 };
 
 Geometry lightingCube = {
-	1,
-    {3},
+	2,
+	{3, 3},
 
-	3 * sizeof(float),
+	6 * sizeof(float),
 	36,
-	36 * 3 * sizeof(float),
+	36 * 6 * sizeof(float),
 	{
-	-0.5f, -0.5f, -0.5f,
-	 0.5f, -0.5f, -0.5f,
-	 0.5f,  0.5f, -0.5f,
-	 0.5f,  0.5f, -0.5f,
-	-0.5f,  0.5f, -0.5f,
-	-0.5f, -0.5f, -0.5f,
+	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-	-0.5f, -0.5f,  0.5f,
-	 0.5f, -0.5f,  0.5f,
-	 0.5f,  0.5f,  0.5f,
-	 0.5f,  0.5f,  0.5f,
-	-0.5f,  0.5f,  0.5f,
-	-0.5f, -0.5f,  0.5f,
+	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
-	-0.5f,  0.5f,  0.5f,
-	-0.5f,  0.5f, -0.5f,
-	-0.5f, -0.5f, -0.5f,
-	-0.5f, -0.5f, -0.5f,
-	-0.5f, -0.5f,  0.5f,
-	-0.5f,  0.5f,  0.5f,
+	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-	 0.5f,  0.5f,  0.5f,
-	 0.5f,  0.5f, -0.5f,
-	 0.5f, -0.5f, -0.5f,
-	 0.5f, -0.5f, -0.5f,
-	 0.5f, -0.5f,  0.5f,
-	 0.5f,  0.5f,  0.5f,
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-	-0.5f, -0.5f, -0.5f,
-	 0.5f, -0.5f, -0.5f,
-	 0.5f, -0.5f,  0.5f,
-	 0.5f, -0.5f,  0.5f,
-	-0.5f, -0.5f,  0.5f,
-	-0.5f, -0.5f, -0.5f,
+	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-	-0.5f,  0.5f, -0.5f,
-	 0.5f,  0.5f, -0.5f,
-	 0.5f,  0.5f,  0.5f,
-	 0.5f,  0.5f,  0.5f,
-	-0.5f,  0.5f,  0.5f,
-	-0.5f,  0.5f, -0.5f
+	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+
 	},
 	false
 };
@@ -291,19 +292,19 @@ int main()
 	Shader lightSourceShader = Shader(
 		"lightSource.vs", "lightSource.fs", 
 		lightingCube, 
-		Material(0.2f, 0.5f, 1.0f, 32.0f)
+		matManager.cyan_plastic
 	);
 
 	Camera camera = Camera();
 	// set up world with camera, objects and lights
 	// variables required by objects from lights are also set here
-	World world = World(window, &camera, &objectShader, &lightSourceShader);
+	World world = World(window, &camera, &objectShader, &lightSourceShader, &matManager);
 
 	// setup user controls
 	setupUserControls(window, &world);
 
-	// global lighting position vector
-	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+	// set light's starting position in world space
+	lightSourceShader.setPosition(glm::vec3(1.2f, 1.0f, 2.0f));
 	// instantiate container for updated light position it moving it
 	glm::vec3 newLightPos;
 
@@ -329,16 +330,20 @@ int main()
 		if (world.shadeInViewSpace)
 		{
 			newLightPos = glm::vec3(
-				world.view * model * glm::vec4(lightPos, 1.0f)
+				world.view * model * glm::vec4(lightSourceShader.initPosition, 1.0f)
 			);
 		}
 		else
 		{
-
-			newLightPos = glm::vec3(model * glm::vec4(lightPos, 1.0f));
+			newLightPos = glm::vec3(model * glm::vec4(lightSourceShader.initPosition, 1.0f));
 		}
 		
-		model = glm::translate(model, lightPos);
+		model = glm::translate(model, lightSourceShader.initPosition);
+
+		// now that we've used the light position in the model we can update
+		lightSourceShader.setPosition(newLightPos);
+		lightSourceShader.setVec3("light.position", lightSourceShader.position);
+
 		model = glm::scale(model, glm::vec3(0.2f));
 		lightSourceShader.setMatrix("model", model);
 		lightSourceShader.draw();
@@ -346,23 +351,28 @@ int main()
 		// set model matrix for light source at id matrix
 		model = glm::mat4(1.0f);
 		objectShader.setMatrix("model", model);
-		objectShader.setVec3("light.position", newLightPos);
+		objectShader.setVec3("light.position", lightSourceShader.position);
+
+		// generate normal matrix from model-view matrix to get in view space
+		glm::mat3 viewNormalMatrix = glm::transpose(glm::inverse(world.view * model));
+		// generate normal matrix from model matrix
+		glm::mat3 modelNormalMatrix = glm::transpose(glm::inverse(model));
 
 		if (world.shadeInViewSpace)
 		{
 			objectShader.setVec3("viewPos", glm::vec3(0.0f));
-			// generate normal matrix from model-view matrix to get in view space
-			glm::mat3 normalMatrix = glm::transpose(glm::inverse(world.view * model));
-			objectShader.setMatrix("normalMatrix", normalMatrix);
+			objectShader.setMatrix("normalMatrix", viewNormalMatrix);
+			// not doing lighting cube in view space, so always set in world space
+			lightSourceShader.setMatrix("normalMatrix", modelNormalMatrix);
 		}
 		else
 		{
 			objectShader.setVec3("viewPos", world.camera->position);
-			// generate normal matrix from model matrix
-			glm::mat3 normalMatrix = glm::transpose(glm::inverse(model));
-			objectShader.setMatrix("normalMatrix", normalMatrix);
+			objectShader.setMatrix("normalMatrix", modelNormalMatrix);
+			lightSourceShader.setMatrix("normalMatrix", modelNormalMatrix);
 		}
 		
+
 		objectShader.draw();
 
 		// check and call events and swap the buffers

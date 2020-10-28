@@ -93,38 +93,38 @@ public:
         0.4f
     );
     Material black_plastic = Material(
-        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.005f, 0.005f, 0.005f),
         glm::vec3(0.01f, 0.01f, 0.01f),
         glm::vec3(0.5f, 0.5f, 0.5f),
         0.25f
     );
     Material cyan_plastic = Material(
-        glm::vec3(0.0f, 0.1f, 0.06f),
-        glm::vec3(0.0f, 0.50980392f, 0.50980392f),
+        glm::vec3(0.005f, 0.1f, 0.06f),
+        glm::vec3(0.005f, 0.50980392f, 0.50980392f),
         glm::vec3(0.50196078f, 0.50196078f, 0.50196078f),
         0.25f
     );
     Material green_plastic = Material(
-        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.005f, 0.005f, 0.005f),
         glm::vec3(0.1f, 0.35f, 0.1f),
         glm::vec3(0.45f, 0.55f, 0.45f),
         0.25f
     );
     Material red_plastic = Material(
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(0.5f, 0.0f, 0.0f),
+        glm::vec3(0.005f, 0.005f, 0.005f),
+        glm::vec3(0.5f, 0.005f, 0.005f),
         glm::vec3(0.7f, 0.6f, 0.6f),
         0.25f
     );
     Material white_plastic = Material(
-        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.005f, 0.005f, 0.005f),
         glm::vec3(0.55f, 0.55f, 0.55f),
         glm::vec3(0.7f, 0.7f, 0.7f),
         0.25f
     );
     Material yellow_plastic = Material(
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(0.5f, 0.5f, 0.0f),
+        glm::vec3(0.005f, 0.005f, 0.005f),
+        glm::vec3(0.5f, 0.5f, 0.005f),
         glm::vec3(0.6f, 0.6f, 0.5f),
         0.25f
     );
@@ -135,19 +135,19 @@ public:
         0.078125f
     );
     Material cyan_rubber = Material(
-        glm::vec3(0.0f, 0.05f, 0.05f),
+        glm::vec3(0.005f, 0.05f, 0.05f),
         glm::vec3(0.4f, 0.5f, 0.5f),
         glm::vec3(0.04f, 0.7f, 0.7f),
         0.078125f
     );
     Material green_rubber = Material(
-        glm::vec3(0.0f, 0.05f, 0.0f),
+        glm::vec3(0.005f, 0.05f, 0.005f),
         glm::vec3(0.4f, 0.5f, 0.4f),
         glm::vec3(0.04f, 0.7f, 0.04f),
         0.078125f
     );
     Material red_rubber = Material(
-        glm::vec3(0.05f, 0.0f, 0.0f),
+        glm::vec3(0.05f, 0.005f, 0.005f),
         glm::vec3(0.5f, 0.4f, 0.4f),
         glm::vec3(0.7f, 0.04f, 0.04f),
         0.078125f
@@ -159,11 +159,26 @@ public:
         0.078125f
     );
     Material yellow_rubber = Material(
-        glm::vec3(0.05f, 0.05f, 0.0f),
+        glm::vec3(0.05f, 0.05f, 0.005f),
         glm::vec3(0.5f, 0.5f, 0.4f),
         glm::vec3(0.7f, 0.7f, 0.04f),
         0.078125f
     );
+
+    unsigned int currentMaterial = 0;
+    static const int numMaterials = 24;
+    Material* materials[numMaterials] = {
+        &emerald,        &jade,          &obsidian,
+        &turquoise,      &brass,         &bronze,
+        &gold,           &black_plastic, &cyan_plastic,
+        &green_plastic,  &red_plastic,   &white_plastic,
+        &yellow_plastic, &black_rubber,  &cyan_rubber,
+        &green_rubber,   &red_rubber,    &white_rubber,
+        &yellow_rubber,  &pearl,         &ruby,
+        &chrome,         &copper,        &silver
+    };
+
+
 };
 
 #endif MATERIALS_H

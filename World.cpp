@@ -1,7 +1,7 @@
 #include "World.h"
 
 
-World::World(GLFWwindow* win, Camera* cam, Shader* obj, Shader* lgt)
+World::World(GLFWwindow* win, Camera* cam, Shader* obj, Shader* lgt, MaterialManager* mng)
 {
 
 	// TODO: multiple objects + layers
@@ -12,6 +12,7 @@ World::World(GLFWwindow* win, Camera* cam, Shader* obj, Shader* lgt)
 	camera = cam;
 	object = obj;
 	light = lgt;
+	matManager = mng;
 
 	camera->world = this;
 
@@ -29,6 +30,19 @@ World::World(GLFWwindow* win, Camera* cam, Shader* obj, Shader* lgt)
 	object->setVec3("light.ambient", glm::vec3(light->ambient.value));
 	object->setVec3("light.diffuse", glm::vec3(light->diffuse.value));
 	object->setVec3("light.specular", glm::vec3(light->specular.value));
+
+	if (light->materialLoaded)
+	{
+		for (int i = 0; i < matManager->numMaterials; i++)
+		{
+			if (matManager->materials[i] == &(light->material))
+			{
+				matManager->currentMaterial = i;
+				break;
+			}
+		}
+	}
+
 }
 
 World::~World()
@@ -69,6 +83,14 @@ void World::updateAttributes()
 	object->setVec3("light.diffuse", glm::vec3(light->diffuse.value));
 	object->setVec3("light.specular", glm::vec3(light->specular.value));
 	object->setFloat("material.shininess", object->shininess.value);
+
+	// set the light uniforms to draw the light cube from it's currently 
+	// loaded material
+	light->setVec3("light.ambient", glm::vec3(light->ambient.value));
+	light->setVec3("light.diffuse", glm::vec3(light->diffuse.value));
+	light->setVec3("light.specular", glm::vec3(light->specular.value));
+	light->setFloat("light.shininess", light->shininess.value);
+
 	// TODO: support for other (e.g. boolean) attributes
 	object->setBool("shadeInViewSpace", shadeInViewSpace);
 	object->setInt("toggleGouraudPhong", int(toggleGouraudPhong));
@@ -118,4 +140,26 @@ float World::getLightRotationAngle()
 
 	currentLightRotationAngle += 0.05f;
 	return glm::radians(currentLightRotationAngle);
+}
+
+
+void World::cycleMaterial(bool forward)
+{
+	if (forward)
+	{
+		matManager->currentMaterial = (matManager->numMaterials + 1) % matManager->numMaterials;
+	}
+	else
+	{
+		if (matManager->currentMaterial)
+		{
+			matManager->currentMaterial -= 1;
+		}
+		else
+		{
+			matManager->currentMaterial = matManager->numMaterials - 1;
+		}
+	}
+
+	light->loadMaterials(*(matManager->materials[matManager->currentMaterial]));
 }

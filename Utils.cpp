@@ -212,6 +212,15 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 		}
 	}
 
+
+	// cycle through materials
+	if (key == GLFW_KEY_TAB)
+	{
+		bool shiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
+		world->cycleMaterial(shiftPressed);
+	}
+
+
 	// Deprecated
 	if (key == GLFW_KEY_UP)
 	{
