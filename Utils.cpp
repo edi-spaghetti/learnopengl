@@ -134,6 +134,12 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 		world->object->invertSpec = !world->object->invertSpec;
 		std::cout << "Inverted Spec" << std::endl;
 	}
+	if (key == GLFW_KEY_5)
+	{
+		world->object->addEmission = !world->object->addEmission;
+		std::cout << "Toggled Emission" << std::endl;
+	}
+
 	if (key == GLFW_KEY_EQUAL)
 	{
 		world->light->ambient.reset();

@@ -95,6 +95,7 @@ void World::updateAttributes()
 	object->setBool("shadeInViewSpace", shadeInViewSpace);
 	object->setInt("toggleGouraudPhong", int(toggleGouraudPhong));
 	object->setBool("invertSpec", object->invertSpec);
+	object->setBool("addEmission", object->addEmission);
 }
 
 

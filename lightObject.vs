@@ -14,6 +14,7 @@ uniform highp int toggleGouraudPhong = 0;
 struct Material {
     sampler2D diffuse;
     sampler2D specular;
+    sampler2D emission;
     float shininess;
 };
 uniform Material material;

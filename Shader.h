@@ -83,6 +83,7 @@ public:
 	bool materialLoaded = false;
 
 	bool invertSpec = false;
+	bool addEmission = false;
 
 private:
 	unsigned int VBO;
