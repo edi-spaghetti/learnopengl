@@ -82,6 +82,8 @@ public:
 	bool texLoaded = false;
 	bool materialLoaded = false;
 
+	bool invertSpec = false;
+
 private:
 	unsigned int VBO;
 	unsigned int VAO;

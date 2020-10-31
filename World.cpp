@@ -78,7 +78,7 @@ void World::updateScreen()
 
 void World::updateAttributes()
 {
-	// TODO: dynamically determine which attributes need to be set
+	// TODO: list of named attributes so we can set dynamically
 	object->setVec3("light.ambient", glm::vec3(light->ambient.value));
 	object->setVec3("light.diffuse", glm::vec3(light->diffuse.value));
 	object->setVec3("light.specular", glm::vec3(light->specular.value));
@@ -91,9 +91,10 @@ void World::updateAttributes()
 	light->setVec3("light.specular", glm::vec3(light->specular.value));
 	light->setFloat("light.shininess", light->shininess.value);
 
-	// TODO: support for other (e.g. boolean) attributes
+	// TODO: dict (hash table?) of booleans so we can set all at once
 	object->setBool("shadeInViewSpace", shadeInViewSpace);
 	object->setInt("toggleGouraudPhong", int(toggleGouraudPhong));
+	object->setBool("invertSpec", object->invertSpec);
 }
 
 

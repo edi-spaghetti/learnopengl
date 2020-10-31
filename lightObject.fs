@@ -6,6 +6,7 @@ in vec2 TexCoords;
 out vec4 FragColor;
 
 uniform highp int toggleGouraudPhong = 0;
+uniform bool invertSpec = false;
 
 struct Material {
     sampler2D diffuse;
@@ -44,7 +45,19 @@ void main()
         vec3 viewDir = normalize(viewPos - FragPos);
         vec3 reflectDir = reflect(-lightDir, norm);
         float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-        vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+
+        vec3 specTexVec;
+        vec3 specular;
+        if (invertSpec)
+        {
+            specTexVec = vec3(1.0f, 1.0f, 1.0f) - vec3(texture(material.specular, TexCoords));
+            specular = light.specular * spec * specTexVec;
+		}
+        else 
+        {
+            specTexVec = vec3(texture(material.specular, TexCoords));
+            specular = light.specular * spec * specTexVec;
+		}        
 
         vec3 result = ambient + diffuse + specular;
         FragColor = vec4(result, 1.0);    

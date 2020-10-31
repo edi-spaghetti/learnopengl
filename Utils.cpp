@@ -129,6 +129,11 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 			<< "Toggled Gouraud/Phong shading " << world->toggleGouraudPhong
 			<< std::endl;
 	}
+	if (key == GLFW_KEY_4)
+	{
+		world->object->invertSpec = !world->object->invertSpec;
+		std::cout << "Inverted Spec" << std::endl;
+	}
 	if (key == GLFW_KEY_EQUAL)
 	{
 		world->light->ambient.reset();
