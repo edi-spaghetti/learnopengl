@@ -96,6 +96,10 @@ void World::updateAttributes()
 	object->setInt("toggleGouraudPhong", int(toggleGouraudPhong));
 	object->setBool("invertSpec", object->invertSpec);
 	object->setBool("addEmission", object->addEmission);
+	object->setBool("animateEmission", object->animateEmission);
+
+	// set the time
+	object->setFloat("time", static_cast<float>(glfwGetTime()));
 }
 
 

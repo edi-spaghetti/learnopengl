@@ -280,7 +280,7 @@ int main()
 	Texture textures[nTextures] = {
 		Texture("container2.png", "material.diffuse", false, true),
 		Texture("container2_specular.png", "material.specular", false, true),
-		Texture("container2_emission1.png", "material.emission", true, true)
+		Texture("container2_animated_emission.png", "material.emission", true, false, GL_REPEAT, GL_NEAREST)
 	};
 
 	// construct shaders and load geometry and textures

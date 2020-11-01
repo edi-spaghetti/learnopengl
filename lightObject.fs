@@ -8,6 +8,8 @@ out vec4 FragColor;
 uniform highp int toggleGouraudPhong = 0;
 uniform bool invertSpec = false;
 uniform bool addEmission = false;
+uniform bool animateEmission = false;
+uniform float time;
 
 struct Material {
     sampler2D diffuse;
@@ -65,9 +67,41 @@ void main()
 
         if (addEmission)
         {
-            // calculate emission
-            vec3 emission = vec3(texture(material.emission, TexCoords));
-            result = result + emission;  
+            if (animateEmission)
+            {
+                vec3 emission = texture(material.emission, TexCoords).rgb;
+                float loopTime = 10.0;  // seconds
+                float currentTime = (mod(time, loopTime) / loopTime) / 2;
+                float startTime;
+                float endTime;
+                float fallOff = 0.0f;
+                float duration = 0.25f;
+
+                vec3 emissionColour = vec3(
+                    31.0f / 255.0f, 
+                    109.0f / 255.0f, 
+                    31.0f / 255.0f
+                );
+
+                for (int i = 0; i < 3; i++)
+                {
+                    startTime = emission[i] - 0.5f;
+                    if (0.001f < emission[i] && startTime < currentTime)
+                    {
+                        endTime = startTime + duration;
+                        float newFallOff = max(endTime - currentTime, 0.0f);
+                        fallOff = max(newFallOff, fallOff);                    
+					}
+				}
+
+                result = result + (emissionColour * fallOff);
+
+			}
+            else{
+                // calculate emission the regular boring way
+                vec3 emission = vec3(texture(material.emission, TexCoords));
+                result = result + emission;  
+			}
 		}
 
         FragColor = vec4(result, 1.0);    

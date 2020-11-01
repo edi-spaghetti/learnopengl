@@ -84,6 +84,7 @@ public:
 
 	bool invertSpec = false;
 	bool addEmission = false;
+	bool animateEmission = false;
 
 private:
 	unsigned int VBO;

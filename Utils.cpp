@@ -139,6 +139,12 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 		world->object->addEmission = !world->object->addEmission;
 		std::cout << "Toggled Emission" << std::endl;
 	}
+	if (key == GLFW_KEY_6)
+	{
+		world->object->addEmission = true;
+		world->object->animateEmission = !world->object->animateEmission;
+		std::cout << "Toggled Emission Animation" << std::endl;
+	}
 
 	if (key == GLFW_KEY_EQUAL)
 	{
