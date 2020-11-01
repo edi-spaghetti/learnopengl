@@ -41,6 +41,12 @@ public:
 	bool shadeInViewSpace = false;
 	// 3 Toggle shading in Gouraud or Phong
 	bool toggleGouraudPhong = false;
+	// 7 Start / Stop Screen Recording
+	bool record = false;
+	unsigned int currentOutputFrame = 0;
+	const float outputFPS = 25.0f;
+	float recordingStartedAt;
+	void exportCurrentFrame();
 
 	// main update function for everything contained inside world
 	void update();

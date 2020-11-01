@@ -1,3 +1,6 @@
+#define STBI_MSC_SECURE_CRT
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 #include "World.h"
 
 
@@ -59,6 +62,7 @@ void World::update()
 	World::updateView();
 	World::updateProjection();
 	World::updateModel();
+	World::exportCurrentFrame();
 }
 
 
@@ -67,7 +71,6 @@ void World::updateTime()
 	currentFrame = glfwGetTime();
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
-
 }
 
 void World::updateScreen()
@@ -168,4 +171,32 @@ void World::cycleMaterial(bool forward)
 	}
 
 	light->loadMaterials(*(matManager->materials[matManager->currentMaterial]));
+}
+
+
+void World::exportCurrentFrame()
+{
+	// check if the red light is on
+	if (!record) return;
+
+	// check if we're ready for a new frame
+	if (currentFrame - recordingStartedAt < currentOutputFrame / outputFPS) return;
+
+	unsigned char* Buffer;
+	Buffer = new unsigned char[screenWidth * screenHeight * 3];
+	if (!Buffer) return;
+
+	glReadBuffer(GL_BACK);
+	glReadPixels(0, 0, screenWidth, screenHeight, GL_RGB, GL_UNSIGNED_BYTE, Buffer);
+
+	std::string filename("out\\recording." + std::to_string(currentOutputFrame) + ".png");
+
+	stbi_flip_vertically_on_write(true);
+	stbi_write_png(filename.c_str(), screenWidth, screenHeight, 3, Buffer, screenWidth * 3);
+
+	// increment output frame ready for next image capture
+	currentOutputFrame++;
+
+	delete Buffer;
+
 }
