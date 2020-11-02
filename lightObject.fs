@@ -10,6 +10,9 @@ uniform bool invertSpec = false;
 uniform bool addEmission = false;
 uniform bool animateEmission = false;
 uniform float time;
+uniform highp int lightingType;
+const int POINT = 0;
+const int DIRECTIONAL = 1;
 
 struct Material {
     sampler2D diffuse;
@@ -21,6 +24,7 @@ uniform Material material;
 
 struct Light {
     vec3 position;
+    vec3 direction;
 
     vec3 ambient;
     vec3 diffuse;
@@ -36,12 +40,16 @@ void main()
 
     if (!bool(toggleGouraudPhong))
     {
+        // calculate light direction
+        vec3 lightDir;
+        if (lightingType == POINT) lightDir = normalize(light.position - FragPos);
+        if (lightingType == DIRECTIONAL) lightDir = normalize(-light.direction);
+
         // calculate ambient
         vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
 
         // calculate diffuse
         vec3 norm = normalize(Normal);
-        vec3 lightDir = normalize(light.position - FragPos);
         float diffMult = max(dot(norm, lightDir), 0.0);
         vec3 diffuse = light.diffuse * diffMult * vec3(texture(material.diffuse, TexCoords));
 

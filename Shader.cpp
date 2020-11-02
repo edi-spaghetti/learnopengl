@@ -155,6 +155,17 @@ void Shader::setPosition(glm::vec3 newPostion)
 }
 
 
+void Shader::setDirection(glm::vec3 newDir)
+{
+	if (!initDirectionSet)
+	{
+		initDirectionSet = true;
+		initDirection = newDir;
+	}
+	direction = newDir;
+}
+
+
 void Shader::increaseTransparency()
 {
 	if (currentAlpha < maxAlpha)

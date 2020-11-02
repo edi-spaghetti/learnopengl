@@ -309,6 +309,9 @@ int main()
 	// instantiate container for updated light position it moving it
 	glm::vec3 newLightPos;
 
+	// set up a lighting direction if we switch to directional lighting
+	lightSourceShader.setDirection(glm::vec3(-0.2f, -1.0f, -0.3f));
+
 	// start render loop
 	while (!glfwWindowShouldClose(window))
 	{

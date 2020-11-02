@@ -47,6 +47,9 @@ public:
 	const float outputFPS = 25.0f;
 	float recordingStartedAt;
 	void exportCurrentFrame();
+	// 8 lighting types
+	unsigned int lightingType = 0;
+	const unsigned int numLightingTypes = 2;
 
 	// main update function for everything contained inside world
 	void update();

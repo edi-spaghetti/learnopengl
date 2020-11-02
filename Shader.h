@@ -42,6 +42,12 @@ public:
 	glm::vec3 position = glm::vec3(0.0f);
 	void setPosition(glm::vec3 newPostion);
 
+	// world space direction
+	bool initDirectionSet = false;
+	glm::vec3 initDirection = glm::vec3(0.0f);
+	glm::vec3 direction = glm::vec3(0.0f);
+	void setDirection(glm::vec3 newDir);
+
 	// update shaders
 	void update();
 	// draw loaded geometry 

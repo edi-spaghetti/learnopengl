@@ -151,6 +151,11 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 		//world->record = true;
 		std::cout << "Recording " << world->record << std::endl;
 	}
+	if (key == GLFW_KEY_8)
+	{
+		world->lightingType = (world->lightingType + 1) % world->numLightingTypes;
+		std::cout << "Switched to lighting type " << world->lightingType << std::endl;
+	}
 
 	if (key == GLFW_KEY_EQUAL)
 	{
@@ -242,7 +247,11 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 		bool shiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
 		world->cycleMaterial(shiftPressed);
 	}
-
+	if (key == GLFW_KEY_F)
+	{
+		world->camera->canFly = !world->camera->canFly;
+		std::cout << "Set fly mode " << world->camera->canFly << std::endl;
+	}
 
 	// Deprecated
 	if (key == GLFW_KEY_UP)

@@ -87,6 +87,9 @@ void World::updateAttributes()
 	object->setVec3("light.specular", glm::vec3(light->specular.value));
 	object->setFloat("material.shininess", object->shininess.value);
 
+	// add lighting direction (if any)
+	object->setVec3("light.direction", light->direction);
+
 	// set the light uniforms to draw the light cube from it's currently 
 	// loaded material
 	light->setVec3("light.ambient", glm::vec3(light->ambient.value));
@@ -103,6 +106,7 @@ void World::updateAttributes()
 
 	// set the time
 	object->setFloat("time", static_cast<float>(glfwGetTime()));
+	object->setInt("lightingType", this->lightingType);
 }
 
 
