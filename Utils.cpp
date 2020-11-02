@@ -253,6 +253,7 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 		std::cout << "Set fly mode " << world->camera->canFly << std::endl;
 	}
 
+
 	// Deprecated
 	if (key == GLFW_KEY_UP)
 	{

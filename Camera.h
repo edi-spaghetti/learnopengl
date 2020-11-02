@@ -43,6 +43,8 @@ public:
 	float FOV = 45.0f;
 	const float maxFOV = 60.0f;
 	const float minFOV = 1.0f;
+
+	bool canFly = false;
 };
 
 #endif // !CAMERA_H

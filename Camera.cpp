@@ -19,12 +19,12 @@ void Camera::move(int key)
 	if (key == GLFW_KEY_W)
 	{
 		position += speed * front;
-		position.y = 0.0f;
+		if (!canFly) position.y = 0.0f;
 	}
 	else if (key == GLFW_KEY_S)
 	{
 		position -= speed * front;
-		position.y = 0.0f;
+		if (!canFly) position.y = 0.0f;
 	}
 	else if (key == GLFW_KEY_A)
 	{
