@@ -290,7 +290,7 @@ int main()
 		matManager.emerald,
 		textures, nTextures
 	);
-	Shader lightSourceShader = Shader(
+	LightSource lightSourceShader = LightSource(
 		"lightSource.vs", "lightSource.fs", 
 		lightingCube, 
 		matManager.cyan_plastic

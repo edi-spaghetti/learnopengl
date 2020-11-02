@@ -111,4 +111,35 @@ private:
 	int createFragmentShader(const char* path);
 };
 
+
+class LightSource : public Shader
+{
+public:
+	using Shader::Shader;
+
+	int attenuationIndex = 3;
+	static const int numAttenuationSettings = 12;
+	glm::vec4 attenuation[numAttenuationSettings] = {
+		glm::vec4(7.0, 1.0, 0.7, 1.8),
+		glm::vec4(13.0, 1.0, 0.35, 0.44),
+		glm::vec4(20.0, 1.0, 0.22, 0.2),
+		glm::vec4(32.0, 1.0, 0.14, 0.07),
+		glm::vec4(50.0, 1.0, 0.09, 0.032),
+		glm::vec4(65.0, 1.0, 0.07, 0.017),
+		glm::vec4(100.0, 1.0, 0.045, 0.0075),
+		glm::vec4(160.0, 1.0, 0.027, 0.0028),
+		glm::vec4(200.0, 1.0, 0.022, 0.0019),
+		glm::vec4(325.0, 1.0, 0.014, 0.0007),
+		glm::vec4(600.0, 1.0, 0.007, 0.0002),
+		glm::vec4(3250.0, 1.0, 0.0014, 0.000007)
+	};
+
+	void setAttenuation(int index);
+	float distance = attenuation[attenuationIndex].x;
+	float constant = attenuation[attenuationIndex].y;
+	float linear = attenuation[attenuationIndex].z;
+	float quadratic = attenuation[attenuationIndex].w;
+
+};
+
 #endif

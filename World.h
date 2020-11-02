@@ -13,13 +13,13 @@ class Camera;  // forward declaration
 class World
 {
 public:
-	World(GLFWwindow* win, Camera* cam, Shader* obj, Shader* lgt, MaterialManager* mng);
+	World(GLFWwindow* win, Camera* cam, Shader* obj, LightSource* lgt, MaterialManager* mng);
 	~World();
 
 	GLFWwindow* window;
 	Shader* object;
 	Camera* camera;
-	Shader* light;
+	LightSource* light;
 	MaterialManager* matManager;
 
 	glm::mat4 view;

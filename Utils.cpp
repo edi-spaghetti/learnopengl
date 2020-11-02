@@ -252,7 +252,12 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 		world->camera->canFly = !world->camera->canFly;
 		std::cout << "Set fly mode " << world->camera->canFly << std::endl;
 	}
-
+	if (key == GLFW_KEY_L)
+	{
+		int newIndex = (world->light->attenuationIndex + 1) % world->light->numAttenuationSettings;
+		world->light->setAttenuation(newIndex);
+		std::cout << "Set light attenuation to " << world->light->distance << std::endl;
+	}
 
 	// Deprecated
 	if (key == GLFW_KEY_UP)

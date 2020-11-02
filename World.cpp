@@ -4,7 +4,7 @@
 #include "World.h"
 
 
-World::World(GLFWwindow* win, Camera* cam, Shader* obj, Shader* lgt, MaterialManager* mng)
+World::World(GLFWwindow* win, Camera* cam, Shader* obj, LightSource* lgt, MaterialManager* mng)
 {
 
 	// TODO: multiple objects + layers
@@ -87,8 +87,11 @@ void World::updateAttributes()
 	object->setVec3("light.specular", glm::vec3(light->specular.value));
 	object->setFloat("material.shininess", object->shininess.value);
 
-	// add lighting direction (if any)
+	// add lighting direction and attenuation (if any)
 	object->setVec3("light.direction", light->direction);
+	object->setFloat("light.constant", light->constant);
+	object->setFloat("light.linear", light->linear);
+	object->setFloat("light.quadratic", light->quadratic);
 
 	// set the light uniforms to draw the light cube from it's currently 
 	// loaded material

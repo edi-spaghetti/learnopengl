@@ -441,3 +441,16 @@ void Shader::setVec3(const std::string& name, glm::vec3 value) const
 	unsigned int vecLoc = glGetUniformLocation(ID, name.c_str());
 	glUniform3f(glGetUniformLocation(ID, name.c_str()), value.x, value.y, value.z);
 }
+
+// light source functions
+// ---------------------------------------------------------------------------
+
+void LightSource::setAttenuation(int index)
+{
+	attenuationIndex = index;
+
+	distance = attenuation[index].x;
+	constant = attenuation[index].y;
+	linear = attenuation[index].z;
+	quadratic = attenuation[index].w;
+}

@@ -29,6 +29,10 @@ struct Light {
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+
+    float constant;
+    float linear;
+    float quadratic;
 };
 uniform Light light;
 
@@ -42,16 +46,30 @@ void main()
     {
         // calculate light direction
         vec3 lightDir;
-        if (lightingType == POINT) lightDir = normalize(light.position - FragPos);
+        float attenuation;
+        if (lightingType == POINT)
+        {
+            lightDir = normalize(light.position - FragPos);
+
+            // calculate attenuation
+            float distance = length(light.position - FragPos);
+            attenuation = 1.0 / (
+                light.constant + 
+                light.linear * distance + 
+                light.quadratic * pow(distance, 2)
+            );
+        }
         if (lightingType == DIRECTIONAL) lightDir = normalize(-light.direction);
 
         // calculate ambient
         vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
+        if (lightingType == POINT) ambient *= attenuation;
 
         // calculate diffuse
         vec3 norm = normalize(Normal);
         float diffMult = max(dot(norm, lightDir), 0.0);
         vec3 diffuse = light.diffuse * diffMult * vec3(texture(material.diffuse, TexCoords));
+        if (lightingType == POINT) diffuse *= attenuation;
 
         // calculate specular
         vec3 viewDir = normalize(viewPos - FragPos);
@@ -70,6 +88,7 @@ void main()
             specTexVec = vec3(texture(material.specular, TexCoords));
             specular = light.specular * spec * specTexVec;
 		}        
+        if (lightingType == POINT) specular *= attenuation;
 
         vec3 result = ambient + diffuse + specular;
 
