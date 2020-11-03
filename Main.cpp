@@ -346,7 +346,11 @@ int main()
 
 		// now that we've used the light position in the model we can update
 		lightSourceShader.setPosition(newLightPos);
-		lightSourceShader.setVec3("light.position", lightSourceShader.position);
+		if (world.lightingType != SPOTLIGHT)
+		{
+			lightSourceShader.setVec3("light.position", lightSourceShader.position);
+		}
+
 
 		model = glm::scale(model, glm::vec3(0.2f));
 		lightSourceShader.setMatrix("model", model);
@@ -355,7 +359,10 @@ int main()
 		// set model matrix for light source at id matrix
 		model = glm::mat4(1.0f);
 		objectShader.setMatrix("model", model);
-		objectShader.setVec3("light.position", lightSourceShader.position);
+		if (world.lightingType != SPOTLIGHT)
+		{
+			objectShader.setVec3("light.position", lightSourceShader.position);
+		}
 
 		// generate normal matrix from model-view matrix to get in view space
 		glm::mat3 viewNormalMatrix = glm::transpose(glm::inverse(world.view * model));

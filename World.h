@@ -49,7 +49,7 @@ public:
 	void exportCurrentFrame();
 	// 8 lighting types
 	unsigned int lightingType = 0;
-	const unsigned int numLightingTypes = 2;
+	const unsigned int numLightingTypes = 3;
 
 	// main update function for everything contained inside world
 	void update();

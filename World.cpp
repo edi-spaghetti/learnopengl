@@ -88,7 +88,17 @@ void World::updateAttributes()
 	object->setFloat("material.shininess", object->shininess.value);
 
 	// add lighting direction and attenuation (if any)
-	object->setVec3("light.direction", light->direction);
+	if (this->lightingType == POINT || this->lightingType == DIRECTIONAL)
+	{
+		object->setVec3("light.direction", light->direction);
+	}
+	if (this->lightingType == SPOTLIGHT)
+	{
+		object->setVec3("light.position", camera->position);
+		object->setVec3("light.direction", camera->front);
+		object->setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+	}
+
 	object->setFloat("light.constant", light->constant);
 	object->setFloat("light.linear", light->linear);
 	object->setFloat("light.quadratic", light->quadratic);

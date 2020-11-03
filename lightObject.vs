@@ -13,6 +13,7 @@ uniform highp int toggleGouraudPhong = 0;
 uniform highp int lightingType;
 const int POINT = 0;
 const int DIRECTIONAL = 1;
+const int SPOTLIGHT = 2;
 
 struct Material {
     sampler2D diffuse;
@@ -33,6 +34,8 @@ struct Light {
     float constant;
     float linear;
     float quadratic;
+
+    float cutOff;
 };
 uniform Light light;
 

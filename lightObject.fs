@@ -13,6 +13,7 @@ uniform float time;
 uniform highp int lightingType;
 const int POINT = 0;
 const int DIRECTIONAL = 1;
+const int SPOTLIGHT = 2;
 
 struct Material {
     sampler2D diffuse;
@@ -33,6 +34,8 @@ struct Light {
     float constant;
     float linear;
     float quadratic;
+
+    float cutOff;
 };
 uniform Light light;
 
@@ -47,7 +50,8 @@ void main()
         // calculate light direction
         vec3 lightDir;
         float attenuation;
-        if (lightingType == POINT)
+        float theta;
+        if (lightingType == POINT || lightingType == SPOTLIGHT)
         {
             lightDir = normalize(light.position - FragPos);
 
@@ -60,78 +64,88 @@ void main()
             );
         }
         if (lightingType == DIRECTIONAL) lightDir = normalize(-light.direction);
+        if (lightingType == SPOTLIGHT) theta = dot(lightDir, normalize(-light.direction));
 
-        // calculate ambient
-        vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
-        if (lightingType == POINT) ambient *= attenuation;
-
-        // calculate diffuse
-        vec3 norm = normalize(Normal);
-        float diffMult = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = light.diffuse * diffMult * vec3(texture(material.diffuse, TexCoords));
-        if (lightingType == POINT) diffuse *= attenuation;
-
-        // calculate specular
-        vec3 viewDir = normalize(viewPos - FragPos);
-        vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-
-        vec3 specTexVec;
-        vec3 specular;
-        if (invertSpec)
+        if (lightingType != SPOTLIGHT || theta > light.cutOff)
         {
-            specTexVec = vec3(1.0f, 1.0f, 1.0f) - vec3(texture(material.specular, TexCoords));
-            specular = light.specular * spec * specTexVec;
-		}
-        else 
-        {
-            specTexVec = vec3(texture(material.specular, TexCoords));
-            specular = light.specular * spec * specTexVec;
-		}        
-        if (lightingType == POINT) specular *= attenuation;
 
-        vec3 result = ambient + diffuse + specular;
+            // calculate ambient
+            vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
+            if (lightingType == POINT) ambient *= attenuation;
 
-        if (addEmission)
-        {
-            if (animateEmission)
+            // calculate diffuse
+            vec3 norm = normalize(Normal);
+            float diffMult = max(dot(norm, lightDir), 0.0);
+            vec3 diffuse = light.diffuse * diffMult * vec3(texture(material.diffuse, TexCoords));
+            if (lightingType == POINT) diffuse *= attenuation;
+
+            // calculate specular
+            vec3 viewDir = normalize(viewPos - FragPos);
+            vec3 reflectDir = reflect(-lightDir, norm);
+            float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+
+            vec3 specTexVec;
+            vec3 specular;
+            if (invertSpec)
             {
-                vec3 emission = texture(material.emission, TexCoords).rgb;
-                float loopTime = 10.0;  // seconds
-                float currentTime = (mod(time, loopTime) / loopTime) / 2;
-                float startTime;
-                float endTime;
-                float fallOff = 0.0f;
-                float duration = 0.25f;
+                specTexVec = vec3(1.0f, 1.0f, 1.0f) - vec3(texture(material.specular, TexCoords));
+                specular = light.specular * spec * specTexVec;
+		    }
+            else 
+            {
+                specTexVec = vec3(texture(material.specular, TexCoords));
+                specular = light.specular * spec * specTexVec;
+		    }        
+            if (lightingType == POINT) specular *= attenuation;
 
-                vec3 emissionColour = vec3(
-                    31.0f / 255.0f, 
-                    109.0f / 255.0f, 
-                    31.0f / 255.0f
-                );
+            vec3 result = ambient + diffuse + specular;
 
-                for (int i = 0; i < 3; i++)
+            if (addEmission)
+            {
+                if (animateEmission)
                 {
-                    startTime = emission[i] - 0.5f;
-                    if (0.001f < emission[i] && startTime < currentTime)
+                    vec3 emission = texture(material.emission, TexCoords).rgb;
+                    float loopTime = 10.0;  // seconds
+                    float currentTime = (mod(time, loopTime) / loopTime) / 2;
+                    float startTime;
+                    float endTime;
+                    float fallOff = 0.0f;
+                    float duration = 0.25f;
+
+                    vec3 emissionColour = vec3(
+                        31.0f / 255.0f, 
+                        109.0f / 255.0f, 
+                        31.0f / 255.0f
+                    );
+
+                    for (int i = 0; i < 3; i++)
                     {
-                        endTime = startTime + duration;
-                        float newFallOff = max(endTime - currentTime, 0.0f);
-                        fallOff = max(newFallOff, fallOff);                    
-					}
-				}
+                        startTime = emission[i] - 0.5f;
+                        if (0.001f < emission[i] && startTime < currentTime)
+                        {
+                            endTime = startTime + duration;
+                            float newFallOff = max(endTime - currentTime, 0.0f);
+                            fallOff = max(newFallOff, fallOff);                    
+					    }
+				    }
 
-                result = result + (emissionColour * fallOff);
+                    result = result + (emissionColour * fallOff);
 
-			}
-            else{
-                // calculate emission the regular boring way
-                vec3 emission = vec3(texture(material.emission, TexCoords));
-                result = result + emission;  
-			}
+			    }
+                else{
+                    // calculate emission the regular boring way
+                    vec3 emission = vec3(texture(material.emission, TexCoords));
+                    result = result + emission;  
+			    }
+		    }
+
+            FragColor = vec4(result, 1.0); 
 		}
-
-        FragColor = vec4(result, 1.0);    
+        else
+        {
+            vec3 ambient = vec3(texture(material.diffuse, TexCoords));
+            FragColor = vec4(light.ambient * ambient, 1.0);
+		}
 	}
     else
     {

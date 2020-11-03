@@ -13,6 +13,9 @@
 #include "Camera.h"
 
 class World;  // forward declaration
+#define POINT 0
+#define DIRECTIONAL 1
+#define SPOTLIGHT 2
 
 GLFWwindow* createWindow(int width, int height);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
