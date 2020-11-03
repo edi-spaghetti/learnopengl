@@ -36,6 +36,7 @@ struct Light {
     float quadratic;
 
     float cutOff;
+    float outerCutOff;
 };
 uniform Light light;
 

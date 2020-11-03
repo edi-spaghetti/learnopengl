@@ -36,6 +36,7 @@ struct Light {
     float quadratic;
 
     float cutOff;
+    float outerCutOff;
 };
 uniform Light light;
 
@@ -51,6 +52,8 @@ void main()
         vec3 lightDir;
         float attenuation;
         float theta;
+        float epsilon;
+        float intensity;
         if (lightingType == POINT || lightingType == SPOTLIGHT)
         {
             lightDir = normalize(light.position - FragPos);
@@ -64,9 +67,14 @@ void main()
             );
         }
         if (lightingType == DIRECTIONAL) lightDir = normalize(-light.direction);
-        if (lightingType == SPOTLIGHT) theta = dot(lightDir, normalize(-light.direction));
+        if (lightingType == SPOTLIGHT) 
+        {
+            theta = dot(lightDir, normalize(-light.direction));
+            epsilon = light.cutOff - light.outerCutOff;
+            intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+        }
 
-        if (lightingType != SPOTLIGHT || theta > light.cutOff)
+        if (lightingType != SPOTLIGHT || intensity > 0.0f)
         {
 
             // calculate ambient
@@ -78,6 +86,7 @@ void main()
             float diffMult = max(dot(norm, lightDir), 0.0);
             vec3 diffuse = light.diffuse * diffMult * vec3(texture(material.diffuse, TexCoords));
             if (lightingType == POINT) diffuse *= attenuation;
+            if (lightingType == SPOTLIGHT) diffuse *= intensity;
 
             // calculate specular
             vec3 viewDir = normalize(viewPos - FragPos);
@@ -97,6 +106,7 @@ void main()
                 specular = light.specular * spec * specTexVec;
 		    }        
             if (lightingType == POINT) specular *= attenuation;
+            if (lightingType == SPOTLIGHT) specular *= intensity;
 
             vec3 result = ambient + diffuse + specular;
 

@@ -97,6 +97,7 @@ void World::updateAttributes()
 		object->setVec3("light.position", camera->position);
 		object->setVec3("light.direction", camera->front);
 		object->setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+		object->setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
 	}
 
 	object->setFloat("light.constant", light->constant);
