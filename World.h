@@ -13,13 +13,14 @@ class Camera;  // forward declaration
 class World
 {
 public:
-	World(GLFWwindow* win, Camera* cam, Shader* obj, LightSource* lgt, MaterialManager* mng);
+	World(GLFWwindow* win, Camera* cam, Shader* obj, MaterialManager* mng, unsigned int nLgts = 0, LightSource* lgts = NULL);
 	~World();
 
 	GLFWwindow* window;
 	Shader* object;
 	Camera* camera;
-	LightSource* light;
+	int numLights;
+	LightSource* lights[MAX_LIGHTS];
 	MaterialManager* matManager;
 
 	glm::mat4 view;
@@ -32,13 +33,14 @@ public:
 	float lastFrame;
 	float currentFrame;
 
+	bool doLogging = true;
+
 	// actions
 	// ==========================================================================
 	// 1 Controls if the light spins or not
+	// TODO: reimplement for multiple lights
 	bool staticLight = true;
 	float currentLightRotationAngle = 0.0f;
-	// 2 Controls if the shading is calculated in view space or not
-	bool shadeInViewSpace = false;
 	// 3 Toggle shading in Gouraud or Phong
 	bool toggleGouraudPhong = false;
 	// 7 Start / Stop Screen Recording
@@ -48,11 +50,12 @@ public:
 	float recordingStartedAt;
 	void exportCurrentFrame();
 	// 8 lighting types
-	unsigned int lightingType = 0;
+	//unsigned int lightingType = 0;
 	const unsigned int numLightingTypes = 3;
 
 	// main update function for everything contained inside world
 	void update();
+	void draw();
 
 	// support functions for update
 	void updateTime();

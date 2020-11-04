@@ -1,5 +1,9 @@
 #ifndef SHADER_H
 #define SHADER_H
+#define MAX_LIGHTS 6
+#define POINT 0
+#define DIRECTIONAL 1
+#define SPOTLIGHT 2
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -48,6 +52,14 @@ public:
 	glm::vec3 direction = glm::vec3(0.0f);
 	void setDirection(glm::vec3 newDir);
 
+	// TODO: rotation
+	bool rotating = false;
+	float rotationAngle = glm::radians(0.0f);
+	glm::vec3 pointOfRotation = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	// for scaling geometry
+	glm::vec3 size = glm::vec3(1.0f);
+
 	// update shaders
 	void update();
 	// draw loaded geometry 
@@ -92,6 +104,9 @@ public:
 	bool addEmission = false;
 	bool animateEmission = false;
 
+	glm::mat4 model = glm::mat4(1.0f);
+	glm::mat3 getNormalMatrix();
+
 private:
 	unsigned int VBO;
 	unsigned int VAO;
@@ -115,7 +130,14 @@ private:
 class LightSource : public Shader
 {
 public:
-	using Shader::Shader;
+	LightSource(
+		int lightType,
+		Geometry geo, Material mat,
+		const char* vertPath = "lightSource.vs", const char* fragPath = "lightSource.fs",
+		Texture* textures = NULL, unsigned int nTex = 0
+	) : Shader(vertPath, fragPath, geo, mat, textures, nTex) {
+		this->type = lightType;
+	};
 
 	int attenuationIndex = 3;
 	static const int numAttenuationSettings = 12;
@@ -140,6 +162,14 @@ public:
 	float linear = attenuation[attenuationIndex].z;
 	float quadratic = attenuation[attenuationIndex].w;
 
+	float innerBeam = glm::cos(glm::radians(12.5f));
+	float outerBeam = glm::cos(glm::radians(17.5f));
+	int type;
+
+	std::string uniform(int i, std::string name);
+
+	// make lights smaller than other geo
+	glm::vec3 size = glm::vec3(0.2f);
 };
 
 #endif

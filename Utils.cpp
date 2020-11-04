@@ -113,20 +113,19 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 
 	if (key == GLFW_KEY_1)
 	{
-		world->staticLight = !world->staticLight;
+		// TODO: reimplement for multiple lights
+		//world->staticLight = !world->staticLight;
+		std::cout << "Moving lights temporarily disabled" << std::endl;
 	}
 	if (key == GLFW_KEY_2)
 	{
-		world->shadeInViewSpace = !world->shadeInViewSpace;
-		std::cout 
-			<< "Toggled shading in viewspace " << world->shadeInViewSpace 
-		<< std::endl;
+		std::cout << "No command set for key 2 " << std::endl;
 	}
 	if (key == GLFW_KEY_3)
 	{
 		world->toggleGouraudPhong = !world->toggleGouraudPhong;
 		std::cout
-			<< "Toggled Gouraud/Phong shading " << world->toggleGouraudPhong
+			<< "Toggled Gouraud/Phong shading <<deprecated>>" << world->toggleGouraudPhong
 			<< std::endl;
 	}
 	if (key == GLFW_KEY_4)
@@ -153,16 +152,18 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 	}
 	if (key == GLFW_KEY_8)
 	{
-		world->lightingType = (world->lightingType + 1) % world->numLightingTypes;
-		std::cout << "Switched to lighting type " << world->lightingType << std::endl;
+		//world->lightingType = (world->lightingType + 1) % world->numLightingTypes;
+		//std::cout << "Switched to lighting type " << world->lightingType << std::endl;
+		std::cout << "Switching lighting type deprecated, pending multiple lights implementation" << std::endl;
 	}
 
 	if (key == GLFW_KEY_EQUAL)
 	{
-		world->light->ambient.reset();
-		world->light->diffuse.reset();
-		world->light->specular.reset();
-		world->object->shininess.reset();
+		//world->light->ambient.reset();
+		//world->light->diffuse.reset();
+		//world->light->specular.reset();
+		//world->object->shininess.reset();
+		std::cout << "Resetting lights deprecated, pending multiple lights implementation" << std::endl;
 	}
 
 	int attributeChange = 0;
@@ -187,57 +188,57 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 	// set the values based on colour, attribute and modifier
 	if (attributeChange)
 	{
+		std::cout << "Attribute change deprecated, pending multiple lights implementation" << std::endl;
+		//if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+		//{
+		//	if (rPressed || gPressed || bPressed)
+		//	{
+		//		world->light->ambient.update(rChange, gChange, bChange);
+		//	}
+		//	else
+		//	{
+		//		world->light->ambient.update(attributeChange);
+		//	}
 
-		if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
-		{
-			if (rPressed || gPressed || bPressed)
-			{
-				world->light->ambient.update(rChange, gChange, bChange);
-			}
-			else
-			{
-				world->light->ambient.update(attributeChange);
-			}
+		//	std::string vector = glm::to_string(world->light->ambient.value);
+		//	std::cout 
+		//		<< "light.ambient=" << vector 
+		//		<< " " << rChange << " " << gChange << " " << bChange
+		//		<< std::endl;
+		//}
+		//if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+		//{
+		//	if (rPressed || gPressed || bPressed)
+		//	{
+		//		world->light->diffuse.update(rChange, gChange, bChange);
+		//	}
+		//	else
+		//	{
+		//		world->light->diffuse.update(attributeChange);
+		//	}
 
-			std::string vector = glm::to_string(world->light->ambient.value);
-			std::cout 
-				<< "light.ambient=" << vector 
-				<< " " << rChange << " " << gChange << " " << bChange
-				<< std::endl;
-		}
-		if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
-		{
-			if (rPressed || gPressed || bPressed)
-			{
-				world->light->diffuse.update(rChange, gChange, bChange);
-			}
-			else
-			{
-				world->light->diffuse.update(attributeChange);
-			}
+		//	std::string vector = glm::to_string(world->light->diffuse.value);
+		//	std::cout << "light.diffuse" << "=" << vector << std::endl;
+		//}
+		//if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+		//{
+		//	if (rPressed || gPressed || bPressed)
+		//	{
+		//		world->light->specular.update(rChange, gChange, bChange);
+		//	}
+		//	else
+		//	{
+		//		world->light->specular.update(attributeChange);
+		//	}
 
-			std::string vector = glm::to_string(world->light->diffuse.value);
-			std::cout << "light.diffuse" << "=" << vector << std::endl;
-		}
-		if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
-		{
-			if (rPressed || gPressed || bPressed)
-			{
-				world->light->specular.update(rChange, gChange, bChange);
-			}
-			else
-			{
-				world->light->specular.update(attributeChange);
-			}
-
-			std::string vector = glm::to_string(world->light->specular.value);
-			std::cout << "light.specular" << "=" << vector << std::endl;
-		}
-		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
-		{
-			world->object->shininess.update(attributeChange);
-			std::cout << "object.shininess=" << world->object->shininess.value << std::endl;
-		}
+		//	std::string vector = glm::to_string(world->light->specular.value);
+		//	std::cout << "light.specular" << "=" << vector << std::endl;
+		//}
+		//if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+		//{
+		//	world->object->shininess.update(attributeChange);
+		//	std::cout << "object.shininess=" << world->object->shininess.value << std::endl;
+		//}
 	}
 
 
@@ -254,9 +255,10 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 	}
 	if (key == GLFW_KEY_L)
 	{
-		int newIndex = (world->light->attenuationIndex + 1) % world->light->numAttenuationSettings;
-		world->light->setAttenuation(newIndex);
-		std::cout << "Set light attenuation to " << world->light->distance << std::endl;
+		// TODO: support for multiple lights
+		//int newIndex = (world->light->attenuationIndex + 1) % world->light->numAttenuationSettings;
+		//world->light->setAttenuation(newIndex);
+		//std::cout << "Set light attenuation to " << world->light->distance << std::endl;
 	}
 
 	// Deprecated

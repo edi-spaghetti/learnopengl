@@ -27,7 +27,7 @@ Shader::Shader(
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
 
-	// tidy up by deleting vert and prog shaders
+	// tidy up by deleting vert and frag shaders
 	glDeleteShader(vert_id);
 	glDeleteShader(frag_id);
 
@@ -94,7 +94,6 @@ void Shader::draw()
 		if (doLogging)
 		{
 			std::cout << "DrawElements: count=" << geometry.dataLength << std::endl;
-			doLogging = false;
 		}
 
 	}
@@ -103,9 +102,11 @@ void Shader::draw()
 		if (doLogging)
 		{
 			std::cout << "DrawArrays: count=" << geometry.dataLength << std::endl;
-			doLogging = false;
 		}
 	}
+
+	if (this->doLogging) std::cout << "Finished first draw of shader: " << this->ID << std::endl;
+	doLogging = false;
 }
 
 void Shader::translate(float x, float y)
@@ -163,6 +164,16 @@ void Shader::setDirection(glm::vec3 newDir)
 		initDirection = newDir;
 	}
 	direction = newDir;
+}
+
+
+glm::mat3 Shader::getNormalMatrix()
+{
+	return glm::mat3(
+		glm::transpose(
+			glm::inverse(this->model)
+		)
+	);
 }
 
 
@@ -445,6 +456,7 @@ void Shader::setVec3(const std::string& name, glm::vec3 value) const
 // light source functions
 // ---------------------------------------------------------------------------
 
+
 void LightSource::setAttenuation(int index)
 {
 	attenuationIndex = index;
@@ -453,4 +465,10 @@ void LightSource::setAttenuation(int index)
 	constant = attenuation[index].y;
 	linear = attenuation[index].z;
 	quadratic = attenuation[index].w;
+}
+
+
+std::string LightSource::uniform(int i, std::string name)
+{
+	return "lights[" + std::to_string(i) + "]." + name;
 }

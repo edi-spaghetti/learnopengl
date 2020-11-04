@@ -290,27 +290,48 @@ int main()
 		matManager.emerald,
 		textures, nTextures
 	);
-	LightSource lightSourceShader = LightSource(
-		"lightSource.vs", "lightSource.fs", 
-		lightingCube, 
-		matManager.cyan_plastic
-	);
+
+	const int numLights = 6;
+	LightSource lights[numLights] = {
+		LightSource(POINT, lightingCube, matManager.emerald),
+		LightSource(POINT, lightingCube, matManager.copper),
+		LightSource(POINT, lightingCube, matManager.cyan_plastic),
+		LightSource(POINT, lightingCube, matManager.pearl),
+		LightSource(SPOTLIGHT, lightingCube, matManager.bronze),
+		LightSource(DIRECTIONAL, lightingCube, matManager.silver)
+	};
+	for (int i = 0; i < numLights; i++)
+	{
+		
+		// set a random height, and make the directional light much higher
+		float yPos = glm::linearRand(0.0f, 2.0f);
+		if (lights[i].type == DIRECTIONAL) yPos += 3.0f;
+
+		// set light's starting position in world space
+		lights[i].setPosition(glm::vec3(
+			glm::linearRand(-2.0f, 2.0f),
+			yPos,
+			glm::linearRand(-2.0f, 2.0f)
+		));
+
+		// set up a lighting direction if we switch to directional lighting
+		lights[i].setDirection(
+			glm::vec3(
+				glm::linearRand(-0.2f, 0.2f),
+				-1.0f,
+				glm::linearRand(-0.3f, 0.3f)
+			)
+		);
+
+	}
 
 	Camera camera = Camera();
 	// set up world with camera, objects and lights
 	// variables required by objects from lights are also set here
-	World world = World(window, &camera, &objectShader, &lightSourceShader, &matManager);
+	World world = World(window, &camera, &objectShader, &matManager, numLights, lights);
 
 	// setup user controls
 	setupUserControls(window, &world);
-
-	// set light's starting position in world space
-	lightSourceShader.setPosition(glm::vec3(1.2f, 1.0f, 2.0f));
-	// instantiate container for updated light position it moving it
-	glm::vec3 newLightPos;
-
-	// set up a lighting direction if we switch to directional lighting
-	lightSourceShader.setDirection(glm::vec3(-0.2f, -1.0f, -0.3f));
 
 	// start render loop
 	while (!glfwWindowShouldClose(window))
@@ -323,68 +344,7 @@ int main()
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// move light source to another location and draw
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, world.getLightRotationAngle(), glm::vec3(0.0, 1.0, 0.0));
-		
-		// recalculate light position after rotation
-		// do this before adding world space translation because lightPos
-		// already is in world space, so multiplying the model after adding 
-		// translation would apply the translation twice
-		if (world.shadeInViewSpace)
-		{
-			newLightPos = glm::vec3(
-				world.view * model * glm::vec4(lightSourceShader.initPosition, 1.0f)
-			);
-		}
-		else
-		{
-			newLightPos = glm::vec3(model * glm::vec4(lightSourceShader.initPosition, 1.0f));
-		}
-		
-		model = glm::translate(model, lightSourceShader.initPosition);
-
-		// now that we've used the light position in the model we can update
-		lightSourceShader.setPosition(newLightPos);
-		if (world.lightingType != SPOTLIGHT)
-		{
-			lightSourceShader.setVec3("light.position", lightSourceShader.position);
-		}
-
-
-		model = glm::scale(model, glm::vec3(0.2f));
-		lightSourceShader.setMatrix("model", model);
-		lightSourceShader.draw();
-
-		// set model matrix for light source at id matrix
-		model = glm::mat4(1.0f);
-		objectShader.setMatrix("model", model);
-		if (world.lightingType != SPOTLIGHT)
-		{
-			objectShader.setVec3("light.position", lightSourceShader.position);
-		}
-
-		// generate normal matrix from model-view matrix to get in view space
-		glm::mat3 viewNormalMatrix = glm::transpose(glm::inverse(world.view * model));
-		// generate normal matrix from model matrix
-		glm::mat3 modelNormalMatrix = glm::transpose(glm::inverse(model));
-
-		if (world.shadeInViewSpace)
-		{
-			objectShader.setVec3("viewPos", glm::vec3(0.0f));
-			objectShader.setMatrix("normalMatrix", viewNormalMatrix);
-			// not doing lighting cube in view space, so always set in world space
-			lightSourceShader.setMatrix("normalMatrix", modelNormalMatrix);
-		}
-		else
-		{
-			objectShader.setVec3("viewPos", world.camera->position);
-			objectShader.setMatrix("normalMatrix", modelNormalMatrix);
-			lightSourceShader.setMatrix("normalMatrix", modelNormalMatrix);
-		}
-		
-
-		objectShader.draw();
+		world.draw();
 
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);

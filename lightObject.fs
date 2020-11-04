@@ -1,29 +1,26 @@
 #version 330 core
+#define MAX_LIGHTS 6
+#define POINT 0
+#define DIRECTIONAL 1
+#define SPOTLIGHT 2
+
+// IO
 in vec3 Normal;
 in vec3 FragPos;
 in vec4 gFragColor;
 in vec2 TexCoords;
 out vec4 FragColor;
 
-uniform highp int toggleGouraudPhong = 0;
-uniform bool invertSpec = false;
-uniform bool addEmission = false;
-uniform bool animateEmission = false;
-uniform float time;
-uniform highp int lightingType;
-const int POINT = 0;
-const int DIRECTIONAL = 1;
-const int SPOTLIGHT = 2;
-
+// struct declarations
 struct Material {
     sampler2D diffuse;
     sampler2D specular;
     sampler2D emission;
     float shininess;
 };
-uniform Material material;
 
 struct Light {
+    int type;
     vec3 position;
     vec3 direction;
 
@@ -35,131 +32,194 @@ struct Light {
     float linear;
     float quadratic;
 
-    float cutOff;
-    float outerCutOff;
+    float innerBeam;
+    float outerBeam;
 };
-uniform Light light;
 
+// uniforms
+uniform Material material;
+uniform Light lights[MAX_LIGHTS];
+uniform highp int toggleGouraudPhong = 0;
+uniform bool invertSpec = false;
+uniform bool addEmission = false;
+uniform bool animateEmission = false;
+uniform float time;
+uniform int numLights;
 uniform highp vec3 viewPos;
 
+// function declarations
+vec4 CalcLight();
+vec3 CalcDirLight(Light light, vec3 normal, vec3 viewDir);
+vec3 CalcPointLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir);
+vec3 CalcSpotLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir);
+vec3 CalcAmbient(Light light);
+vec3 CalcDiffuse(Light light, vec3 lgtDirection, vec3 normal);
+vec3 CalcSpecular(Light light, vec3 lgtDirection, vec3 viewDirection, vec3 normal);
+vec3 CalcEmission(bool animated);
 
-void main()
-{
 
+void main() {
     if (!bool(toggleGouraudPhong))
     {
-        // calculate light direction
-        vec3 lightDir;
-        float attenuation;
-        float theta;
-        float epsilon;
-        float intensity;
-        if (lightingType == POINT || lightingType == SPOTLIGHT)
-        {
-            lightDir = normalize(light.position - FragPos);
-
-            // calculate attenuation
-            float distance = length(light.position - FragPos);
-            attenuation = 1.0 / (
-                light.constant + 
-                light.linear * distance + 
-                light.quadratic * pow(distance, 2)
-            );
-        }
-        if (lightingType == DIRECTIONAL) lightDir = normalize(-light.direction);
-        if (lightingType == SPOTLIGHT) 
-        {
-            theta = dot(lightDir, normalize(-light.direction));
-            epsilon = light.cutOff - light.outerCutOff;
-            intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
-        }
-
-        if (lightingType != SPOTLIGHT || intensity > 0.0f)
-        {
-
-            // calculate ambient
-            vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
-            if (lightingType == POINT) ambient *= attenuation;
-
-            // calculate diffuse
-            vec3 norm = normalize(Normal);
-            float diffMult = max(dot(norm, lightDir), 0.0);
-            vec3 diffuse = light.diffuse * diffMult * vec3(texture(material.diffuse, TexCoords));
-            if (lightingType == POINT) diffuse *= attenuation;
-            if (lightingType == SPOTLIGHT) diffuse *= intensity;
-
-            // calculate specular
-            vec3 viewDir = normalize(viewPos - FragPos);
-            vec3 reflectDir = reflect(-lightDir, norm);
-            float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-
-            vec3 specTexVec;
-            vec3 specular;
-            if (invertSpec)
-            {
-                specTexVec = vec3(1.0f, 1.0f, 1.0f) - vec3(texture(material.specular, TexCoords));
-                specular = light.specular * spec * specTexVec;
-		    }
-            else 
-            {
-                specTexVec = vec3(texture(material.specular, TexCoords));
-                specular = light.specular * spec * specTexVec;
-		    }        
-            if (lightingType == POINT) specular *= attenuation;
-            if (lightingType == SPOTLIGHT) specular *= intensity;
-
-            vec3 result = ambient + diffuse + specular;
-
-            if (addEmission)
-            {
-                if (animateEmission)
-                {
-                    vec3 emission = texture(material.emission, TexCoords).rgb;
-                    float loopTime = 10.0;  // seconds
-                    float currentTime = (mod(time, loopTime) / loopTime) / 2;
-                    float startTime;
-                    float endTime;
-                    float fallOff = 0.0f;
-                    float duration = 0.25f;
-
-                    vec3 emissionColour = vec3(
-                        31.0f / 255.0f, 
-                        109.0f / 255.0f, 
-                        31.0f / 255.0f
-                    );
-
-                    for (int i = 0; i < 3; i++)
-                    {
-                        startTime = emission[i] - 0.5f;
-                        if (0.001f < emission[i] && startTime < currentTime)
-                        {
-                            endTime = startTime + duration;
-                            float newFallOff = max(endTime - currentTime, 0.0f);
-                            fallOff = max(newFallOff, fallOff);                    
-					    }
-				    }
-
-                    result = result + (emissionColour * fallOff);
-
-			    }
-                else{
-                    // calculate emission the regular boring way
-                    vec3 emission = vec3(texture(material.emission, TexCoords));
-                    result = result + emission;  
-			    }
-		    }
-
-            FragColor = vec4(result, 1.0); 
-		}
-        else
-        {
-            vec3 ambient = vec3(texture(material.diffuse, TexCoords));
-            FragColor = vec4(light.ambient * ambient, 1.0);
-		}
+        FragColor = CalcLight();
 	}
     else
     {
         FragColor = gFragColor;
 	}
+}
 
+
+vec4 CalcLight() {
+
+    // common properties
+    vec3 norm = normalize(Normal);
+    vec3 viewDir = normalize(viewPos - FragPos);
+
+    // init container for results
+    vec3 result = vec3(0.0f, 0.0f, 0.0f);
+
+    // cycle through lights and apply by type
+    for (int i = 0; i < numLights; i++)
+    {
+        if (lights[i].type == DIRECTIONAL) result += CalcDirLight(lights[i], norm, viewDir);
+        if (lights[i].type == POINT) result +=  CalcPointLight(lights[i], norm, FragPos, viewDir);
+        if (lights[i].type == SPOTLIGHT) result += CalcSpotLight(lights[i], norm, FragPos, viewDir);
+	}
+
+    // apply emission (if any)
+    if (addEmission) result += CalcEmission(animateEmission);
+
+    return vec4(result, 1.0f);
+}
+
+
+vec3 CalcAmbient(Light light) {
+    return light.ambient * vec3(texture(material.diffuse, TexCoords));
+}
+
+
+vec3 CalcDiffuse(Light light, vec3 lgtDirection, vec3 normal) {
+    float diffMult = max(dot(normal, lgtDirection), 0.0);
+    return light.diffuse * diffMult * vec3(texture(material.diffuse, TexCoords));
+}
+
+
+vec3 CalcSpecular(Light light, vec3 lgtDirection, vec3 viewDirection, vec3 normal) {
+
+    vec3 reflectDir = reflect(-lgtDirection, normal);
+    float spec = pow(max(dot(viewDirection, reflectDir), 0.0), material.shininess);
+
+    vec3 specTexVec = vec3(texture(material.specular, TexCoords));
+    if (invertSpec) specTexVec = vec3(1.0f, 1.0f, 1.0f) - specTexVec;
+
+    return light.specular * spec * specTexVec;
+}
+
+
+vec3 CalcEmission(bool animated) {
+
+    vec3 emission = vec3(texture(material.emission, TexCoords)).rgb;
+    if (animated)
+    {
+        float loopTime = 10.0;  // seconds
+        float currentTime = (mod(time, loopTime) / loopTime) / 2;
+        float startTime;
+        float endTime;
+        float fallOff = 0.0f;
+        float duration = 0.25f;
+
+        // TOOD: have this set by a uniform
+        vec3 emissionColour = vec3(
+            31.0f / 255.0f, 
+            109.0f / 255.0f, 
+            31.0f / 255.0f
+        );
+
+        for (int i = 0; i < 3; i++)
+        {
+            startTime = emission[i] - 0.5f;
+            if (0.001f < emission[i] && startTime < currentTime)
+            {
+                endTime = startTime + duration;
+                float newFallOff = max(endTime - currentTime, 0.0f);
+                fallOff = max(newFallOff, fallOff);                    
+			}
+		}
+        emission = emissionColour * fallOff;
+	}
+
+    return emission;
+}
+
+
+vec3 CalcDirLight(Light light, vec3 normal, vec3 viewDir) {
+    
+    // properties
+    vec3 lightDir = normalize(-light.direction);
+
+    // calculate
+    vec3 ambient = CalcAmbient(light);
+    vec3 diffuse = CalcDiffuse(light, lightDir, normal);
+    vec3 specular = CalcSpecular(light, lightDir, viewDir, normal);
+    
+    // combine and return
+    return (ambient + diffuse + specular);
+}
+
+
+vec3 CalcPointLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir) {
+
+    // properties
+    vec3 lightDir = normalize(light.position - fragPos);
+    float distance = length(light.position - fragPos);
+    float attenuation = 1.0 / (
+        light.constant + 
+        light.linear * distance + 
+        light.quadratic * pow(distance, 2)
+    );
+
+    // calculate
+    vec3 ambient = CalcAmbient(light);
+    vec3 diffuse = CalcDiffuse(light, lightDir, normal);
+    vec3 specular = CalcSpecular(light, lightDir, viewDir, normal);
+
+    // attenuate
+    ambient *= attenuation;
+    diffuse *= attenuation;
+    specular *= attenuation;
+
+    // combine and return
+    return (ambient + diffuse + specular);
+}
+
+
+vec3 CalcSpotLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir) {
+
+    // properties
+    vec3 lightDir = normalize(light.position - fragPos);
+    float distance = length(light.position - fragPos);
+    float attenuation = 1.0 / (
+        light.constant + 
+        light.linear * distance + 
+        light.quadratic * pow(distance, 2)
+    );
+    float theta = dot(lightDir, normalize(-light.direction));
+    float epsilon = light.innerBeam - light.outerBeam;
+    float intensity = clamp((theta - light.outerBeam) / epsilon, 0.0, 1.0);
+
+    // calculate ambient now because we'll defo need it
+    vec3 ambient = CalcAmbient(light);
+
+    // init diffuse and spec as 0
+    vec3 diffuse = vec3(0.0f, 0.0f, 0.0f);
+    vec3 specular = vec3(0.0f, 0.0f, 0.0f);
+    // and update them if we're within the cone
+    if (intensity > 0.0f)
+    {
+        diffuse = CalcDiffuse(light, lightDir, normal) * intensity * attenuation;
+        specular = CalcSpecular(light, lightDir, viewDir, normal) * intensity * attenuation;
+	}
+
+    return (ambient + diffuse + specular);
 }

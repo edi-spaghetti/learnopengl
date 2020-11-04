@@ -19,15 +19,16 @@ uniform highp vec3 viewPos;
 void main()
 {
     // calculate ambient
-    vec3 ambient = light.ambient * 2;
+    vec3 diffuse = light.diffuse;
 
     // calculate distance from fragment to light source
-    float distance = sqrt(
-        pow(light.position.x - FragPos.x, 2) +
-        pow(light.position.y - FragPos.y, 2) +
-        pow(light.position.z - FragPos.z, 2)
-	);
-
-    vec3 result = ambient * (1.0f / pow(distance, 2));
+    float distance = length(light.position - FragPos);
+    float attenuation = 1.0 / (
+        1.0 
+        + (0.7 * distance) 
+        + (1.8 * pow(distance, 2))
+    );
+    
+    vec3 result = diffuse * attenuation;
     FragColor = vec4(result, 1.0);
 }

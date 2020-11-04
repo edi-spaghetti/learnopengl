@@ -8,7 +8,6 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform mat3 normalMatrix;
 
-uniform bool shadeInViewSpace = false;
 uniform highp int toggleGouraudPhong = 0;
 uniform highp int lightingType;
 const int POINT = 0;
@@ -51,15 +50,14 @@ void main()
 {
     TexCoords = aTexCoords;
     Normal = normalMatrix * aNormal;
-    if (shadeInViewSpace)
-    {
-        FragPos = vec3(view * model * vec4(aPos, 1.0));
-    }
-    else
-    {
-        FragPos = vec3(model * vec4(aPos, 1.0));
-    }
+    FragPos = vec3(model * vec4(aPos, 1.0));
 
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+
+
+void deprecatedGouraudShading()
+{
     if (bool(toggleGouraudPhong))
     {
         // calculate light direction
@@ -99,6 +97,4 @@ void main()
         vec3 result = ambient + diffuse + specular;
         gFragColor = vec4(result, 1.0);
 	}
-
-    gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
