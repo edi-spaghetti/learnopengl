@@ -2,9 +2,9 @@ includes:
     GLFW 3.3.2 (https://www.glfw.org/download.html)
     glad C++ OpenGL 3.3 Profile: Core, Loader Generated (https://glad.dav1d.de/)
         - also contains KHR
+    Assimp 5.0.1 (http://assimp.org/index.php/downloads)
 
 libraries:
     glfw3.lib 64-bit, built with CMake 3.18.3
     opengl32.lib
-
-    
+    assimp-vc142-mtd.lib
