@@ -14,10 +14,11 @@ class Texture
 public:
 	unsigned int ID;
 	std::string name;
+	std::string path;
 	bool isFlipped;
 
-	Texture(const char* path, const char* varName = NULL,
-		bool flip = false, bool hasAlpha = false, 
+	Texture(std::string path, const char* varName = NULL,
+		bool flip = false, 
 		int wrapping = GL_REPEAT, int filtering = GL_LINEAR);
 	~Texture();
 

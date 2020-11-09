@@ -2,33 +2,29 @@
 #include "stb_image.h"
 #include "Texture.h"
 
-Texture::Texture(const char* path, const char* varName, bool flip, 
-	bool hasAlpha, int wrapping, int filtering)
+Texture::Texture(std::string path, const char* varName, bool flip, 
+	int wrapping, int filtering)
 {
 	// generate name without extension
-	// assumes no subfolders and filename is usable as variable name
-	std::string strPath = static_cast<std::string>(path);
+	// path expected to be absolute, including path separators
+	this->path = path;
+	std::string basename = path.substr(path.find_last_of("\\/") + 1);
 	std::string delimiter = ".";
-	std::string token = strPath.substr(0, strPath.find(delimiter));
+	std::string token = basename.substr(0, basename.find(delimiter));
 
 	if (varName == NULL)
-	{
 		name = token;
-	}
 	else
-	{
 		name = static_cast<std::string>(varName);
-	}
 	
-
 	isFlipped = flip;
-
-	// if no texture is specified, bail out now
-	if (!path) return;
 
 	// bind texture
 	glGenTextures(1, &ID);
 	glBindTexture(GL_TEXTURE_2D, ID);
+
+	// if no texture is specified, bail out now
+	if (!path.empty()) return;
 
 	// set wrapping / filtering options
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapping);
@@ -37,23 +33,20 @@ Texture::Texture(const char* path, const char* varName, bool flip,
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filtering);
 
 	stbi_set_flip_vertically_on_load(flip);
-	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
-	if (!data)
-	{
-		std::cout << "Failed to load texture at " << path << std::endl;
+	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+	if (!data) {
+		std::cout << "Failed to load texture at " << path.c_str() << std::endl;
 		stbi_image_free(data);
 		return;
 	}
 
 	int format;
-	if (hasAlpha)
-	{
-		format = GL_RGBA;
-	}
-	else
-	{
+	if (nrChannels == 1)
+		format = GL_RED;
+	else if (nrChannels == 3)
 		format = GL_RGB;
-	}
+	else if (nrChannels == 4)
+		format = GL_RGBA;
 
 	// generate the texture + mipmaps
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,

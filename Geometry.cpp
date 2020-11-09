@@ -97,3 +97,149 @@ void Mesh::draw(Shader &shader) {
 		<< std::endl;
 	doLogging = false;
 }
+
+
+void Model::draw(Shader& shader)
+{
+	for (unsigned int i = 0; i < this->meshes.size(); i++)
+		meshes[i].draw(shader);
+}
+
+void Model::loadModel(std::string path)
+{
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+	{
+		std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
+		return;
+	}
+	directory = path.substr(0, path.find_last_of('\\/'));
+	std::cout << "directory=" << directory << std::endl;
+
+	processNode(scene->mRootNode, scene);
+}
+
+
+void Model::processNode(aiNode* node, const aiScene* scene)
+{
+
+	// prcoess all node's meshes if it has any
+	for (unsigned int i = 0; i < node->mNumMeshes; i++)
+	{
+		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+		meshes.push_back(processMesh(mesh, scene));
+	}
+
+	// now recursively drill down
+	for (unsigned int i = 0; i < node->mNumChildren; i++)
+	{
+		processNode(node->mChildren[i], scene);
+	}
+}
+
+Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
+{
+
+	// process verticies
+	std::vector<Vertex> vertices;
+	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+	{
+		Vertex vertex;
+		glm::vec3 vector;
+
+		// position vectors
+
+		for (int j = 0; j < 3; j++)
+			vector[j] = mesh->mVertices[i][j];
+		vertex.position = vector;
+
+		// indices
+		if (mesh->HasNormals())
+		{
+			for (int j = 0; j < 3; j++)
+				vector[j] = mesh->mNormals[i][j];
+			vertex.normal = vector;
+		}
+
+		// texture coords
+		if (mesh->mTextureCoords[0])
+		{
+			glm::vec2 tex;
+			tex.x = mesh->mTextureCoords[0][i].x;
+			tex.y = mesh->mTextureCoords[0][i].y;
+			vertex.texCoords = tex;
+		}
+		else
+		{
+			vertex.texCoords = glm::vec2(0.0f, 0.0f);
+		}
+
+		vertices.push_back(vertex);
+	}
+
+	// process indices
+	std::vector<unsigned int> indices;
+	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+	{
+		aiFace face = mesh->mFaces[i];
+		for (unsigned int j = 0; j < face.mNumIndices; j++)
+		{
+			indices.push_back(face.mIndices[j]);
+		}
+	}
+
+	// process textures
+	std::vector<Texture> textures;
+	if (mesh->mMaterialIndex >= 0)
+	{
+		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+		// diffuse
+		std::vector<Texture> diffuseMaps = loadMaterialTextures(material, 
+			aiTextureType_DIFFUSE, "texture_diffuse");
+		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+
+		// specular
+		std::vector<Texture> specularMaps = loadMaterialTextures(material,
+			aiTextureType_SPECULAR, "texture_specular");
+		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+	}
+}
+
+
+std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat,
+	aiTextureType type, std::string typeName)
+{
+	std::vector<Texture> textures;
+	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+	{
+		aiString str;
+		mat->GetTexture(type, i, &str);
+		bool skip = false;
+		for (unsigned int j = 0; j < textures_loaded.size(); j++)
+		{
+			const char* srcPath = textures_loaded[j].path.data();
+			const char* trgPath = str.C_Str();
+			bool match = std::strcmp(srcPath, trgPath) == 0;
+			if (match)
+			{
+				// if matched path, texture is already loaded, so add it to list
+				textures.push_back(textures_loaded[j]);
+				skip = true;
+				break;
+			}
+		}
+		if (!skip)
+		{
+			// initialise a new texture at path
+			Texture texture = Texture(directory + '/' + str.C_Str());
+			textures.push_back(texture);
+		}
+			
+		
+	}
+
+	return textures;
+}

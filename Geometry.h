@@ -4,6 +4,9 @@
 #include <vector>
 
 #include <glm/glm.hpp>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 #include "Shader.h"
 #include "Texture.h"
@@ -51,6 +54,25 @@ private:
 	unsigned int VAO, VBO, EBO;
 	void setupMesh();
 	bool doLogging = true;
+};
+
+
+class Model {
+public: 
+	Model(char* path) {
+		loadModel(path);
+	};
+	void draw(Shader& shader);
+private:
+	std::vector<Mesh> meshes;
+	std::vector<Texture> textures_loaded;
+	std::string directory;
+
+	void loadModel(std::string path);
+	void processNode(aiNode* node, const aiScene* scene);
+	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, 
+		aiTextureType type, std::string typeName);
 };
 
 
