@@ -24,7 +24,8 @@ Texture::Texture(std::string path, const char* varName, bool flip,
 	glBindTexture(GL_TEXTURE_2D, ID);
 
 	// if no texture is specified, bail out now
-	if (!path.empty()) return;
+	if (path.empty()) return;
+	std::cout << "Loading texture " << name << " ID=" << ID << std::endl;
 
 	// set wrapping / filtering options
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapping);
@@ -69,5 +70,5 @@ Texture::Texture(std::string path, const char* varName, bool flip,
 
 Texture::~Texture()
 {
-	std::cout << "Deconstructing Texture ID=" << ID << std::endl;
+	//std::cout << "Deconstructing Texture ID=" << ID << std::endl;
 }

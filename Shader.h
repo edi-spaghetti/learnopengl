@@ -38,6 +38,7 @@ public:
 		const char* vertPath, const char* fragPath,
 		Geometry geo, Material mat,
 		Texture* textures = NULL, unsigned int nTex = 0);
+	Shader(const char* vertPath, const char* fragPath, Model mod);
 	~Shader();
 
 	// world space position
@@ -94,11 +95,13 @@ public:
 	unsigned int numTextures;
 	Texture* texList;
 	Material material;
+	Model mod;
 
 	bool geometryLoaded = false;
 	bool elementBuffer = false;
 	bool texLoaded = false;
 	bool materialLoaded = false;
+	bool modelLoaded = false;
 
 	bool invertSpec = false;
 	bool addEmission = false;
@@ -121,6 +124,7 @@ private:
 
 	bool doLogging = true;
 
+	void createShaderProgram(const char* vertPath, const char* fragPath);
 	static std::string readShaderFile(const char* shader_file);
 	int createVertexShader(const char* path);
 	int createFragmentShader(const char* path);

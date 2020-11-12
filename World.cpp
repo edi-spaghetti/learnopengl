@@ -154,11 +154,17 @@ void World::update()
 
 void World::draw()
 {
+	if (doLogging) std::cout << " // Draw" << std::endl;
+	if (doLogging) std::cout << "--------------------------------------------" << std::endl;
+
 	object->draw();
 	for (int i = 0; i < numLights; i++)
 	{
 		if (lights[i]->type != SPOTLIGHT) lights[i]->draw();
 	}
+
+	// stop logging after first frame
+	if (this->doLogging) this->doLogging = false;
 }
 
 
@@ -333,9 +339,6 @@ void World::updateAttributes()
 		if (this->doLogging) std::cout << i << " light.shininess > "
 			<< lights[i]->shininess.value << std::endl;
 	}
-
-	// stop logging after first frame
-	if (this->doLogging) this->doLogging = false;
 }
 
 

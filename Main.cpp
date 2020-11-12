@@ -277,19 +277,24 @@ int main()
 
 	MaterialManager matManager = MaterialManager();
 
-	const int nTextures = 3;
-	Texture textures[nTextures] = {
-		Texture("container2.png", "material.diffuse", false, true),
-		Texture("container2_specular.png", "material.specular", false, true),
-		Texture("container2_animated_emission.png", "material.emission", true, false, GL_REPEAT, GL_NEAREST)
-	};
+	//const int nTextures = 3;
+	//Texture textures[nTextures] = {
+	//	Texture("container2.png", "material.diffuse"),
+	//	Texture("container2_specular.png", "material.specular"),
+	//	Texture("container2_animated_emission.png", "material.emission", true, GL_REPEAT, GL_NEAREST)
+	//};
 
-	// construct shaders and load geometry and textures
+	//// construct shaders and load geometry and textures
+	//Shader objectShader = Shader(
+	//	"lightObject.vs", "lightObject.fs", 
+	//	litCube, 
+	//	matManager.emerald,
+	//	textures, nTextures
+	//);
+
 	Shader objectShader = Shader(
-		"lightObject.vs", "lightObject.fs", 
-		litCube, 
-		matManager.emerald,
-		textures, nTextures
+		"lightObject.vs", "lightObject.fs",
+		Model("mod/backpack.obj")
 	);
 
 	const int numLights = 6;

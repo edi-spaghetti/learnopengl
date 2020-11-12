@@ -8,7 +8,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "Shader.h"
 #include "Texture.h"
 
 
@@ -49,7 +48,7 @@ public:
 		std::vector<Texture> textures);
 	~Mesh();
 
-	void draw(Shader &shader);
+	void draw();
 private:
 	unsigned int VAO, VBO, EBO;
 	void setupMesh();
@@ -59,10 +58,11 @@ private:
 
 class Model {
 public: 
-	Model(char* path) {
+	Model() {};
+	Model(std::string path) {
 		loadModel(path);
 	};
-	void draw(Shader& shader);
+	void draw();
 private:
 	std::vector<Mesh> meshes;
 	std::vector<Texture> textures_loaded;

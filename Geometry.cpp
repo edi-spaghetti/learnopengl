@@ -19,10 +19,10 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
 
 Mesh::~Mesh()
 {
-	glDeleteVertexArrays(1, &this->VAO);
-	glDeleteBuffers(1, &this->VBO);
-	glDeleteBuffers(1, &this->EBO);
-	std::cout << "Deleted Buffers and Vertex Arrays" << std::endl;
+	//glDeleteVertexArrays(1, &this->VAO);
+	//glDeleteBuffers(1, &this->VBO);
+	//glDeleteBuffers(1, &this->EBO);
+	//std::cout << "Deleted Buffers and Vertex Arrays" << std::endl;
 }
 
 
@@ -31,19 +31,20 @@ void Mesh::setupMesh()
 	glGenVertexArrays(1, &this->VAO);
 	glGenBuffers(1, &this->VBO);
 	glGenBuffers(1, &this->EBO);
-	std::cout << "Generated Buffers and Vertex Arrays" << std::endl;
 
 	// bind the vertex array
 	glBindVertexArray(this->VAO);
 	// bind and set data into vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
 	glBufferData(GL_ARRAY_BUFFER, this->vSize, &this->vertices[0], GL_STATIC_DRAW);
-	std::cout << "VBO: size=" << this->vSize << std::endl;
 
 	// bind and set element buffers
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->iSize, &this->indices[0], GL_STATIC_DRAW);
-	std::cout << "EBO: size=" << this->iSize << std::endl;
+
+	std::cout << "Generated VBO " << this->vSize
+		<< " EBO " << this->iSize
+		<< std::endl;
 
 	// generate vertex attributes per attribute in source data
 	VertexAttributes va;
@@ -72,7 +73,7 @@ void Mesh::setupMesh()
 }
 
 
-void Mesh::draw(Shader &shader) {
+void Mesh::draw() {
 
 	glBindVertexArray(VAO);
 
@@ -99,10 +100,10 @@ void Mesh::draw(Shader &shader) {
 }
 
 
-void Model::draw(Shader& shader)
+void Model::draw()
 {
 	for (unsigned int i = 0; i < this->meshes.size(); i++)
-		meshes[i].draw(shader);
+		meshes[i].draw();
 }
 
 void Model::loadModel(std::string path)
@@ -138,6 +139,7 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 		processNode(node->mChildren[i], scene);
 	}
 }
+
 
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
@@ -206,6 +208,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 			aiTextureType_SPECULAR, "texture_specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}
+
+	// return a mesh object created from the extracted mesh data
+	return Mesh(vertices, indices, textures);
 }
 
 
@@ -220,11 +225,13 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat,
 		bool skip = false;
 		for (unsigned int j = 0; j < textures_loaded.size(); j++)
 		{
-			const char* srcPath = textures_loaded[j].path.data();
-			const char* trgPath = str.C_Str();
-			bool match = std::strcmp(srcPath, trgPath) == 0;
+			std::string srcPath = textures_loaded[j].path;
+			std::string trgPath = directory + '/' + str.C_Str();
+			std::cout << "Comparing " << srcPath << " & " << trgPath << std::endl;
+			bool match = srcPath.compare(trgPath) == 0;
 			if (match)
 			{
+				std::cout << "Loading existing texture" << std::endl;
 				// if matched path, texture is already loaded, so add it to list
 				textures.push_back(textures_loaded[j]);
 				skip = true;
@@ -234,8 +241,11 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat,
 		if (!skip)
 		{
 			// initialise a new texture at path
-			Texture texture = Texture(directory + '/' + str.C_Str());
+			std::string path = directory + '/' + str.C_Str();
+			std::cout << "Loading new texture at path " << path << std::endl;
+			Texture texture = Texture(path);
 			textures.push_back(texture);
+			textures_loaded.push_back(texture);
 		}
 			
 		

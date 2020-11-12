@@ -7,29 +7,7 @@ Shader::Shader(
 	Geometry geo, Material mat,
 	Texture* textures, unsigned int nTex)
 {
-	ID = glCreateProgram();
-
-	// TODO: create shaders from templates so they are dynamically written
-	//       based on the requirements of the geometry + other settings
-	int vert_id = Shader::createVertexShader(vertPath);
-	int frag_id = Shader::createFragmentShader(fragPath);
-
-	glAttachShader(ID, vert_id);
-	glAttachShader(ID, frag_id);
-	glLinkProgram(ID);
-
-	int success;
-	char infoLog[512];
-	glGetProgramiv(ID, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		glGetProgramInfoLog(ID, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-	}
-
-	// tidy up by deleting vert and frag shaders
-	glDeleteShader(vert_id);
-	glDeleteShader(frag_id);
+	createShaderProgram(vertPath, fragPath);
 
 	// load geometry
 	Shader::loadGeometry(geo);
@@ -48,18 +26,28 @@ Shader::Shader(
 }
 
 
+Shader::Shader(const char* vertPath, const char* fragPath, Model mod)
+{
+	createShaderProgram(vertPath, fragPath);
+
+	this->mod = mod;
+	modelLoaded = true;
+}
+
+
 Shader::~Shader()
 {
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
+	if (!this->modelLoaded) {
+		glDeleteVertexArrays(1, &VAO);
+		glDeleteBuffers(1, &VBO);
 
-	if (elementBuffer)
-	{
-		glDeleteBuffers(1, &EBO);
+		if (elementBuffer)
+		{
+			glDeleteBuffers(1, &EBO);
+		}
+
+		glDeleteProgram(ID);
 	}
-
-	glDeleteProgram(ID);
-
 }
 
 // public functions
@@ -67,6 +55,19 @@ Shader::~Shader()
 void Shader::draw()
 {
 	glUseProgram(ID);
+	if (this->doLogging) std::cout << "Drawing Shader " << ID << std::endl;
+
+	if (this->modelLoaded)
+	{
+		if (doLogging) std::cout << "Drawing from Model" << std::endl;
+		mod.draw(); 
+		if (this->doLogging) this->doLogging = false;
+		return;
+
+	}
+
+	// if we're using the old style, keep going	
+	if (doLogging) std::cout << "Drawing from Geo, Tex and Materials" << std::endl;
 	glBindVertexArray(VAO);
 
 	if (texLoaded)
@@ -106,7 +107,7 @@ void Shader::draw()
 	}
 
 	if (this->doLogging) std::cout << "Finished first draw of shader: " << this->ID << std::endl;
-	doLogging = false;
+	if (this->doLogging) doLogging = false;
 }
 
 void Shader::translate(float x, float y)
@@ -139,6 +140,7 @@ void Shader::scale(float value)
 
 void Shader::update()
 {
+	// deprecated
 	Shader::setMatrix("transform", currentTransformation);
 	currentTransformation = glm::mat4(1.0f);
 }
@@ -217,6 +219,32 @@ void Shader::decreaseTransparency()
 
 // shader functions
 // ---------------------------------------------------------------------------
+void Shader::createShaderProgram(const char* vertPath, const char* fragPath)
+{
+	ID = glCreateProgram();
+
+	int vert_id = Shader::createVertexShader(vertPath);
+	int frag_id = Shader::createFragmentShader(fragPath);
+
+	glAttachShader(ID, vert_id);
+	glAttachShader(ID, frag_id);
+	glLinkProgram(ID);
+
+	int success;
+	char infoLog[512];
+	glGetProgramiv(ID, GL_LINK_STATUS, &success);
+	if (!success)
+	{
+		glGetProgramInfoLog(ID, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+
+	// tidy up by deleting vert and frag shaders
+	glDeleteShader(vert_id);
+	glDeleteShader(frag_id);
+}
+
+
 std::string Shader::readShaderFile(const char* shader_file)
 {
 	std::ifstream file(shader_file);
