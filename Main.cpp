@@ -297,8 +297,7 @@ int main()
 		Model("mod/backpack.obj")
 	);
 
-	const int numLights = 3;
-	LightSource lights[numLights] = {
+	std::vector<LightSource> lights = {
 		//LightSource(POINT, lightingCube, matManager.emerald),
 		//LightSource(POINT, lightingCube, matManager.copper),
 		//LightSource(POINT, lightingCube, matManager.cyan_plastic),
@@ -306,22 +305,21 @@ int main()
 		LightSource(SPOTLIGHT, lightingCube, matManager.bronze),
 		LightSource(DIRECTIONAL, lightingCube, matManager.silver)
 	};
-	for (int i = 0; i < numLights; i++)
+	for (auto &light : lights)
 	{
-		
 		// set a random height, and make the directional light much higher
 		float yPos = glm::linearRand(0.0f, 2.0f);
-		if (lights[i].type == DIRECTIONAL) yPos += 3.0f;
+		if (light.type == DIRECTIONAL) yPos += 3.0f;
 
 		// set light's starting position in world space
-		lights[i].setPosition(glm::vec3(
+		light.setPosition(glm::vec3(
 			glm::linearRand(-2.0f, 2.0f),
 			yPos,
 			glm::linearRand(-2.0f, 2.0f)
 		));
 
 		// set up a lighting direction if we switch to directional lighting
-		lights[i].setDirection(
+		light.setDirection(
 			glm::vec3(
 				glm::linearRand(-0.2f, 0.2f),
 				-1.0f,
@@ -334,7 +332,7 @@ int main()
 	Camera camera = Camera();
 	// set up world with camera, objects and lights
 	// variables required by objects from lights are also set here
-	World world = World(window, &camera, &objectShader, &matManager, numLights, lights);
+	World world = World(window, &camera, &objectShader, &matManager, lights);
 
 	// setup user controls
 	setupUserControls(window, &world);

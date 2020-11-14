@@ -5,7 +5,7 @@
 
 
 World::World(GLFWwindow* win, Camera* cam, Shader* obj, 
-	MaterialManager* mng, unsigned int nLgts, LightSource* lgts)
+	MaterialManager* mng, std::vector<LightSource> lgts)
 {
 
 	// TODO: multiple objects + layers
@@ -16,12 +16,7 @@ World::World(GLFWwindow* win, Camera* cam, Shader* obj,
 	camera = cam;
 	object = obj;
 	matManager = mng;
-
-	numLights = nLgts;
-	for (int i = 0; i < nLgts; i++)
-	{
-		lights[i] = &lgts[i];
-	}
+	lights = lgts;
 
 	camera->world = this;
 
@@ -53,66 +48,68 @@ World::World(GLFWwindow* win, Camera* cam, Shader* obj,
 		<< object->shininess.value << std::endl;
 
 	// initalise light properties on objects
-	std::cout << "Initial Setting " + lights[0]->uniform(numLights, "properties") 
+	std::cout << "Initial Setting " << lights.size() << " lights properties" 
 		<< std::endl;
 
-	for (int i = 0; i < nLgts; i++)
+	int i = -1;
+	for (auto &light : lights)
 	{
+		i++;
+
 		// type
-		object->setInt(lights[i]->uniform(i, "type"), lights[i]->type);
-		if (this->doLogging) std::cout << "object " << (lights[i]->uniform(i, "type")) 
-			<< " > " << lights[i]->type << std::endl;
+		object->setInt(light.uniform(i, "type"), light.type);
+		if (this->doLogging) std::cout << "object " << (light.uniform(i, "type")) 
+			<< " > " << light.type << std::endl;
 
 		// position
-		object->setVec3(lights[i]->uniform(i, "position"), lights[i]->position);
-		if (this->doLogging) std::cout << "object " << (lights[i]->uniform(i, "position"))
-			<< " > " << glm::to_string(lights[i]->position) << std::endl;
+		object->setVec3(light.uniform(i, "position"), light.position);
+		if (this->doLogging) std::cout << "object " << (light.uniform(i, "position"))
+			<< " > " << glm::to_string(light.position) << std::endl;
 
 		// direction
-		object->setVec3(lights[i]->uniform(i, "direction"), lights[i]->direction);
-		if (this->doLogging) std::cout << "object " << (lights[i]->uniform(i, "direction"))
-			<< " > " << glm::to_string(lights[i]->direction) << std::endl;
+		object->setVec3(light.uniform(i, "direction"), light.direction);
+		if (this->doLogging) std::cout << "object " << (light.uniform(i, "direction"))
+			<< " > " << glm::to_string(light.direction) << std::endl;
 
 		// ambient
-		object->setVec3(lights[i]->uniform(i, "ambient"), glm::vec3(lights[i]->ambient.value));
-		if (this->doLogging) std::cout << "object " << (lights[i]->uniform(i, "ambient")) 
-			<< " > " << glm::to_string(lights[i]->ambient.value) << std::endl;
+		object->setVec3(light.uniform(i, "ambient"), glm::vec3(light.ambient.value));
+		if (this->doLogging) std::cout << "object " << (light.uniform(i, "ambient")) 
+			<< " > " << glm::to_string(light.ambient.value) << std::endl;
 		
 		// diffuse
-		object->setVec3(lights[i]->uniform(i, "diffuse"), glm::vec3(lights[i]->diffuse.value));
-		if (this->doLogging) std::cout << "object " << (lights[i]->uniform(i, "diffuse")) 
-			<< " > " << glm::to_string(lights[i]->diffuse.value) << std::endl;
+		object->setVec3(light.uniform(i, "diffuse"), glm::vec3(light.diffuse.value));
+		if (this->doLogging) std::cout << "object " << (light.uniform(i, "diffuse")) 
+			<< " > " << glm::to_string(light.diffuse.value) << std::endl;
 		
 		// specular
-		object->setVec3(lights[i]->uniform(i, "specular"), glm::vec3(lights[i]->specular.value));
-		if (this->doLogging) std::cout << "object " << (lights[i]->uniform(i, "specular")) 
-			<< " > " << glm::to_string(lights[i]->specular.value) << std::endl;
+		object->setVec3(light.uniform(i, "specular"), glm::vec3(light.specular.value));
+		if (this->doLogging) std::cout << "object " << (light.uniform(i, "specular")) 
+			<< " > " << glm::to_string(light.specular.value) << std::endl;
 
 		// constant
-		object->setFloat(lights[i]->uniform(i, "constant"), lights[i]->constant);
-		if (this->doLogging) std::cout << "object " << (lights[i]->uniform(i, "constant"))
-			<< " > " << lights[i]->constant << std::endl;
+		object->setFloat(light.uniform(i, "constant"), light.constant);
+		if (this->doLogging) std::cout << "object " << (light.uniform(i, "constant"))
+			<< " > " << light.constant << std::endl;
 
 		// linear
-		object->setFloat(lights[i]->uniform(i, "linear"), lights[i]->linear);
-		if (this->doLogging) std::cout << "object " << (lights[i]->uniform(i, "linear"))
-			<< " > " << lights[i]->linear << std::endl;
+		object->setFloat(light.uniform(i, "linear"), light.linear);
+		if (this->doLogging) std::cout << "object " << (light.uniform(i, "linear"))
+			<< " > " << light.linear << std::endl;
 
 		// quadratic
-		object->setFloat(lights[i]->uniform(i, "quadratic"), lights[i]->quadratic);
-		if (this->doLogging) std::cout << "object " << (lights[i]->uniform(i, "quadratic"))
-			<< " > " << lights[i]->quadratic << std::endl;
+		object->setFloat(light.uniform(i, "quadratic"), light.quadratic);
+		if (this->doLogging) std::cout << "object " << (light.uniform(i, "quadratic"))
+			<< " > " << light.quadratic << std::endl;
 
 		// innerBeam
-		object->setFloat(lights[i]->uniform(i, "innerBeam"), lights[i]->innerBeam);
-		if (this->doLogging) std::cout << "object " << (lights[i]->uniform(i, "innerBeam"))
-			<< " > " << lights[i]->innerBeam << std::endl;
+		object->setFloat(light.uniform(i, "innerBeam"), light.innerBeam);
+		if (this->doLogging) std::cout << "object " << (light.uniform(i, "innerBeam"))
+			<< " > " << light.innerBeam << std::endl;
 
 		// outerBeam
-		object->setFloat(lights[i]->uniform(i, "outerBeam"), lights[i]->outerBeam);
-		if (this->doLogging) std::cout << "object " << (lights[i]->uniform(i, "outerBeam"))
-			<< " > " << lights[i]->outerBeam << std::endl;
-
+		object->setFloat(light.uniform(i, "outerBeam"), light.outerBeam);
+		if (this->doLogging) std::cout << "object " << (light.uniform(i, "outerBeam"))
+			<< " > " << light.outerBeam << std::endl;
 	}
 
 	// TODO: re-implement for multiple lights
@@ -158,9 +155,12 @@ void World::draw()
 	if (doLogging) std::cout << "--------------------------------------------" << std::endl;
 
 	object->draw();
-	for (int i = 0; i < numLights; i++)
+	int i = -1;
+	for (auto &light : lights)
 	{
-		if (lights[i]->type != SPOTLIGHT) lights[i]->draw();
+		i++;
+		if (doLogging) std::cout << "Light " << i << std::endl;
+		if (light.type != SPOTLIGHT) light.draw();
 	}
 
 	// stop logging after first frame
@@ -188,11 +188,11 @@ void World::updateAttributes()
 	object->setMatrix("model", object->model);
 	object->setMatrix("view", view);
 	object->setMatrix("projection", projection);
-	for (int i = 0; i < numLights; i++)
+	for (auto &light : lights)
 	{
-		lights[i]->setMatrix("model", lights[i]->model);
-		lights[i]->setMatrix("view", view);
-		lights[i]->setMatrix("projection", projection);
+		light.setMatrix("model", light.model);
+		light.setMatrix("view", view);
+		light.setMatrix("projection", projection);
 	}
 
 	// settings
@@ -216,8 +216,8 @@ void World::updateAttributes()
 	if (this->doLogging) std::cout << "time > "
 		<< static_cast<float>(glfwGetTime()) << std::endl;
 	// number of lights
-	object->setInt("numLights", this->numLights);
-	if (this->doLogging) std::cout << "numLights > " << this->numLights << std::endl;
+	object->setInt("numLights", this->lights.size());
+	if (this->doLogging) std::cout << "numLights > " << this->lights.size() << std::endl;
 	// view position
 	object->setVec3("viewPos", this->camera->position);
 	if (this->doLogging) std::cout << "object viewPos > "
@@ -233,14 +233,17 @@ void World::updateAttributes()
 		<< object->shininess.value << std::endl;
 
 	// update light uniforms
-	for (int i = 0; i < numLights; i++)
+	int i = -1;
+	for (auto &light : lights)
 	{
-		if (this->doLogging) std::cout << "Light: " << i << " type: " << lights[i]->type 
+		i++;
+
+		if (this->doLogging) std::cout << "Light: " << i << " type: " << light.type 
 			<< std::endl;
 
 		// not doing lighting cube in view space, so always set in world space
-		glm::mat4 normalMatrix = lights[i]->getNormalMatrix();
-		lights[i]->setMatrix("normalMatrix", normalMatrix);
+		glm::mat4 normalMatrix = light.getNormalMatrix();
+		light.setMatrix("normalMatrix", normalMatrix);
 		if (this->doLogging)
 		{
 			std::cout << i << " light normalMatrix > " << std::endl;
@@ -255,89 +258,89 @@ void World::updateAttributes()
 		}
 
 		// position
-		object->setVec3(lights[i]->uniform(i, "position"), lights[i]->position);
-		if (this->doLogging) std::cout << "object " << (lights[i]->uniform(i, "position"))
-			<< " > " << glm::to_string(lights[i]->position) << std::endl;
-		lights[i]->setVec3("light.position", lights[i]->position);
+		object->setVec3(light.uniform(i, "position"), light.position);
+		if (this->doLogging) std::cout << "object " << (light.uniform(i, "position"))
+			<< " > " << glm::to_string(light.position) << std::endl;
+		light.setVec3("light.position", light.position);
 		if (this->doLogging) std::cout << i << " light.position > " 
-			<< glm::to_string(lights[i]->position) << std::endl;
+			<< glm::to_string(light.position) << std::endl;
 
 		// direction
-		object->setVec3(lights[i]->uniform(i, "direction"), lights[i]->direction);
+		object->setVec3(light.uniform(i, "direction"), light.direction);
 		if (this->doLogging) std::cout << "object "
-			<< (lights[i]->uniform(i, "direction")) << " > "
-			<< glm::to_string(lights[i]->direction) << std::endl;
+			<< (light.uniform(i, "direction")) << " > "
+			<< glm::to_string(light.direction) << std::endl;
 
-		if (lights[i]->type == SPOTLIGHT)
+		if (light.type == SPOTLIGHT)
 		{
 			
 			// inner beam
-			object->setFloat(lights[i]->uniform(i, "innerBeam"), lights[i]->innerBeam);
+			object->setFloat(light.uniform(i, "innerBeam"), light.innerBeam);
 			if (this->doLogging) std::cout << "object " 
-				<< (lights[i]->uniform(i, "innerBeam")) << " > " 
-				<< lights[i]->innerBeam << std::endl;
+				<< (light.uniform(i, "innerBeam")) << " > " 
+				<< light.innerBeam << std::endl;
 			
 			// outer beam
-			object->setFloat(lights[i]->uniform(i, "outerBeam"), lights[i]->outerBeam);
+			object->setFloat(light.uniform(i, "outerBeam"), light.outerBeam);
 			if (this->doLogging) std::cout << "object " 
-				<< (lights[i]->uniform(i, "outerBeam")) << " > " 
-				<< lights[i]->outerBeam << std::endl;
+				<< (light.uniform(i, "outerBeam")) << " > " 
+				<< light.outerBeam << std::endl;
 		}
-		if (lights[i]->type != DIRECTIONAL)
+		if (light.type != DIRECTIONAL)
 		{
 			
 			// attenuation
 			// -----------
 
 			// constant
-			object->setFloat(lights[i]->uniform(i, "constant"), lights[i]->constant);
+			object->setFloat(light.uniform(i, "constant"), light.constant);
 			if (this->doLogging) std::cout << "object " 
-				<< (lights[i]->uniform(i, "constant")) << " > " 
-				<< lights[i]->constant << std::endl;
+				<< (light.uniform(i, "constant")) << " > " 
+				<< light.constant << std::endl;
 
 			// linear
-			object->setFloat(lights[i]->uniform(i, "linear"), lights[i]->linear);
+			object->setFloat(light.uniform(i, "linear"), light.linear);
 			if (this->doLogging) std::cout << "object " 
-				<< (lights[i]->uniform(i, "linear")) << " > " 
-				<< lights[i]->linear << std::endl;
+				<< (light.uniform(i, "linear")) << " > " 
+				<< light.linear << std::endl;
 
 			// quadratic
-			object->setFloat(lights[i]->uniform(i, "quadratic"), lights[i]->quadratic);
+			object->setFloat(light.uniform(i, "quadratic"), light.quadratic);
 			if (this->doLogging) std::cout << "object " 
-				<< (lights[i]->uniform(i, "quadratic")) << " > " 
-				<< lights[i]->quadratic << std::endl;
+				<< (light.uniform(i, "quadratic")) << " > " 
+				<< light.quadratic << std::endl;
 		}
 
 		// phong materials
 		
 		// ambient
-		lights[i]->setVec3("light.ambient", glm::vec3(lights[i]->ambient.value));
+		light.setVec3("light.ambient", glm::vec3(light.ambient.value));
 		if (this->doLogging) std::cout << i << " light.ambient > "
-			<< glm::to_string(glm::vec3(lights[i]->ambient.value)) << std::endl;
-		object->setVec3(lights[i]->uniform(i, "ambient"), glm::vec3(lights[i]->ambient.value));
-		if (this->doLogging) std::cout << "object " << (lights[i]->uniform(i, "ambient"))
-			<< " > " << glm::to_string(glm::vec3(lights[i]->ambient.value)) << std::endl;
+			<< glm::to_string(glm::vec3(light.ambient.value)) << std::endl;
+		object->setVec3(light.uniform(i, "ambient"), glm::vec3(light.ambient.value));
+		if (this->doLogging) std::cout << "object " << (light.uniform(i, "ambient"))
+			<< " > " << glm::to_string(glm::vec3(light.ambient.value)) << std::endl;
 
 		// diffuse
-		lights[i]->setVec3("light.diffuse", glm::vec3(lights[i]->diffuse.value));
+		light.setVec3("light.diffuse", glm::vec3(light.diffuse.value));
 		if (this->doLogging) std::cout << i << " light.diffuse > "
-			<< glm::to_string(glm::vec3(lights[i]->diffuse.value)) << std::endl;
-		object->setVec3(lights[i]->uniform(i, "diffuse"), glm::vec3(lights[i]->diffuse.value));
-		if (this->doLogging) std::cout << "object " << (lights[i]->uniform(i, "diffuse"))
-			<< " > " << glm::to_string(glm::vec3(lights[i]->diffuse.value)) << std::endl;
+			<< glm::to_string(glm::vec3(light.diffuse.value)) << std::endl;
+		object->setVec3(light.uniform(i, "diffuse"), glm::vec3(light.diffuse.value));
+		if (this->doLogging) std::cout << "object " << (light.uniform(i, "diffuse"))
+			<< " > " << glm::to_string(glm::vec3(light.diffuse.value)) << std::endl;
 
 		// specular
-		lights[i]->setVec3("light.specular", glm::vec3(lights[i]->specular.value));
+		light.setVec3("light.specular", glm::vec3(light.specular.value));
 		if (this->doLogging) std::cout << i << " light.specular > "
-			<< glm::to_string(glm::vec3(lights[i]->specular.value)) << std::endl;
-		object->setVec3(lights[i]->uniform(i, "specular"), glm::vec3(lights[i]->specular.value));
-		if (this->doLogging) std::cout << "object " << (lights[i]->uniform(i, "specular"))
-			<< " > " << glm::to_string(glm::vec3(lights[i]->specular.value)) << std::endl;
+			<< glm::to_string(glm::vec3(light.specular.value)) << std::endl;
+		object->setVec3(light.uniform(i, "specular"), glm::vec3(light.specular.value));
+		if (this->doLogging) std::cout << "object " << (light.uniform(i, "specular"))
+			<< " > " << glm::to_string(glm::vec3(light.specular.value)) << std::endl;
 
 		// shininess
-		lights[i]->setFloat("light.shininess", lights[i]->shininess.value);
+		light.setFloat("light.shininess", light.shininess.value);
 		if (this->doLogging) std::cout << i << " light.shininess > "
-			<< lights[i]->shininess.value << std::endl;
+			<< light.shininess.value << std::endl;
 	}
 }
 
@@ -370,12 +373,15 @@ void World::updateProjection()
 void World::updateModel()
 {
 	// update lights first
-	for (int i = 0; i < numLights; i++)
+	int i = -1;
+	for (auto &light : lights)
 	{
-		if (lights[i]->type == SPOTLIGHT)
+		i++;
+
+		if (light.type == SPOTLIGHT)
 		{
-			lights[i]->position = camera->position;
-			lights[i]->direction = camera->front;
+			light.position = camera->position;
+			light.direction = camera->front;
 		}
 		else
 		{
@@ -384,22 +390,22 @@ void World::updateModel()
 
 
 		// reset light's model matrix back to identity
-		lights[i]->model = glm::mat4(1.0f);
+		light.model = glm::mat4(1.0f);
 
 		// add rotation (if any)
-		if (lights[i]->rotating) lights[i]->model = glm::rotate(
-			lights[i]->model, lights[i]->rotationAngle, lights[i]->pointOfRotation
+		if (light.rotating) light.model = glm::rotate(
+			light.model, light.rotationAngle, light.pointOfRotation
 		);
 
 		// get new light position now so translation is not applied twice
 		// TODO: implement proper movement, not just rotation
 		//       including pulling position from camera if it is a spotlight
-		//glm::vec3 newLightPos = glm::vec3(lights[i]->model * glm::vec4(lights[i]->initPosition, 1.0f));
+		//glm::vec3 newLightPos = glm::vec3(light.model * glm::vec4(light.initPosition, 1.0f));
 		//if (!this->shadeInViewSpace) newLightPos = glm::vec3(this->view * glm::vec4(newLightPos, 1.0f));
-		//lights[i]->setPosition(newLightPos);
+		//light.setPosition(newLightPos);
 
-		lights[i]->model = glm::translate(lights[i]->model, lights[i]->initPosition);
-		lights[i]->model = glm::scale(lights[i]->model, lights[i]->size);
+		light.model = glm::translate(light.model, light.initPosition);
+		light.model = glm::scale(light.model, light.size);
 	}
 
 	// now do the object
