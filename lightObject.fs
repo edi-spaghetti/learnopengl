@@ -172,11 +172,11 @@ vec3 CalcPointLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir) {
 
     // properties
     vec3 lightDir = normalize(light.position - fragPos);
-    float distance = length(light.position - fragPos);
+    float dist = length(light.position - fragPos);
     float attenuation = 1.0 / (
         light.constant + 
-        light.linear * distance + 
-        light.quadratic * pow(distance, 2)
+        light.linear * dist + 
+        light.quadratic * pow(dist, 2)
     );
 
     // calculate
@@ -198,11 +198,11 @@ vec3 CalcSpotLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir) {
 
     // properties
     vec3 lightDir = normalize(light.position - fragPos);
-    float distance = length(light.position - fragPos);
+    float dist = length(light.position - fragPos);
     float attenuation = 1.0 / (
         light.constant + 
-        light.linear * distance + 
-        light.quadratic * pow(distance, 2)
+        light.linear * dist + 
+        light.quadratic * pow(dist, 2)
     );
     float theta = dot(lightDir, normalize(-light.direction));
     float epsilon = light.innerBeam - light.outerBeam;

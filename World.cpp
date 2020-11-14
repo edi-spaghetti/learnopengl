@@ -228,7 +228,7 @@ void World::updateAttributes()
 	
 	// TODO: dict (hash table?) of booleans so we can set all at once
 	// update material uniforms
-	object->setFloat("material.shininess", object->shininess.value);
+	object->setFloat("material.shininess", 32.0f);// object->shininess.value);
 	if (this->doLogging) std::cout << "object material.shininess > "
 		<< object->shininess.value << std::endl;
 

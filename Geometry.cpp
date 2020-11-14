@@ -200,12 +200,12 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 		// diffuse
 		std::vector<Texture> diffuseMaps = loadMaterialTextures(material, 
-			aiTextureType_DIFFUSE, "texture_diffuse");
+			aiTextureType_DIFFUSE, "diffuse");
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
 		// specular
 		std::vector<Texture> specularMaps = loadMaterialTextures(material,
-			aiTextureType_SPECULAR, "texture_specular");
+			aiTextureType_SPECULAR, "specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}
 
@@ -243,7 +243,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat,
 			// initialise a new texture at path
 			std::string path = directory + '/' + str.C_Str();
 			std::cout << "Loading new texture at path " << path << std::endl;
-			Texture texture = Texture(path);
+			Texture texture = Texture(path, typeName.c_str());
 			textures.push_back(texture);
 			textures_loaded.push_back(texture);
 		}
