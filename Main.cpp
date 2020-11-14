@@ -297,13 +297,13 @@ int main()
 		Model("mod/backpack.obj")
 	);
 
-	const int numLights = 6;
+	const int numLights = 1;
 	LightSource lights[numLights] = {
-		LightSource(POINT, lightingCube, matManager.emerald),
-		LightSource(POINT, lightingCube, matManager.copper),
-		LightSource(POINT, lightingCube, matManager.cyan_plastic),
-		LightSource(POINT, lightingCube, matManager.pearl),
-		LightSource(SPOTLIGHT, lightingCube, matManager.bronze),
+		//LightSource(POINT, lightingCube, matManager.emerald),
+		//LightSource(POINT, lightingCube, matManager.copper),
+		//LightSource(POINT, lightingCube, matManager.cyan_plastic),
+		//LightSource(POINT, lightingCube, matManager.pearl),
+		//LightSource(SPOTLIGHT, lightingCube, matManager.bronze),
 		LightSource(DIRECTIONAL, lightingCube, matManager.silver)
 	};
 	for (int i = 0; i < numLights; i++)
