@@ -277,33 +277,28 @@ int main()
 
 	MaterialManager matManager = MaterialManager();
 
-	//const int nTextures = 3;
-	//Texture textures[nTextures] = {
-	//	Texture("container2.png", "material.diffuse"),
-	//	Texture("container2_specular.png", "material.specular"),
-	//	Texture("container2_animated_emission.png", "material.emission", true, GL_REPEAT, GL_NEAREST)
-	//};
+	const int nTextures = 3;
+	Texture textures[nTextures] = {
+		Texture("container2.png", "material.diffuse"),
+		Texture("container2_specular.png", "material.specular"),
+		Texture("container2_animated_emission.png", "material.emission", true, GL_REPEAT, GL_NEAREST)
+	};
 
-	//// construct shaders and load geometry and textures
-	//Shader objectShader = Shader(
-	//	"lightObject.vs", "lightObject.fs", 
-	//	litCube, 
-	//	matManager.emerald,
-	//	textures, nTextures
-	//);
-
+	// construct shaders and load geometry and textures
 	Shader objectShader = Shader(
-		"lightObject.vs", "lightObject.fs",
-		Model("mod/backpack.obj")
+		"lightObject.vs", "lightObject.fs", 
+		litCube, 
+		matManager.emerald,
+		textures, nTextures
 	);
 
 	std::vector<LightSource> lights = {
 		//LightSource(POINT, lightingCube, matManager.emerald),
 		//LightSource(POINT, lightingCube, matManager.copper),
 		//LightSource(POINT, lightingCube, matManager.cyan_plastic),
-		LightSource(POINT, lightingCube, matManager.pearl),
-		LightSource(SPOTLIGHT, lightingCube, matManager.bronze),
-		LightSource(DIRECTIONAL, lightingCube, matManager.silver)
+		LightSource(POINT, lightingCube, matManager.pearl)
+		//LightSource(SPOTLIGHT, lightingCube, matManager.bronze),
+		//LightSource(DIRECTIONAL, lightingCube, matManager.silver)
 	};
 	for (auto &light : lights)
 	{
@@ -328,6 +323,8 @@ int main()
 		);
 
 	}
+
+	lights[0].selected = true;
 
 	Camera camera = Camera();
 	// set up world with camera, objects and lights

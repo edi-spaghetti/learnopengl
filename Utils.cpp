@@ -98,13 +98,20 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 {
 	World* world = (World*) glfwGetWindowUserPointer(window);
 
-	// process camera movement first so we can have continuous movement
-	if (key == GLFW_KEY_W ||
-		key == GLFW_KEY_S ||
-		key == GLFW_KEY_A ||
-		key == GLFW_KEY_D)
+	// process camera movement first so we can have continuous movement	
+	bool moveCamera = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
+	std::unordered_map<int, int> movementKeys = {
+		{GLFW_KEY_W, FORWARD},
+		{GLFW_KEY_S, BACKWARD},
+		{GLFW_KEY_A, LEFT},
+		{GLFW_KEY_D, RIGHT},
+		{GLFW_KEY_Z, UP},
+		{GLFW_KEY_C, DOWN}
+	};
+	if (movementKeys.find(key) != movementKeys.end())
 	{
-		world->camera->move(key);
+		if (moveCamera) world->camera->move(key);
+		else world->moveSelected(movementKeys[key]);
 	}
 
 	// other actions are one-per-press, so if the key is 

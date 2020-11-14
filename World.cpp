@@ -452,6 +452,19 @@ void World::cycleMaterial(bool forward)
 }
 
 
+void World::moveSelected(const int direction)
+{
+	for (auto &light : lights)
+	{
+		if (light.selected)
+		{
+			light.move(direction, deltaTime);
+			break;
+		}
+	}
+}
+
+
 void World::exportCurrentFrame()
 {
 	// check if the red light is on

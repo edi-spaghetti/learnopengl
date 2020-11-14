@@ -1,9 +1,5 @@
 #ifndef SHADER_H
 #define SHADER_H
-#define MAX_LIGHTS 6
-#define POINT 0
-#define DIRECTIONAL 1
-#define SPOTLIGHT 2
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -110,6 +106,10 @@ public:
 
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat3 getNormalMatrix();
+	bool selected;
+	void move(const int direction, float deltaTime);
+	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+	float baseSpeed = 50.0f;
 
 private:
 	unsigned int VBO;

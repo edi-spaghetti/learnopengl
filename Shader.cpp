@@ -119,6 +119,28 @@ void Shader::draw()
 	if (this->doLogging) doLogging = false;
 }
 
+
+void Shader::move(const int direction, float deltaTime)
+{
+	float speed = baseSpeed * deltaTime;
+
+	if (direction == FORWARD)
+	{
+		setPosition(
+			position + 
+			(glm::normalize(this->direction) * speed)
+		);
+	}
+	else if (direction == BACKWARD)
+	{
+		setPosition(
+			position -
+			(glm::normalize(this->direction) * speed)
+		);
+	}
+}
+
+
 void Shader::translate(float x, float y)
 {
 	currentTransformation = glm::translate(

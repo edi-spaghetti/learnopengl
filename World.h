@@ -66,6 +66,7 @@ public:
 
 	float getLightRotationAngle();
 	void cycleMaterial(bool forward);
+	void moveSelected(const int direction);
 };
 
 #endif // !WORLD_H
