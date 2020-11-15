@@ -35,9 +35,17 @@ Shader::Shader(const char* vertPath, const char* fragPath, Model mod)
 }
 
 
-Shader::~Shader()
+Shader::~Shader() { }
+
+
+void Shader::tearDown()
 {
-	if (!this->modelLoaded) {
+	if (modelLoaded)
+	{
+		mod.tearDown();
+	}
+	else 
+	{
 		glDeleteVertexArrays(1, &VAO);
 		glDeleteBuffers(1, &VBO);
 
@@ -45,10 +53,11 @@ Shader::~Shader()
 		{
 			glDeleteBuffers(1, &EBO);
 		}
-
-		glDeleteProgram(ID);
 	}
+
+	glDeleteProgram(ID);
 }
+
 
 // public functions
 // ---------------------------------------------------------------------------

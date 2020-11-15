@@ -356,6 +356,14 @@ int main()
 	}
 
 	// clean up
+	objectShader.tearDown();
+	for (auto& light : lights) 
+	{
+		std::cout << "Cleaning Up Shader " << light.ID << std::endl;
+		light.tearDown();
+	}
+
+
 	glfwTerminate();
 	return 0;
 }

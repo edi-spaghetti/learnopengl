@@ -17,12 +17,14 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
 }
 
 
-Mesh::~Mesh()
+Mesh::~Mesh() { }
+
+
+void Mesh::tearDown()
 {
-	//glDeleteVertexArrays(1, &this->VAO);
-	//glDeleteBuffers(1, &this->VBO);
-	//glDeleteBuffers(1, &this->EBO);
-	//std::cout << "Deleted Buffers and Vertex Arrays" << std::endl;
+	glDeleteVertexArrays(1, &this->VAO);
+	glDeleteBuffers(1, &this->VBO);
+	glDeleteBuffers(1, &this->EBO);
 }
 
 
@@ -97,6 +99,15 @@ void Mesh::draw() {
 	if (this->doLogging) std::cout << "Finished first draw of mesh" 
 		<< std::endl;
 	doLogging = false;
+}
+
+
+void Model::tearDown()
+{
+	for (Mesh mesh : meshes)
+	{
+		mesh.tearDown();
+	}
 }
 
 

@@ -40,6 +40,7 @@ public:
 		Texture* textures = NULL, unsigned int nTex = 0);
 	Shader(const char* vertPath, const char* fragPath, Model mod);
 	~Shader();
+	void tearDown();
 
 	// world space position
 	bool initPositionSet = false;
