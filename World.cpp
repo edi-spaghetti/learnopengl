@@ -393,9 +393,9 @@ void World::updateModel()
 		light.model = glm::mat4(1.0f);
 
 		// add rotation (if any)
-		if (light.rotating) light.model = glm::rotate(
-			light.model, light.rotationAngle, light.pointOfRotation
-		);
+		//if (light.rotating) light.model = glm::rotate(
+		//	light.model, light.rotationAngle, light.pointOfRotation
+		//);
 
 		// get new light position now so translation is not applied twice
 		// TODO: implement proper movement, not just rotation
@@ -404,7 +404,7 @@ void World::updateModel()
 		//if (!this->shadeInViewSpace) newLightPos = glm::vec3(this->view * glm::vec4(newLightPos, 1.0f));
 		//light.setPosition(newLightPos);
 
-		light.model = glm::translate(light.model, light.initPosition);
+		light.model = glm::translate(light.model, light.position);
 		light.model = glm::scale(light.model, light.size);
 	}
 

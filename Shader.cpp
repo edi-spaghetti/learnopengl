@@ -138,6 +138,34 @@ void Shader::move(const int direction, float deltaTime)
 			(glm::normalize(this->direction) * speed)
 		);
 	}
+	else if (direction == LEFT)
+	{
+		setPosition(
+			position -
+			objRight * speed
+		);
+	}
+	else if (direction == RIGHT)
+	{
+		setPosition(
+			position +
+			objRight * speed
+		);
+	}
+	else if (direction == DOWN)
+	{
+		setPosition(
+			position +
+			objUp * speed
+		);
+	}
+	else if (direction == UP)
+	{		
+		setPosition(
+			position -
+			objUp * speed
+		);
+	}
 }
 
 
@@ -197,6 +225,8 @@ void Shader::setDirection(glm::vec3 newDir)
 		initDirection = newDir;
 	}
 	direction = newDir;
+	objRight = glm::normalize(glm::cross(direction, this->worldUp));
+	objUp = glm::normalize(glm::cross(objRight, worldUp));
 }
 
 
