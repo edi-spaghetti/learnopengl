@@ -161,6 +161,9 @@ void World::draw()
 	if (doLogging) std::cout << " // Draw" << std::endl;
 	if (doLogging) std::cout << "--------------------------------------------" << std::endl;
 
+	// disable writing to stencil before doing outline pass
+	glStencilMask(0x00);
+
 	object->draw();
 	int i = -1;
 	for (auto &light : lights)
@@ -168,7 +171,6 @@ void World::draw()
 		i++;
 		if (doLogging) std::cout << "Light " << i << std::endl;
 		if (light.type != SPOTLIGHT && i != currentSelection)
-			glStencilMask(0x00);
 			light.draw();
 	}
 

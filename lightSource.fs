@@ -24,7 +24,7 @@ void main()
 {
     if (outline)
     {
-        FragColor = vec4(outlineColour, 1.0);
+        FragColor = vec4(outlineColour, 1);
     }
     else
     {

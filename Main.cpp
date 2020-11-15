@@ -273,9 +273,13 @@ int main()
 	int height = 600;
 	GLFWwindow* window = createWindow(width, height);
 
+	// global opengl settings
+	// -----------------------------------------------------------------------
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 	glEnable(GL_STENCIL_TEST);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+	glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
 
 	MaterialManager matManager = MaterialManager();
 
