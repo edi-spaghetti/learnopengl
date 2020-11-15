@@ -293,9 +293,9 @@ int main()
 	);
 
 	std::vector<LightSource> lights = {
-		//LightSource(POINT, lightingCube, matManager.emerald),
-		//LightSource(POINT, lightingCube, matManager.copper),
-		//LightSource(POINT, lightingCube, matManager.cyan_plastic),
+		LightSource(POINT, lightingCube, matManager.emerald),
+		LightSource(POINT, lightingCube, matManager.copper),
+		LightSource(POINT, lightingCube, matManager.cyan_plastic),
 		LightSource(POINT, lightingCube, matManager.pearl)
 		//LightSource(SPOTLIGHT, lightingCube, matManager.bronze),
 		//LightSource(DIRECTIONAL, lightingCube, matManager.silver)
@@ -323,8 +323,6 @@ int main()
 		);
 
 	}
-
-	lights[0].selected = true;
 
 	Camera camera = Camera();
 	// set up world with camera, objects and lights

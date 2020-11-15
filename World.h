@@ -65,7 +65,8 @@ public:
 	void updateModel();
 
 	float getLightRotationAngle();
-	void cycleMaterial(bool forward);
+	void cycle(const int direction, const int attribute);
+	int currentSelection = 0;
 	void moveSelected(const int direction);
 };
 

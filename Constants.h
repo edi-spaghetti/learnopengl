@@ -13,6 +13,9 @@
 #define UP 4
 #define DOWN 5
 
+#define SELECTION 0
+#define MATERIAL 1
+
 const int LINEAR_SCALE = 0;
 const int EXPONENTIAL_SCALE = 1;
 

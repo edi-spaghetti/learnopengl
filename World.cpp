@@ -425,43 +425,50 @@ float World::getLightRotationAngle()
 }
 
 
-void World::cycleMaterial(bool forward)
+void World::cycle(const int direction, const int attribute)
 {
-	if (forward)
+	if (attribute == SELECTION)
 	{
-		matManager->currentMaterial = (matManager->numMaterials + 1) % matManager->numMaterials;
-	}
-	else
-	{
-		if (matManager->currentMaterial)
-		{
-			matManager->currentMaterial -= 1;
-		}
-		else
-		{
-			matManager->currentMaterial = matManager->numMaterials - 1;
-		}
-	}
+		int delta = 1;
+		if (direction == BACKWARD) delta = -1;
 
-	//light->loadMaterials(*(matManager->materials[matManager->currentMaterial]));
-	std::cout 
-		<< "Material not set to " 
-		<< matManager->currentMaterial 
-		<< " - method deprecated pending multiple lights implementation" 
-	<< std::endl;
+		this->currentSelection += delta;
+		this->currentSelection %= lights.size();
+
+		std::cout << "Cycled selection to light " << currentSelection << std::endl;
+	}
+	else if (attribute == MATERIAL)
+	{
+		// TODO
+		//if (direction == FORWARD)
+		//{
+		//	matManager->currentMaterial = (matManager->numMaterials + 1) % matManager->numMaterials;
+		//}
+		//else
+		//{
+		//	if (matManager->currentMaterial)
+		//	{
+		//		matManager->currentMaterial -= 1;
+		//	}
+		//	else
+		//	{
+		//		matManager->currentMaterial = matManager->numMaterials - 1;
+		//	}
+		//}
+
+			//light->loadMaterials(*(matManager->materials[matManager->currentMaterial]));
+		//std::cout
+		//	<< "Material not set to "
+		//	<< matManager->currentMaterial
+		//	<< " - method deprecated pending multiple lights implementation"
+		//	<< std::endl;
+	}
 }
 
 
 void World::moveSelected(const int direction)
 {
-	for (auto &light : lights)
-	{
-		if (light.selected)
-		{
-			light.move(direction, deltaTime);
-			break;
-		}
-	}
+	lights[currentSelection].move(direction, deltaTime);
 }
 
 

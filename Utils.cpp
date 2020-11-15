@@ -252,8 +252,10 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 	// cycle through materials
 	if (key == GLFW_KEY_TAB)
 	{
-		bool shiftPressed = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
-		world->cycleMaterial(shiftPressed);
+		int direction = FORWARD;
+		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) 
+			direction = BACKWARD;
+		world->cycle(direction, SELECTION);
 	}
 	if (key == GLFW_KEY_F)
 	{

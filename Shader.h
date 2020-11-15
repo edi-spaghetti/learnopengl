@@ -106,7 +106,6 @@ public:
 
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat3 getNormalMatrix();
-	bool selected;
 	void move(const int direction, float deltaTime);
 	glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::vec3 objRight;
