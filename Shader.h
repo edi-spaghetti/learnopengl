@@ -62,6 +62,7 @@ public:
 	void update();
 	// draw loaded geometry 
 	void draw();
+	void drawWithOutline();
 
 	void loadGeometry(Geometry geo);
 	void loadTextures(Texture* textures = NULL, unsigned int nTex = 0);
@@ -111,6 +112,7 @@ public:
 	glm::vec3 objRight;
 	glm::vec3 objUp;
 	float baseSpeed = 50.0f;
+	glm::vec3 outlineColour = glm::vec3(1.0f, 0.25f, 0.25f);
 
 private:
 	unsigned int VBO;

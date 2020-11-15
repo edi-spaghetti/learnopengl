@@ -62,7 +62,7 @@ void Shader::tearDown()
 // public functions
 // ---------------------------------------------------------------------------
 void Shader::draw()
-{
+{	
 	glUseProgram(ID);
 	if (this->doLogging) std::cout << "Drawing Shader " << ID << std::endl;
 
@@ -118,6 +118,33 @@ void Shader::draw()
 	if (this->doLogging) std::cout << "Finished first draw of shader: " << this->ID << std::endl;
 	if (this->doLogging) doLogging = false;
 }
+
+
+void Shader::drawWithOutline()
+{
+	// draw once normally
+	glStencilFunc(GL_ALWAYS, 1, 0xFF);
+	glStencilMask(0xFF);
+	draw();
+
+	//// draw if not equal to 1 in buffer from previous draw
+	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+	glStencilMask(0x00);  // don't write to buffer
+	glDisable(GL_DEPTH_TEST);
+
+	// draw outline from scaled up container
+	glm::mat4 scaledModel = glm::scale(model, glm::vec3(1.1f));
+	setMatrix("model", scaledModel);
+	setBool("outline", true);
+	draw();
+
+	// reset stencil settings
+	setBool("outline", false);
+	glStencilMask(0xFF);  // disable drawing to stencil buffer for other objects
+	glStencilFunc(GL_ALWAYS, 1, 0xFF);
+	glEnable(GL_DEPTH_TEST);
+}
+
 
 
 void Shader::move(const int direction, float deltaTime)

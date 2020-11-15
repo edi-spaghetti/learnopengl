@@ -14,9 +14,25 @@ struct Light {
 uniform Light light;
 
 uniform highp vec3 viewPos;
+uniform bool outline = false;
+uniform vec3 outlineColour;
+
+vec4 CalcLight();
 
 
 void main()
+{
+    if (outline)
+    {
+        FragColor = vec4(outlineColour, 1.0);
+    }
+    else
+    {
+        FragColor = CalcLight();
+    }
+}
+
+vec4 CalcLight()
 {
     // calculate ambient
     vec3 diffuse = light.diffuse;
@@ -29,6 +45,5 @@ void main()
         + (1.8 * pow(distance, 2))
     );
     
-    vec3 result = diffuse * attenuation;
-    FragColor = vec4(result, 1.0);
+    return vec4(diffuse * attenuation, 1.0);
 }

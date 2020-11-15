@@ -110,6 +110,13 @@ World::World(GLFWwindow* win, Camera* cam, Shader* obj,
 		object->setFloat(light.uniform(i, "outerBeam"), light.outerBeam);
 		if (this->doLogging) std::cout << "object " << (light.uniform(i, "outerBeam"))
 			<< " > " << light.outerBeam << std::endl;
+
+		// outline colour
+		light.setVec3("outlineColour", light.outlineColour);
+		if (this->doLogging) std::cout << "light " << i
+			<< "set outline colour to "
+			<< glm::to_string(light.outlineColour)
+			<< std::endl;
 	}
 
 	// TODO: re-implement for multiple lights
@@ -160,8 +167,13 @@ void World::draw()
 	{
 		i++;
 		if (doLogging) std::cout << "Light " << i << std::endl;
-		if (light.type != SPOTLIGHT) light.draw();
+		if (light.type != SPOTLIGHT && i != currentSelection)
+			glStencilMask(0x00);
+			light.draw();
 	}
+
+	// outline pass
+	lights[currentSelection].drawWithOutline();
 
 	// stop logging after first frame
 	if (this->doLogging) this->doLogging = false;

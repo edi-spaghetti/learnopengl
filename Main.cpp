@@ -274,6 +274,8 @@ int main()
 	GLFWwindow* window = createWindow(width, height);
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_STENCIL_TEST);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 	MaterialManager matManager = MaterialManager();
 
@@ -341,7 +343,7 @@ int main()
 		// render
 		// set the colour to black-ish
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		world.draw();
 
