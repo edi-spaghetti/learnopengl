@@ -290,7 +290,7 @@ int main()
 		Texture("container2_animated_emission.png", "material.emission", true, GL_REPEAT, GL_NEAREST)
 	};
 
-	// construct shaders and load geometry and textures
+	 //construct shaders and load geometry and textures
 	Shader objectShader = Shader(
 		"lightObject.vs", "lightObject.fs", 
 		litCube, 
@@ -298,11 +298,16 @@ int main()
 		textures, nTextures
 	);
 
+	//Shader objectShader = Shader(
+	//	"lightObject.vs", "lightObject.fs", 
+	//	Model("mod/lightbulb/v3/bulb.obj")
+	//);
+
 	std::vector<LightSource> lights = {
-		LightSource(POINT, lightingCube, matManager.emerald),
-		LightSource(POINT, lightingCube, matManager.copper),
-		LightSource(POINT, lightingCube, matManager.cyan_plastic),
-		LightSource(POINT, lightingCube, matManager.pearl)
+		LightSource(POINT, Model("mod/lightbulb/v3/bulb.obj"))
+		//LightSource(POINT, lightingCube, matManager.copper),
+		//LightSource(POINT, lightingCube, matManager.cyan_plastic),
+		//LightSource(POINT, lightingCube, matManager.pearl)
 		//LightSource(SPOTLIGHT, lightingCube, matManager.bronze),
 		//LightSource(DIRECTIONAL, lightingCube, matManager.silver)
 	};

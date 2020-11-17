@@ -146,6 +146,14 @@ public:
 	) : Shader(vertPath, fragPath, geo, mat, textures, nTex) {
 		this->type = lightType;
 	};
+	LightSource(
+		int lightType,
+		Model mod,
+		const char* vertPath = "lightSource.vs", 
+		const char* fragPath = "lightSource.fs"
+	) : Shader(vertPath, fragPath, mod) {
+		this->type = lightType;
+	};
 
 	int attenuationIndex = 3;
 	static const int numAttenuationSettings = 12;
