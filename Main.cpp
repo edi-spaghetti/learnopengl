@@ -283,33 +283,37 @@ int main()
 
 	MaterialManager matManager = MaterialManager();
 
-	const int nTextures = 3;
-	Texture textures[nTextures] = {
-		Texture("container2.png", "material.diffuse"),
-		Texture("container2_specular.png", "material.specular"),
-		Texture("container2_animated_emission.png", "material.emission", true, GL_REPEAT, GL_NEAREST)
-	};
+	//const int nTextures = 3;
+	//Texture textures[nTextures] = {
+	//	Texture("container2.png", "material.diffuse"),
+	//	Texture("container2_specular.png", "material.specular"),
+	//	Texture("container2_animated_emission.png", "material.emission", true, GL_REPEAT, GL_NEAREST)
+	//};
 
-	 //construct shaders and load geometry and textures
-	Shader objectShader = Shader(
-		"lightObject.vs", "lightObject.fs", 
-		litCube, 
-		matManager.emerald,
-		textures, nTextures
-	);
-
+	// //construct shaders and load geometry and textures
 	//Shader objectShader = Shader(
 	//	"lightObject.vs", "lightObject.fs", 
-	//	Model("mod/lightbulb/v3/bulb.obj")
+	//	litCube, 
+	//	matManager.emerald,
+	//	textures, nTextures
 	//);
 
+	std::string preSchool = "mod/pre_school/v1/pre_school.obj";
+	std::string bulb = "mod/lightbulb/v3/bulb.obj";
+
+	Shader objectShader = Shader(
+		"lightObject.vs", "lightObject.fs", 
+		Model(bulb)
+	);
+
 	std::vector<LightSource> lights = {
-		LightSource(POINT, Model("mod/lightbulb/v3/bulb.obj"))
+		//LightSource(POINT, Model("mod/lightbulb/v3/bulb.obj"))
 		//LightSource(POINT, lightingCube, matManager.copper),
 		//LightSource(POINT, lightingCube, matManager.cyan_plastic),
 		//LightSource(POINT, lightingCube, matManager.pearl)
 		//LightSource(SPOTLIGHT, lightingCube, matManager.bronze),
-		//LightSource(DIRECTIONAL, lightingCube, matManager.silver)
+		LightSource(POINT, lightingCube, matManager.tungsten40W),
+		LightSource(DIRECTIONAL, lightingCube, matManager.tungsten40W),
 	};
 	for (auto &light : lights)
 	{

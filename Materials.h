@@ -165,8 +165,15 @@ public:
         0.078125f
     );
 
+    Material tungsten40W = Material(
+        glm::vec3(0.2f, 0.15f, 0.1121f),
+        glm::vec3(0.2f, 0.3862f, 0.2803f),
+        glm::vec3(1.0f, 0.7725f, 0.5607f),
+        0.4f
+    );
+
     unsigned int currentMaterial = 0;
-    static const int numMaterials = 24;
+    static const int numMaterials = 25;
     Material* materials[numMaterials] = {
         &emerald,        &jade,          &obsidian,
         &turquoise,      &brass,         &bronze,
@@ -175,7 +182,8 @@ public:
         &yellow_plastic, &black_rubber,  &cyan_rubber,
         &green_rubber,   &red_rubber,    &white_rubber,
         &yellow_rubber,  &pearl,         &ruby,
-        &chrome,         &copper,        &silver
+        &chrome,         &copper,        &silver,
+        &tungsten40W
     };
 
 
