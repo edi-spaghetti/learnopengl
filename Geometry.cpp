@@ -2,12 +2,13 @@
 
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
-	std::vector<Texture> textures) 
+	std::vector<Texture> textures, float opacity) 
 {
 	// cache main data from params
 	this->vertices = vertices;
 	this->indices = indices;
 	this->textures = textures;
+	this->opacity = opacity;
 
 	// calculate any helper values
 	this->vSize = vertices.size() * sizeof(Vertex);
@@ -75,7 +76,12 @@ void Mesh::setupMesh()
 }
 
 
-void Mesh::draw() {
+void Mesh::draw(unsigned int ID) {
+
+	// set opacity
+	// TODO: pass shader instead of just ID to better managed setting uniforms
+	//       requires resolving circular imports
+	glUniform1f(glGetUniformLocation(ID, "material.opacity"), this->opacity);
 
 	glBindVertexArray(VAO);
 
@@ -111,10 +117,10 @@ void Model::tearDown()
 }
 
 
-void Model::draw()
+void Model::draw(unsigned int ID)
 {
 	for (unsigned int i = 0; i < this->meshes.size(); i++)
-		meshes[i].draw();
+		meshes[i].draw(ID);
 }
 
 void Model::loadModel(std::string path)
@@ -205,6 +211,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 	// process textures
 	std::vector<Texture> textures;
+	float opacity = 1.0f;
 	if (mesh->mMaterialIndex >= 0)
 	{
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -218,10 +225,20 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		std::vector<Texture> specularMaps = loadMaterialTextures(material,
 			aiTextureType_SPECULAR, "specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+
+		// opacity
+		aiGetMaterialFloat(material, AI_MATKEY_OPACITY, &opacity);
+
+		// TODO: aiGetMaterialColor says it only takes 4D, but
+		//       AI_MATKEY_COLOR_TRANSPARENT is 3D and the documentation LIES >:(
+		//aiColor3D transparency (0.0f, 0.0f, 0.0f);
+		//aiGetMaterialColor(material, AI_MATKEY_COLOR_TRANSPARENT, &transparency);
+		//std::cout << "Opacity: " << opacity << " tranparency: " << transparency << std::endl;
+		std::cout << "Opacity: " << opacity << " tranparency: " << std::endl;
 	}
 
 	// return a mesh object created from the extracted mesh data
-	return Mesh(vertices, indices, textures);
+	return Mesh(vertices, indices, textures, opacity);
 }
 
 

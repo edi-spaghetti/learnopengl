@@ -39,17 +39,18 @@ public:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
+	float opacity;
 
 	// support data attributes
 	int vSize;
 	int iSize;
 
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, 
-		std::vector<Texture> textures);
+		std::vector<Texture> textures, float opacity);
 	~Mesh();
 	void tearDown();
 
-	void draw();
+	void draw(unsigned int ID);
 private:
 	unsigned int VAO, VBO, EBO;
 	void setupMesh();
@@ -64,7 +65,7 @@ public:
 		loadModel(path);
 	};
 	void tearDown();
-	void draw();
+	void draw(unsigned int ID);
 private:
 	std::vector<Mesh> meshes;
 	std::vector<Texture> textures_loaded;

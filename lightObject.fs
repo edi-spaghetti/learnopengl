@@ -17,6 +17,7 @@ struct Material {
     sampler2D specular;
     sampler2D emission;
     float shininess;
+    float opacity;
 };
 
 struct Light {
@@ -90,7 +91,7 @@ vec4 CalcLight() {
     // apply emission (if any)
     if (addEmission) result += CalcEmission(animateEmission);
 
-    return vec4(result, 1.0f);
+    return vec4(result, material.opacity);
 }
 
 

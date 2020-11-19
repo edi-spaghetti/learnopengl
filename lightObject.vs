@@ -19,6 +19,7 @@ struct Material {
     sampler2D specular;
     sampler2D emission;
     float shininess;
+    float opacity;
 };
 uniform Material material;
 

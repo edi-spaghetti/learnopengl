@@ -69,7 +69,7 @@ void Shader::draw()
 	if (this->modelLoaded)
 	{
 		if (doLogging) std::cout << "Drawing from Model" << std::endl;
-		mod.draw(); 
+		mod.draw(ID); 
 		if (this->doLogging) this->doLogging = false;
 		return;
 
