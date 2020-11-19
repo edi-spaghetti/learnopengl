@@ -164,6 +164,7 @@ void World::draw()
 	// disable writing to stencil before doing outline pass
 	glStencilMask(0x00);
 
+
 	object->draw();
 	int i = -1;
 	for (auto &light : lights)
@@ -172,6 +173,29 @@ void World::draw()
 		if (doLogging) std::cout << "Light " << i << std::endl;
 		if (light.type != SPOTLIGHT && i != currentSelection)
 			light.draw();
+	}
+
+	// transparency pass
+	if (this->doLogging) std::cout << "Rendering opacity pass" << std::endl;
+	if (object->modelLoaded)
+	{		
+		// sort meshes by distance
+		std::map<float, Mesh> meshByDistance;
+		for (Mesh mesh : object->mod.getTransparentMeshes())
+		{
+			glm::vec3 position = object->position + mesh.localPosition;
+			float distance = glm::length(camera->position - position);
+			meshByDistance[distance] = mesh;
+		}
+
+		// now render in reverse order
+		for (std::map<float, Mesh>::reverse_iterator it = meshByDistance.rbegin();
+			it != meshByDistance.rend();
+			++it)
+		{
+			it->second.draw(object->ID);
+		}
+
 	}
 
 	// outline pass

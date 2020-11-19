@@ -2,13 +2,12 @@
 
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
-	std::vector<Texture> textures, float opacity) 
+	std::vector<Texture> textures) 
 {
 	// cache main data from params
 	this->vertices = vertices;
 	this->indices = indices;
 	this->textures = textures;
-	this->opacity = opacity;
 
 	// calculate any helper values
 	this->vSize = vertices.size() * sizeof(Vertex);
@@ -78,6 +77,10 @@ void Mesh::setupMesh()
 
 void Mesh::draw(unsigned int ID) {
 
+	// this ensures we're using the correct program when rednering the opacity pass
+	// could probably be optimised
+	glUseProgram(ID);
+	
 	// set opacity
 	// TODO: pass shader instead of just ID to better managed setting uniforms
 	//       requires resolving circular imports
@@ -93,17 +96,17 @@ void Mesh::draw(unsigned int ID) {
 
 		// bind the activated texture unit
 		glBindTexture(GL_TEXTURE_2D, this->textures[i].ID);
-		if (doLogging) std::cout
-				<< "BindTexture: texIndex=" << i
-				<< " texID=" << this->textures[i].ID << std::endl;
+		//if (doLogging) std::cout
+		//		<< "BindTexture: texIndex=" << i
+		//		<< " texID=" << this->textures[i].ID << std::endl;
 	}
 
 	glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
-	if (this->doLogging) std::cout << "DrawElements: count=" 
-		<< this->indices.size() << std::endl;
+	//if (this->doLogging) std::cout << "DrawElements: count=" 
+	//	<< this->indices.size() << std::endl;
 
-	if (this->doLogging) std::cout << "Finished first draw of mesh" 
-		<< std::endl;
+	//if (this->doLogging) std::cout << "Finished first draw of mesh" 
+	//	<< std::endl;
 	doLogging = false;
 }
 
@@ -111,6 +114,10 @@ void Mesh::draw(unsigned int ID) {
 void Model::tearDown()
 {
 	for (Mesh mesh : meshes)
+	{
+		mesh.tearDown();
+	}
+	for (Mesh mesh : transparentMeshes)
 	{
 		mesh.tearDown();
 	}
@@ -147,7 +154,18 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(processMesh(mesh, scene));
+		Mesh newMesh = processMesh(mesh, scene);
+
+		if (static_cast<int>(newMesh.opacity) == 1)
+		{
+			meshes.push_back(newMesh);
+		}
+		else
+		{
+			transparentMeshes.push_back(newMesh);
+		}
+
+		
 	}
 
 	// now recursively drill down
@@ -161,6 +179,11 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
 
+	// set up containers to get average position of mesh
+	glm::vec3 maxXYZ = glm::vec3(0.0f);
+	glm::vec3 minXYZ = glm::vec3(0.0f);
+	bool boundingBoxStarted = false;
+
 	// process verticies
 	std::vector<Vertex> vertices;
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
@@ -169,9 +192,27 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		glm::vec3 vector;
 
 		// position vectors
-
 		for (int j = 0; j < 3; j++)
+		{
 			vector[j] = mesh->mVertices[i][j];
+
+			// determine if bounding box has expanded
+			if (mesh->mVertices[i][j] < minXYZ[j] || !boundingBoxStarted)
+			{
+				minXYZ[j] = mesh->mVertices[i][j];
+			}
+			if (mesh->mVertices[i][j] > maxXYZ[j] || !boundingBoxStarted)
+			{
+				maxXYZ[j] = mesh->mVertices[i][j];
+			}
+		}
+
+		// after one vector has been processed set this true
+		// so only vector position checks are made
+		boundingBoxStarted = true;
+
+
+
 		vertex.position = vector;
 
 		// indices
@@ -196,6 +237,13 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		}
 
 		vertices.push_back(vertex);
+	}
+
+	// calculate location positon from min/max
+	glm::vec3 localPosition;
+	for (int i = 0; i < 3; i++)
+	{
+		localPosition[i] = (maxXYZ[i] - minXYZ[i]) / 2.0f;
 	}
 
 	// process indices
@@ -238,7 +286,10 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	}
 
 	// return a mesh object created from the extracted mesh data
-	return Mesh(vertices, indices, textures, opacity);
+	Mesh newMesh = Mesh(vertices, indices, textures);
+	newMesh.setOpacity(opacity);
+	newMesh.setLocalPosition(localPosition);
+	return newMesh;
 }
 
 

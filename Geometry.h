@@ -40,15 +40,19 @@ public:
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
 	float opacity;
+	glm::vec3 localPosition;
 
 	// support data attributes
 	int vSize;
 	int iSize;
 
+	Mesh() {};
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, 
-		std::vector<Texture> textures, float opacity);
+		std::vector<Texture> textures);
 	~Mesh();
 	void tearDown();
+	void setOpacity(float opacity) { this->opacity = opacity; };
+	void setLocalPosition(glm::vec3 position) { this->localPosition = position; };
 
 	void draw(unsigned int ID);
 private:
@@ -66,8 +70,10 @@ public:
 	};
 	void tearDown();
 	void draw(unsigned int ID);
+	const std::vector<Mesh> getTransparentMeshes() { return transparentMeshes; };
 private:
 	std::vector<Mesh> meshes;
+	std::vector<Mesh> transparentMeshes;
 	std::vector<Texture> textures_loaded;
 	std::string directory;
 

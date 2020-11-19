@@ -267,6 +267,7 @@ Geometry litCube = {
 
 int main()
 {
+	std::cout << "Starting..." << std::endl;
 
 	// guess what this does
 	int width = 800;
