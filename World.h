@@ -29,6 +29,9 @@ public:
 
 	int screenWidth;
 	int screenHeight;
+	unsigned int fbo;  // framebuffer object
+	unsigned int tcb;  // texture colour buffer
+	unsigned int rbo;  // render buffer object
 
 	float deltaTime;
 	float lastFrame;
@@ -53,6 +56,8 @@ public:
 	// 8 lighting types
 	//unsigned int lightingType = 0;
 	const unsigned int numLightingTypes = 3;
+
+	void setupPostProcessing();
 
 	// main update function for everything contained inside world
 	void update();

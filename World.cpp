@@ -23,6 +23,9 @@ World::World(GLFWwindow* win, Camera* cam, Shader* obj,
 	std::cout << " // Setup" << std::endl;
 	std::cout << "---------------------------------------------" << std::endl;
 
+	// set up framebuffer and render buffer for post processing
+	setupPostProcessing();
+
 	// initialise object material uniforms
 	if (!object->texLoaded)
 	{
@@ -141,6 +144,53 @@ World::~World()
 
 // main functions to be called mainly from main
 // ---------------------------------------------------------------------------
+void World::setupPostProcessing()
+{
+	// set up frame buffer
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+	// generate textures
+	glGenTextures(1, &tcb);
+	glBindTexture(GL_TEXTURE_2D, tcb);
+	glTexImage2D(
+		GL_TEXTURE_2D, 0, GL_RGB, 
+		screenWidth, screenHeight, 
+		0, GL_RGB, GL_UNSIGNED_BYTE, NULL
+	);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// attach texture to frame buffer
+	glFramebufferTexture2D(
+		GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tcb, 0
+	);
+
+	// set up render buffer
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorage(
+		GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screenWidth, screenHeight
+	);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	// attach renderbuffer to depth and stencil attachment of framebuffer
+	glFramebufferRenderbuffer(
+		GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo
+	);
+
+	// check it completed
+	int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	bool complete = status == GL_FRAMEBUFFER_COMPLETE;
+	if (!complete)
+	{
+		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+
 void World::update()
 {
 	if (doLogging) std::cout << " // Update" << std::endl;
