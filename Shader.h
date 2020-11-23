@@ -30,6 +30,7 @@ public:
 	float currentAlpha = 0.2f;
 
 	// creates a new shader program
+	Shader(const char* vertPath, const char* fragPath);
 	Shader(
 		const char* vertPath, const char* fragPath,
 		Geometry geo, Material mat,
@@ -62,6 +63,7 @@ public:
 	void update();
 	// draw loaded geometry 
 	void draw();
+	void screenDraw(unsigned int tcb);
 	void drawWithOutline();
 
 	void loadGeometry(Geometry geo);
@@ -114,7 +116,7 @@ public:
 	float baseSpeed = 50.0f;
 	glm::vec3 outlineColour = glm::vec3(1.0f, 0.25f, 0.25f);
 
-private:
+//protected:
 	unsigned int VBO;
 	unsigned int VAO;
 	unsigned int EBO;	
@@ -187,5 +189,6 @@ public:
 	// make lights smaller than other geo
 	glm::vec3 size = glm::vec3(0.2f);
 };
+
 
 #endif

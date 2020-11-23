@@ -15,7 +15,8 @@ class Camera;  // forward declaration
 class World
 {
 public:
-	World(GLFWwindow* win, Camera* cam, Shader* obj, MaterialManager* mng, std::vector<LightSource> lgts);
+	World(GLFWwindow* win, Camera* cam, Shader* obj, MaterialManager* mng, 
+		std::vector<LightSource> lgts);
 	~World();
 
 	GLFWwindow* window;
@@ -23,6 +24,7 @@ public:
 	Camera* camera;
 	std::vector<LightSource> lights;
 	MaterialManager* matManager;
+	Shader screen = Shader("postProcessing.vs", "postProcessing.fs");
 
 	glm::mat4 view;
 	glm::mat4 projection;

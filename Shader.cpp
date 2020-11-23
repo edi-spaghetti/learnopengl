@@ -589,3 +589,64 @@ std::string LightSource::uniform(int i, std::string name)
 {
 	return "lights[" + std::to_string(i) + "]." + name;
 }
+
+
+// Screen Shader functions
+// ---------------------------------------------------------------------------
+
+Shader::Shader(const char* vertPath, const char* fragPath)
+{
+	Shader::createShaderProgram(vertPath, fragPath);
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glBindVertexArray(VAO);
+
+	static const int DLEN = 24;
+	static const int DSIZE = DLEN * sizeof(float);
+	// create data in device coordinates
+	float data[DLEN] = {
+		//  geo      tex
+		// triangle 1
+		    -1.0f,  1.0f,   0.0f,  1.0f,
+		    -1.0f, -1.0f,   0.0f,  0.0f,
+		     1.0f, -1.0f,   1.0f,  0.0f,
+	    // triangle 2
+		    -1.0f,  1.0f,   0.0f,  1.0f,
+		     1.0f, -1.0f,   1.0f,  0.0f,
+		     1.0f,  1.0f,   1.0f,  1.0f
+	};
+
+	// bind and set data into vertex buffer
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, DSIZE, &data, GL_STATIC_DRAW);
+
+	// generate vertex attributes for geometry
+	int aSize = 2 * sizeof(float);  // size of each attribute in bytes
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, aSize*2, (void*)0);
+	// and again for texture
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, aSize*2, (void*)aSize);
+
+	// unbind VBO, VAO and EBO
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	// set texture uniform
+	glUseProgram(ID);
+	glUniform1i(glGetUniformLocation(ID, "screenTexture"), 0);
+}
+
+
+void Shader::screenDraw(unsigned int tcb)
+{
+	glUseProgram(ID);
+	glBindVertexArray(VAO);
+
+	// bind the activated texture unit
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, tcb);
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+}

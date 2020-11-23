@@ -146,6 +146,10 @@ World::~World()
 // ---------------------------------------------------------------------------
 void World::setupPostProcessing()
 {
+	// make sure screen width and height have been set up before 
+	// we write out frame buffers
+	processInput(window, &screenWidth, &screenHeight);
+	
 	// set up frame buffer
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -160,7 +164,6 @@ void World::setupPostProcessing()
 	);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// attach texture to frame buffer
 	glFramebufferTexture2D(
@@ -173,7 +176,6 @@ void World::setupPostProcessing()
 	glRenderbufferStorage(
 		GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screenWidth, screenHeight
 	);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	// attach renderbuffer to depth and stencil attachment of framebuffer
 	glFramebufferRenderbuffer(
@@ -181,12 +183,18 @@ void World::setupPostProcessing()
 	);
 
 	// check it completed
-	int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	bool complete = status == GL_FRAMEBUFFER_COMPLETE;
-	if (!complete)
-	{
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-	}
+	auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	std::map<int, std::string> result = {
+		{GL_FRAMEBUFFER_COMPLETE, "complete"},
+		{GL_FRAMEBUFFER_UNDEFINED, "undefined"},
+		{GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT, "incomplete attachment"},
+		{GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT, "missing image attachment"},
+		{GL_FRAMEBUFFER_UNSUPPORTED, "unsupported"},
+		{GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE, "incomplete multi-sample"},
+		{GL_INVALID_ENUM, "invalid enum"}
+	};
+	std::cout << "Framebuffer status: " << result[status] << std::endl;
+	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -211,6 +219,13 @@ void World::draw()
 	if (doLogging) std::cout << " // Draw" << std::endl;
 	if (doLogging) std::cout << "--------------------------------------------" << std::endl;
 
+	// draw first pass on custom framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glEnable(GL_DEPTH_TEST);
+	// set the colour to black-ish
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	
 	// disable writing to stencil before doing outline pass
 	glStencilMask(0x00);
 
@@ -221,7 +236,7 @@ void World::draw()
 	{
 		i++;
 		if (doLogging) std::cout << "Light " << i << std::endl;
-		if (light.type != SPOTLIGHT && i != currentSelection)
+		if (light.type != SPOTLIGHT ) //&& i != currentSelection)
 			light.draw();
 	}
 
@@ -250,6 +265,13 @@ void World::draw()
 
 	// outline pass
 	lights[currentSelection].drawWithOutline();
+
+	// apply post-processing effects
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glDisable(GL_DEPTH_TEST);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	screen.screenDraw(tcb);
 
 	// stop logging after first frame
 	if (this->doLogging) this->doLogging = false;
