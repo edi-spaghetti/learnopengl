@@ -594,7 +594,7 @@ std::string LightSource::uniform(int i, std::string name)
 // Screen Shader functions
 // ---------------------------------------------------------------------------
 
-Shader::Shader(const char* vertPath, const char* fragPath)
+Shader::Shader(const char* vertPath, const char* fragPath, float x1, float y1, float x2, float y2)
 {
 	Shader::createShaderProgram(vertPath, fragPath);
 
@@ -606,15 +606,15 @@ Shader::Shader(const char* vertPath, const char* fragPath)
 	static const int DSIZE = DLEN * sizeof(float);
 	// create data in device coordinates
 	float data[DLEN] = {
-		//  geo      tex
+		// geo    tex
 		// triangle 1
-		    -1.0f,  1.0f,   0.0f,  1.0f,
-		    -1.0f, -1.0f,   0.0f,  0.0f,
-		     1.0f, -1.0f,   1.0f,  0.0f,
+		x1, y1,   0.0f,  1.0f,
+		x1, y2,   0.0f,  0.0f,
+		x2, y2,   1.0f,  0.0f,
 	    // triangle 2
-		    -1.0f,  1.0f,   0.0f,  1.0f,
-		     1.0f, -1.0f,   1.0f,  0.0f,
-		     1.0f,  1.0f,   1.0f,  1.0f
+		x1, y1,   0.0f,  1.0f,
+		x2, y2,   1.0f,  0.0f,
+		x2, y1,   1.0f,  1.0f
 	};
 
 	// bind and set data into vertex buffer

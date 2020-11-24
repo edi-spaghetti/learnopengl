@@ -195,6 +195,46 @@ void World::setupPostProcessing()
 	};
 	std::cout << "Framebuffer status: " << result[status] << std::endl;
 	
+	
+	// and again for reverse
+	// TODO: some kind of management class for multiple frame buffers
+	// -----------------------------------------------------------------------
+	glGenFramebuffers(1, &fboReverse);
+	glBindFramebuffer(GL_FRAMEBUFFER, fboReverse);
+
+	// generate textures
+	glGenTextures(1, &tcbReverse);
+	glBindTexture(GL_TEXTURE_2D, tcbReverse);
+	glTexImage2D(
+		GL_TEXTURE_2D, 0, GL_RGB,
+		screenWidth, screenHeight,
+		0, GL_RGB, GL_UNSIGNED_BYTE, NULL
+	);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// attach texture to frame buffer
+	glFramebufferTexture2D(
+		GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tcbReverse, 0
+	);
+
+	// set up render buffer
+	glGenRenderbuffers(1, &rboReverse);
+	glBindRenderbuffer(GL_RENDERBUFFER, rboReverse);
+	glRenderbufferStorage(
+		GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screenWidth, screenHeight
+	);
+
+	// attach renderbuffer to depth and stencil attachment of framebuffer
+	glFramebufferRenderbuffer(
+		GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboReverse
+	);
+
+	// check it completed
+	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	std::cout << "Framebuffer Reverse status: " << result[status] << std::endl;
+	// -----------------------------------------------------------------------
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -222,28 +262,64 @@ void World::draw()
 	// draw first pass on custom framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_STENCIL_TEST);
+	glEnable(GL_BLEND);
 	// set the colour to black-ish
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	
+	drawObjects();
+
+	// set the reverse view on each object
+	object->setMatrix("view", reverseView);
+	for (auto& light : lights)
+	{
+		light.setMatrix("view", reverseView);
+	}
+
+	// re-render to second buffer
+	glBindFramebuffer(GL_FRAMEBUFFER, fboReverse);
+	glEnable(GL_DEPTH_TEST);
+	// set the colour to black-ish
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	drawObjects();
+
+	// apply post-processing effects
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	// temporarily disable everything
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_STENCIL_TEST);
+	glDisable(GL_BLEND);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	// now draw each layer on top of the previous
+	screen.screenDraw(tcb);
+	mirror.screenDraw(tcbReverse);
+
+	// stop logging after first frame
+	if (this->doLogging) this->doLogging = false;
+}
+
+
+void World::drawObjects()
+{
 	// disable writing to stencil before doing outline pass
 	glStencilMask(0x00);
 
-
 	object->draw();
 	int i = -1;
-	for (auto &light : lights)
+	for (auto& light : lights)
 	{
 		i++;
 		if (doLogging) std::cout << "Light " << i << std::endl;
-		if (light.type != SPOTLIGHT ) //&& i != currentSelection)
+		if (light.type != SPOTLIGHT) //&& i != currentSelection)
 			light.draw();
 	}
 
 	// transparency pass
 	if (this->doLogging) std::cout << "Rendering opacity pass" << std::endl;
 	if (object->modelLoaded)
-	{		
+	{
 		// sort meshes by distance
 		std::map<float, Mesh> meshByDistance;
 		for (Mesh mesh : object->mod.getTransparentMeshes())
@@ -265,18 +341,7 @@ void World::draw()
 
 	// outline pass
 	lights[currentSelection].drawWithOutline();
-
-	// apply post-processing effects
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glDisable(GL_DEPTH_TEST);
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	screen.screenDraw(tcb);
-
-	// stop logging after first frame
-	if (this->doLogging) this->doLogging = false;
 }
-
 
 
 void World::updateTime()
@@ -462,6 +527,12 @@ void World::updateView()
 	view = glm::lookAt(
 		camera->position,
 		camera->position + camera->front,
+		camera->up
+	);
+
+	reverseView = glm::lookAt(
+		camera->position,
+		camera->position - camera->front,
 		camera->up
 	);
 }

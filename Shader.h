@@ -30,7 +30,8 @@ public:
 	float currentAlpha = 0.2f;
 
 	// creates a new shader program
-	Shader(const char* vertPath, const char* fragPath);
+	Shader(const char* vertPath, const char* fragPath, 
+		float x1 = -1.0f, float y1 = 1.0f, float x2 = 1.0f, float y2 = -1.0f);
 	Shader(
 		const char* vertPath, const char* fragPath,
 		Geometry geo, Material mat,

@@ -25,15 +25,22 @@ public:
 	std::vector<LightSource> lights;
 	MaterialManager* matManager;
 	Shader screen = Shader("postProcessing.vs", "postProcessing.fs");
+	// get the mirror quad roughly the same aspect ratio as screen
+	// TODO: make this dynamic
+	Shader mirror = Shader("postProcessing.vs", "postProcessing.fs", 0.6f, 0.9f, 0.9f, 0.675f);
 
 	glm::mat4 view;
+	glm::mat4 reverseView;
 	glm::mat4 projection;
 
 	int screenWidth;
 	int screenHeight;
 	unsigned int fbo;  // framebuffer object
+	unsigned int fboReverse;  // framebuffer object
 	unsigned int tcb;  // texture colour buffer
+	unsigned int tcbReverse;  // texture colour buffer
 	unsigned int rbo;  // render buffer object
+	unsigned int rboReverse;  // render buffer object
 
 	float deltaTime;
 	float lastFrame;
@@ -64,6 +71,7 @@ public:
 	// main update function for everything contained inside world
 	void update();
 	void draw();
+	void drawObjects();
 
 	// support functions for update
 	void updateTime();

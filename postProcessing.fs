@@ -20,6 +20,7 @@ void main()
         vec2( offset, -offset)
     );
 
+    float[9] none = {0, 0, 0, 0, 1, 0, 0, 0, 0};
     float[9] sharpen = {-1, -1, -1, -1, 9, -1, -1, -1, -1};
     float[9] blur = {1.0/16, 2.0/16, 1.0/16, 2.0/16, 4.0/16, 2.0/16, 1.0/16, 2.0/16, 1.0/16};
     float[9] edges = {1, 1, 1, 1, -8, 1, 1, 1, 1};
@@ -33,7 +34,7 @@ void main()
     vec3 colour = vec3(0);
     for (int i = 0; i < 9; i++)
     {
-        colour += sampleTex[i] * edges[i];
+        colour += sampleTex[i] * none[i];
     }
 
     FragColor = vec4(colour, 1);
