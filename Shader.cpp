@@ -35,6 +35,19 @@ Shader::Shader(const char* vertPath, const char* fragPath, Model mod)
 }
 
 
+Shader::Shader(const char* vertPath, const char* fragPath, CubeMap cm)
+{
+	createShaderProgram(vertPath, fragPath);
+
+	// generate cube geometry
+	generateCubeGeometry();
+
+	// load cube map texture
+	loadCubeMap(cm);
+	cubeMapLoaded = true;
+}
+
+
 Shader::~Shader() { }
 
 
@@ -63,6 +76,7 @@ void Shader::tearDown()
 // ---------------------------------------------------------------------------
 void Shader::draw()
 {	
+	
 	glUseProgram(ID);
 	if (this->doLogging) std::cout << "Drawing Shader " << ID << std::endl;
 
@@ -99,6 +113,12 @@ void Shader::draw()
 		}
 	}
 
+	if (cubeMapLoaded)
+	{
+		glDepthMask(GL_FALSE);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.ID);
+	}
+
 	if (elementBuffer) 
 	{
 		glDrawElements(GL_TRIANGLES, geometry.dataLength, GL_UNSIGNED_INT, 0);
@@ -115,6 +135,8 @@ void Shader::draw()
 			std::cout << "DrawArrays: count=" << geometry.dataLength << std::endl;
 		}
 	}
+
+	if (cubeMapLoaded) glDepthMask(GL_TRUE);
 
 	if (this->doLogging) std::cout << "Finished first draw of shader: " << this->ID << std::endl;
 	if (this->doLogging) doLogging = false;
@@ -472,6 +494,55 @@ void Shader::loadGeometry(Geometry geo)
 }
 
 
+void Shader::generateCubeGeometry()
+{
+	std::vector<glm::vec3> vertices = {
+		glm::vec3( 1,  1,  1),
+		glm::vec3(-1,  1,  1),
+		glm::vec3(-1, -1,  1),
+		glm::vec3( 1, -1,  1),
+		glm::vec3(-1,  1, -1),
+		glm::vec3( 1,  1, -1),
+		glm::vec3( 1, -1, -1),
+		glm::vec3(-1, -1, -1)
+	};
+
+	std::vector<glm::vec4> faces = {
+		glm::vec4(0, 1, 2, 3),
+		glm::vec4(5, 0, 3, 6),
+		glm::vec4(4, 5, 6, 7),
+		glm::vec4(1, 4, 7, 2),
+		glm::vec4(5, 4, 1, 0),
+		glm::vec4(3, 2, 7, 6),
+	};
+
+	Geometry geo;
+	geo.numAttributes = 1;
+	geo.attributes[0] = 3;
+	geo.stride = 3 * sizeof(float);
+
+	geo.dataLength = 0;
+	int valueIndex = 0;
+	for (int i = 0; i < 6; i++)  //  faces
+	{
+		for (int index : {0, 1, 2, 0, 2, 3})
+		{
+			for (int j = 0; j < 3; j++)  // vertex
+			{
+				geo.data[valueIndex] = vertices[index][j];
+				valueIndex++;
+			}
+			geo.dataLength++;
+		}
+	}
+	geo.dataSize = geo.dataLength * sizeof(float);
+	geo.useIndices = false;
+
+	this->geometry = geo;
+	loadGeometry(geo);
+}
+
+
 void Shader::loadTextures(Texture* textures, unsigned int nTex)
 {
 	numTextures = nTex;
@@ -496,6 +567,20 @@ void Shader::loadTextures(Texture* textures, unsigned int nTex)
 	Shader::setFloat("alpha", currentAlpha);
 	std::cout << "Initalised alpha to " << currentAlpha << std::endl;
 }
+
+
+void Shader::loadCubeMap(CubeMap cubeMap)
+{
+	glUseProgram(ID);
+	setInt(cubeMap.name, 0);
+	this->cubeMap = cubeMap;
+	std::cout
+		<< "Assigned samplerCube to texture unit"
+		<< " name=" << cubeMap.name
+		<< " ID=" << cubeMap.ID
+		<< std::endl;
+}
+
 
 
 void Shader::loadMaterials(Material mat) 

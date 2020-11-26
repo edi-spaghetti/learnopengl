@@ -267,9 +267,12 @@ void World::draw()
 	// set the colour to grey-ish
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	
+	skybox.draw();
 	drawObjects();
 
 	// set the reverse view on each object
+	skybox.setMatrix("view", glm::mat4(glm::mat3(reverseView)));
 	object->setMatrix("view", reverseView);
 	for (auto& light : lights)
 	{
@@ -282,6 +285,8 @@ void World::draw()
 	// set the colour to green-ish black-ish
 	glClearColor(0.2f, 0.3f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	
+	skybox.draw();
 	drawObjects();
 
 	// apply post-processing effects
@@ -360,6 +365,8 @@ void World::updateScreen()
 void World::updateAttributes()
 {
 	// set MVP matrices
+	skybox.setMatrix("view", glm::mat4(glm::mat3(view)));
+	skybox.setMatrix("projection", projection);
 	object->setMatrix("model", object->model);
 	object->setMatrix("view", view);
 	object->setMatrix("projection", projection);

@@ -37,6 +37,7 @@ public:
 		Geometry geo, Material mat,
 		Texture* textures = NULL, unsigned int nTex = 0);
 	Shader(const char* vertPath, const char* fragPath, Model mod);
+	Shader(const char* vertPath, const char* fragPath, CubeMap cm);
 	~Shader();
 	void tearDown();
 
@@ -67,8 +68,10 @@ public:
 	void screenDraw(unsigned int tcb);
 	void drawWithOutline();
 
+	void generateCubeGeometry();
 	void loadGeometry(Geometry geo);
 	void loadTextures(Texture* textures = NULL, unsigned int nTex = 0);
+	void loadCubeMap(CubeMap cubeMap);
 	void loadMaterials(Material mat);
 
 	// set values of types
@@ -97,10 +100,12 @@ public:
 	Texture* texList;
 	Material material;
 	Model mod;
+	CubeMap cubeMap;
 
 	bool geometryLoaded = false;
 	bool elementBuffer = false;
 	bool texLoaded = false;
+	bool cubeMapLoaded = false;
 	bool materialLoaded = false;
 	bool modelLoaded = false;
 

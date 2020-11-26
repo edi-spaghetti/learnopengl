@@ -28,6 +28,13 @@ public:
 	// get the mirror quad roughly the same aspect ratio as screen
 	// TODO: make this dynamic
 	Shader mirror = Shader("postProcessing.vs", "postProcessing.fs", 0.6f, 0.9f, 0.9f, 0.675f);
+	Shader skybox = Shader("skybox.vs", "skybox.fs", CubeMap({
+		"tex/skybox/right.jpg",
+		"tex/skybox/left.jpg",
+		"tex/skybox/top.jpg",
+		"tex/skybox/bottom.jpg",
+		"tex/skybox/front.jpg",
+		"tex/skybox/back.jpg" }, "skybox"));
 
 	glm::mat4 view;
 	glm::mat4 reverseView;
