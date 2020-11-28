@@ -33,8 +33,8 @@ public:
 		"tex/skybox/left.jpg",
 		"tex/skybox/top.jpg",
 		"tex/skybox/bottom.jpg",
-		"tex/skybox/front.jpg",
-		"tex/skybox/back.jpg" }, "skybox"));
+		"tex/skybox/back.jpg",
+		"tex/skybox/front.jpg" }, "skybox"));
 
 	glm::mat4 view;
 	glm::mat4 reverseView;

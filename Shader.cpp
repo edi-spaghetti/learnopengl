@@ -508,38 +508,156 @@ void Shader::generateCubeGeometry()
 	};
 
 	std::vector<glm::vec4> faces = {
-		glm::vec4(0, 1, 2, 3),
-		glm::vec4(5, 0, 3, 6),
-		glm::vec4(4, 5, 6, 7),
-		glm::vec4(1, 4, 7, 2),
-		glm::vec4(5, 4, 1, 0),
-		glm::vec4(3, 2, 7, 6),
+		// negative x starting cube
+		glm::vec4(),
+		glm::vec4(),
+		glm::vec4(),
+		glm::vec4(),
+		glm::vec4(),
+		glm::vec4(),
+		glm::vec4()
+		// positive Z starting cube
+		//glm::vec4(0, 1, 2, 3),
+		//glm::vec4(5, 0, 3, 6),
+		//glm::vec4(4, 5, 6, 7),
+		//glm::vec4(1, 4, 7, 2),
+		//glm::vec4(5, 4, 1, 0),
+		//glm::vec4(3, 2, 7, 6),
+	};
+
+	float skyboxVertices[108] = {
+		// positions
+		// neg z - front
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		// neg x - left
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		// pos x - right
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+
+		 // pos z - back
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		// pos y - top
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		// neg y - bottom
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f
+	};
+
+	float adjustedSkyboxVertices[108] = {
+		// positions
+		// neg z - front
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		// neg x - left
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		// pos x - right
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+
+		 // pos z - back
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		// pos y - top
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		// neg y - bottom
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f
 	};
 
 	Geometry geo;
 	geo.numAttributes = 1;
 	geo.attributes[0] = 3;
-	geo.stride = 3 * sizeof(float);
+	geo.stride = geo.attributes[0] * sizeof(float);
 
-	geo.dataLength = 0;
-	int valueIndex = 0;
-	for (int i = 0; i < 6; i++)  //  faces
+	//geo.dataLength = 0;
+	//for (int i = 0; i < 6; i++)  //  faces
+	//{
+	//	for (int index : {0, 1, 2, 0, 2, 3})
+	//	{
+	//		for (int j = 0; j < geo.attributes[0]; j++)  // vertex
+	//		{
+	//			geo.data[geo.dataLength] = vertices[index][j];
+	//			geo.dataLength++;
+	//		}
+	//	}
+	//}
+
+	geo.dataLength = 108;
+	for (int i = 0; i < geo.dataLength; i++)
 	{
-		for (int index : {0, 1, 2, 0, 2, 3})
-		{
-			for (int j = 0; j < 3; j++)  // vertex
-			{
-				geo.data[valueIndex] = vertices[index][j];
-				valueIndex++;
-			}
-			geo.dataLength++;
-		}
+		geo.data[i] = skyboxVertices[i];
 	}
+
 	geo.dataSize = geo.dataLength * sizeof(float);
 	geo.useIndices = false;
 
 	this->geometry = geo;
 	loadGeometry(geo);
+
+	std::cout << "Loaded generated cube with " << geo.dataLength << "values" << std::endl;
 }
 
 

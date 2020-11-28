@@ -268,8 +268,8 @@ void World::draw()
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
-	skybox.draw();
 	drawObjects();
+	skybox.draw();
 
 	// set the reverse view on each object
 	skybox.setMatrix("view", glm::mat4(glm::mat3(reverseView)));
@@ -286,8 +286,8 @@ void World::draw()
 	glClearColor(0.2f, 0.3f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
-	skybox.draw();
 	drawObjects();
+	skybox.draw();
 
 	// apply post-processing effects
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

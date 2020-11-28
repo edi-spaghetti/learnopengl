@@ -91,14 +91,26 @@ CubeMap::CubeMap(std::vector<std::string> faces, std::string name)
 	glGenTextures(1, &ID);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
 
-	stbi_set_flip_vertically_on_load(true);
-	for (unsigned int i = 0; i < faces.size(); i++)
+	std::vector<GLenum> faceOrder = {
+		GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+		GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+
+		// load top and bottom opposite way around
+		// cubemaps use left handed coordinates, opengl does not.
+		GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+		GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+
+		GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+		GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+	};
+
+	for (int i = 0; i < faces.size(); i++)
 	{
 		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
 		if (data)
 		{
 			int format = getFormat();
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
+			glTexImage2D(faceOrder[i], 
 				0, GL_RGB, width, height, 0,
 				format, GL_UNSIGNED_BYTE, data
 			);

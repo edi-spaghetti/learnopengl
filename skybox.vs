@@ -8,7 +8,8 @@ uniform mat4 view;
 
 void main()
 {
-	TexCoords = aPos;
+	// invert position because cubemap coordinate system is left handed.
+	TexCoords = -aPos;
 	vec4 pos = projection * view * vec4(aPos, 1);
 	gl_Position = pos.xyww;
 }
