@@ -99,11 +99,7 @@ void Shader::draw()
 		for (unsigned int i = 0; i < numTextures; i++)
 		{
 
-			// activate texture unit in order of array
-			glActiveTexture(GL_TEXTURE0 + i);
-
-			// bind the activated texture unit
-			glBindTexture(GL_TEXTURE_2D, texList[i].ID);
+			useTextureUnit(GL_TEXTURE_2D, i, texList[i].ID);
 			if (doLogging)
 			{
 				std::cout
@@ -597,6 +593,16 @@ void Shader::loadCubeMap(CubeMap cubeMap)
 		<< std::endl;
 }
 
+
+void Shader::useTextureUnit(GLenum target, unsigned int texUnitOffset, unsigned int texID)
+{
+	glUseProgram(ID);
+	
+	// activate texture unit in order of array
+	glActiveTexture(GL_TEXTURE0 + texUnitOffset);
+	// bind the activated texture unit
+	glBindTexture(target, texID);
+}
 
 
 void Shader::loadMaterials(Material mat) 

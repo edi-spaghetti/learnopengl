@@ -50,6 +50,9 @@ World::World(GLFWwindow* win, Camera* cam, Shader* obj,
 	if (this->doLogging) std::cout << "object material.shininess > " 
 		<< object->shininess.value << std::endl;
 
+	// set skybox sampler to last tex unit + 1
+	object->setInt(this->skybox.cubeMap.name, object->numTextures);
+
 	// initalise light properties on objects
 	std::cout << "Initial Setting " << lights.size() << " lights properties" 
 		<< std::endl;
@@ -309,6 +312,7 @@ void World::drawObjects()
 	// disable writing to stencil before doing outline pass
 	glStencilMask(0x00);
 
+	object->useTextureUnit(GL_TEXTURE_CUBE_MAP, object->numTextures, skybox.ID);
 	object->draw();
 	int i = -1;
 	for (auto& light : lights)

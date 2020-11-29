@@ -303,10 +303,11 @@ int main()
 
 	std::string preSchool = "mod/pre_school/v1/pre_school.obj";
 	std::string bulb = "mod/lightbulb/v3/bulb.obj";
+	std::string eye = "mod/eyeball/v1/eyeball.obj";
 
 	Shader objectShader = Shader(
 		"lightObject.vs", "lightObject.fs", 
-		Model(bulb)
+		Model(eye)
 	);
 
 	std::vector<LightSource> lights = {
