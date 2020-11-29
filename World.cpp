@@ -269,7 +269,6 @@ void World::draw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
 	drawObjects();
-	skybox.draw();
 
 	// set the reverse view on each object
 	skybox.setMatrix("view", glm::mat4(glm::mat3(reverseView)));
@@ -287,7 +286,6 @@ void World::draw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
 	drawObjects();
-	skybox.draw();
 
 	// apply post-processing effects
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -320,6 +318,8 @@ void World::drawObjects()
 		if (light.type != SPOTLIGHT) //&& i != currentSelection)
 			light.draw();
 	}
+
+	skybox.draw();
 
 	// transparency pass
 	if (this->doLogging) std::cout << "Rendering opacity pass" << std::endl;

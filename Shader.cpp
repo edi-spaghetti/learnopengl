@@ -163,7 +163,7 @@ void Shader::drawWithOutline()
 
 	// reset stencil settings
 	setBool("outline", false);
-	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 	glStencilMask(0xFF);  // disable writing to stencil buffer again
 	glEnable(GL_DEPTH_TEST);
 }
