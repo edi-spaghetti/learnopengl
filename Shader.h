@@ -11,6 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <map>
 
 #include "Geometry.h"
 #include "Texture.h"
@@ -30,14 +31,16 @@ public:
 	float currentAlpha = 0.2f;
 
 	// creates a new shader program
-	Shader(const char* vertPath, const char* fragPath, 
+	Shader(std::string vertPath, std::string fragPath, std::string geomPath,
+		Geometry geo);
+	Shader(std::string vertPath, std::string fragPath, 
 		float x1 = -1.0f, float y1 = 1.0f, float x2 = 1.0f, float y2 = -1.0f);
 	Shader(
-		const char* vertPath, const char* fragPath,
+		std::string vertPath, std::string fragPath,
 		Geometry geo, Material mat,
 		Texture* textures = NULL, unsigned int nTex = 0);
-	Shader(const char* vertPath, const char* fragPath, Model mod);
-	Shader(const char* vertPath, const char* fragPath, CubeMap cm);
+	Shader(std::string vertPath, std::string fragPath, Model mod);
+	Shader(std::string vertPath, std::string fragPath, CubeMap cm);
 	~Shader();
 	void tearDown();
 
@@ -64,7 +67,7 @@ public:
 	// update shaders
 	void update();
 	// draw loaded geometry 
-	void draw();
+	void draw(GLenum mode = GL_TRIANGLES);
 	void screenDraw(unsigned int tcb);
 	void drawWithOutline();
 
@@ -138,10 +141,10 @@ public:
 
 	bool doLogging = true;
 
-	void createShaderProgram(const char* vertPath, const char* fragPath);
-	static std::string readShaderFile(const char* shader_file);
-	int createVertexShader(const char* path);
-	int createFragmentShader(const char* path);
+	void createShaderProgram(std::string vertPath, std::string fragPath, 
+		std::string geomPath = "");
+	static std::string readShaderFile(std::string shader_file);
+	int createShaderStage(std::string path, GLenum type);
 };
 
 

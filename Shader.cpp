@@ -3,7 +3,7 @@
 // construction and deconstruction
 // ---------------------------------------------------------------------------
 Shader::Shader(
-	const char* vertPath, const char* fragPath, 
+	std::string vertPath, std::string fragPath, 
 	Geometry geo, Material mat,
 	Texture* textures, unsigned int nTex)
 {
@@ -26,7 +26,7 @@ Shader::Shader(
 }
 
 
-Shader::Shader(const char* vertPath, const char* fragPath, Model mod)
+Shader::Shader(std::string vertPath, std::string fragPath, Model mod)
 {
 	createShaderProgram(vertPath, fragPath);
 
@@ -35,7 +35,7 @@ Shader::Shader(const char* vertPath, const char* fragPath, Model mod)
 }
 
 
-Shader::Shader(const char* vertPath, const char* fragPath, CubeMap cm)
+Shader::Shader(std::string vertPath, std::string fragPath, CubeMap cm)
 {
 	createShaderProgram(vertPath, fragPath);
 
@@ -45,6 +45,17 @@ Shader::Shader(const char* vertPath, const char* fragPath, CubeMap cm)
 	// load cube map texture
 	loadCubeMap(cm);
 	cubeMapLoaded = true;
+}
+
+
+Shader::Shader(std::string vertPath, std::string fragPath, std::string geomPath,
+	Geometry geo)
+{
+	createShaderProgram(vertPath, fragPath, geomPath);
+
+	// load geometry
+	Shader::loadGeometry(geo);
+	geometryLoaded = true;
 }
 
 
@@ -74,7 +85,7 @@ void Shader::tearDown()
 
 // public functions
 // ---------------------------------------------------------------------------
-void Shader::draw()
+void Shader::draw(GLenum mode)
 {	
 	
 	glUseProgram(ID);
@@ -117,7 +128,7 @@ void Shader::draw()
 
 	if (elementBuffer) 
 	{
-		glDrawElements(GL_TRIANGLES, geometry.dataLength, GL_UNSIGNED_INT, 0);
+		glDrawElements(mode, geometry.dataLength, GL_UNSIGNED_INT, 0);
 		if (doLogging)
 		{
 			std::cout << "DrawElements: count=" << geometry.dataLength << std::endl;
@@ -125,7 +136,7 @@ void Shader::draw()
 
 	}
 	else {
-		glDrawArrays(GL_TRIANGLES, 0, geometry.dataLength);
+		glDrawArrays(mode, 0, geometry.dataLength);
 		if (doLogging)
 		{
 			std::cout << "DrawArrays: count=" << geometry.dataLength << std::endl;
@@ -326,14 +337,18 @@ void Shader::decreaseTransparency()
 
 // shader functions
 // ---------------------------------------------------------------------------
-void Shader::createShaderProgram(const char* vertPath, const char* fragPath)
+void Shader::createShaderProgram(std::string vertPath, std::string fragPath, 
+	std::string geomPath)
 {
 	ID = glCreateProgram();
 
-	int vert_id = Shader::createVertexShader(vertPath);
-	int frag_id = Shader::createFragmentShader(fragPath);
+	int vert_id = createShaderStage(vertPath, GL_VERTEX_SHADER);
+	int geom_id;
+	if (!geomPath.empty()) geom_id = createShaderStage(geomPath, GL_GEOMETRY_SHADER);
+	int frag_id = createShaderStage(fragPath, GL_FRAGMENT_SHADER);
 
 	glAttachShader(ID, vert_id);
+	if (!geomPath.empty()) glAttachShader(ID, geom_id);
 	glAttachShader(ID, frag_id);
 	glLinkProgram(ID);
 
@@ -346,13 +361,14 @@ void Shader::createShaderProgram(const char* vertPath, const char* fragPath)
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
 
-	// tidy up by deleting vert and frag shaders
+	// tidy up by deleting shaders
 	glDeleteShader(vert_id);
+	if (!geomPath.empty()) glDeleteShader(geom_id);
 	glDeleteShader(frag_id);
 }
 
 
-std::string Shader::readShaderFile(const char* shader_file)
+std::string Shader::readShaderFile(std::string shader_file)
 {
 	std::ifstream file(shader_file);
 	if (!file) return std::string();
@@ -368,15 +384,22 @@ std::string Shader::readShaderFile(const char* shader_file)
 }
 
 
-int Shader::createVertexShader(const char* path)
+
+int Shader::createShaderStage(std::string path, GLenum type)
 {
 	// read fragment shader source from file at path
 	std::string source = Shader::readShaderFile(path);
 	const char* shader_source = source.c_str();
 
-	int vid = glCreateShader(GL_VERTEX_SHADER);
+	int vid = glCreateShader(type);
 	glShaderSource(vid, 1, &shader_source, NULL);
 	glCompileShader(vid);
+
+	std::map<GLenum, std::string> name{
+		{GL_VERTEX_SHADER, "VERTEX"},
+		{GL_GEOMETRY_SHADER, "GEOMETRY"},
+		{GL_FRAGMENT_SHADER, "FRAGMENT"}
+	};
 
 	int success;
 	char infoLog[512];
@@ -384,33 +407,15 @@ int Shader::createVertexShader(const char* path)
 	if (!success)
 	{
 		glGetShaderInfoLog(vid, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+		std::cout 
+			<< "ERROR::SHADER::" 
+			<< name[type] 
+			<<"::COMPILATION_FAILED\n" 
+			<< infoLog 
+			<< std::endl;
 	}
 
 	return vid;
-}
-
-
-int Shader::createFragmentShader(const char* path)
-{
-	// read fragment shader source from file at path
-	std::string source = Shader::readShaderFile(path);
-	const char* shader_source = source.c_str();
-
-	int fid = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fid, 1, &shader_source, NULL);
-	glCompileShader(fid);
-
-	int success;
-	char infoLog[512];
-	glGetShaderiv(fid, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fid, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	return fid;
 }
 
 
@@ -701,7 +706,7 @@ std::string LightSource::uniform(int i, std::string name)
 // Screen Shader functions
 // ---------------------------------------------------------------------------
 
-Shader::Shader(const char* vertPath, const char* fragPath, float x1, float y1, float x2, float y2)
+Shader::Shader(std::string vertPath, std::string fragPath, float x1, float y1, float x2, float y2)
 {
 	Shader::createShaderProgram(vertPath, fragPath);
 
