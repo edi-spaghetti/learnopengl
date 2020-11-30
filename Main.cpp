@@ -308,7 +308,14 @@ int main()
 
 	Shader objectShader = Shader(
 		"geomShaderTest.vs", "geomShaderTest.fs", "geomShaderTest.gs",
-		Geometry{ 1, {2}, 8, 4, 32, {-0.5f,0.5f, 0.5f,0.5f, 0.5f,-0.5f, -0.5f,-0.5f}, false }
+		Geometry{ 2, {2, 3}, 20, 4, 80, 
+		{
+			-0.5f,  0.5f, 1, 0, 0,
+			 0.5f,  0.5f, 0, 1, 0,
+			 0.5f, -0.5f, 0, 0, 1,
+			-0.5f, -0.5f, 1, 1, 0
+		}, 
+		false }
 	);
 
 	//objectShader.size *= 0.1f;
