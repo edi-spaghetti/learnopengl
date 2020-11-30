@@ -59,6 +59,7 @@ vec3 CalcDiffuse(Light light, vec3 lgtDirection, vec3 normal);
 vec3 CalcSpecular(Light light, vec3 lgtDirection, vec3 viewDirection, vec3 normal);
 vec3 CalcEmission(bool animated);
 vec3 CalcReflection(vec3 normal, vec3 viewDir);
+vec3 CalcRefraction(float iRefrIndex, float oRefrIndex, vec3 normal, vec3 viewDir);
 
 
 void main() {
@@ -91,7 +92,10 @@ vec4 CalcLight() {
 	}
 
     // add reflection
-    result += CalcReflection(norm, viewDir);
+    //result += CalcReflection(norm, viewDir);
+
+    // add refraction
+    result = CalcRefraction(1, 1.52, norm, viewDir);
 
     // apply emission (if any)
     if (addEmission) result += CalcEmission(animateEmission);
@@ -126,11 +130,20 @@ vec3 CalcSpecular(Light light, vec3 lgtDirection, vec3 viewDirection, vec3 norma
 vec3 CalcReflection(vec3 normal, vec3 viewDir)
 {
     vec3 R = reflect(viewDir, normal);
-    float reflectivity = 0.25;
     vec3 reflection = vec3(texture(skybox, R)).rgb;
 
-    return reflection * reflectivity;
+    return reflection * (material.shininess / 256);
 }
+
+
+vec3 CalcRefraction(float iRefrIndex, float oRefrIndex, vec3 normal, vec3 viewDir)
+{
+    float ratio = iRefrIndex / oRefrIndex;
+    vec3 I = -normalize(FragPos - viewPos);
+    vec3 R = refract(I, -normal, ratio);
+    return texture(skybox, R).rgb;
+}
+
 
 
 vec3 CalcEmission(bool animated) {

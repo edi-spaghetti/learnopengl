@@ -602,6 +602,7 @@ void World::updateModel()
 
 	// now do the object
 	object->model = glm::mat4(1.0f);
+	object->model = glm::scale(object->model, object->size);
 
 	// TODO: object movement
 }

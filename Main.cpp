@@ -304,11 +304,14 @@ int main()
 	std::string preSchool = "mod/pre_school/v1/pre_school.obj";
 	std::string bulb = "mod/lightbulb/v3/bulb.obj";
 	std::string eye = "mod/eyeball/v1/eyeball.obj";
+	std::string backpack = "mod/backpack/v1/backpack.obj";
 
 	Shader objectShader = Shader(
 		"lightObject.vs", "lightObject.fs", 
-		Model(eye)
+		Model(preSchool)
 	);
+
+	objectShader.size *= 0.1f;
 
 	std::vector<LightSource> lights = {
 		//LightSource(POINT, Model("mod/lightbulb/v3/bulb.obj"))
