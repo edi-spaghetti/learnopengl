@@ -1,4 +1,7 @@
 #version 330 core
+#define POINT 0
+#define DIRECTIONAL 1
+#define SPOTLIGHT 2
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoords;
@@ -10,9 +13,7 @@ uniform mat3 normalMatrix;
 
 uniform highp int toggleGouraudPhong = 0;
 uniform highp int lightingType;
-const int POINT = 0;
-const int DIRECTIONAL = 1;
-const int SPOTLIGHT = 2;
+uniform highp vec3 viewPos;
 
 struct Material {
     sampler2D diffuse;
@@ -40,62 +41,17 @@ struct Light {
 };
 uniform Light light;
 
-uniform highp vec3 viewPos;
-
-out vec3 Normal;
-out vec3 FragPos;
-out vec4 gFragColor;
-out vec2 TexCoords;
+out IO_BLOCK {
+	vec3 Normal;
+	vec3 FragPos;
+	vec2 TexCoords;
+} vs_out;
 
 void main()
 {
-    TexCoords = aTexCoords;
-    Normal = normalMatrix * aNormal;
-    FragPos = vec3(model * vec4(aPos, 1.0));
+    vs_out.TexCoords = aTexCoords;
+    vs_out.Normal = normalMatrix * aNormal;
+    vs_out.FragPos = vec3(model * vec4(aPos, 1.0));
 
     gl_Position = projection * view * model * vec4(aPos, 1.0);
-}
-
-
-void deprecatedGouraudShading()
-{
-    if (bool(toggleGouraudPhong))
-    {
-        // calculate light direction
-        vec3 lightDir;
-        float attenuation;
-        if (lightingType == POINT) 
-        {
-            lightDir = normalize(light.position - FragPos);
-
-            // calculate attenuation
-            float distance = length(light.position - FragPos);
-            attenuation = 1.0 / (
-                light.constant + 
-                light.linear * distance + 
-                light.quadratic * pow(distance, 2)
-            );
-        }
-        if (lightingType == DIRECTIONAL) lightDir = normalize(-light.direction);
-
-        // calculate ambient
-        vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
-        if (lightingType == POINT) ambient *= attenuation;
-
-        // calculate diffuse
-        vec3 norm = normalize(Normal);
-        float diffMult = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = light.diffuse *  vec3(texture(material.diffuse, TexCoords));
-        if (lightingType == POINT) diffuse *= attenuation;
-
-        // calculate specular
-        vec3 viewDir = normalize(viewPos - FragPos);
-        vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-        vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
-        if (lightingType == POINT) specular *= attenuation;
-
-        vec3 result = ambient + diffuse + specular;
-        gFragColor = vec4(result, 1.0);
-	}
 }

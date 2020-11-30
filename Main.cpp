@@ -276,15 +276,15 @@ int main()
 
 	// global opengl settings
 	// -----------------------------------------------------------------------
-	//glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_LEQUAL);
-	//glEnable(GL_STENCIL_TEST);
-	//glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-	//glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+	glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//MaterialManager matManager = MaterialManager();
+	MaterialManager matManager = MaterialManager();
 
 	//const int nTextures = 3;
 	//Texture textures[nTextures] = {
@@ -304,72 +304,76 @@ int main()
 	//std::string preSchool = "mod/pre_school/v1/pre_school.obj";
 	//std::string bulb = "mod/lightbulb/v3/bulb.obj";
 	//std::string eye = "mod/eyeball/v1/eyeball.obj";
-	//std::string backpack = "mod/backpack/v1/backpack.obj";
+	std::string backpack = "mod/backpack/v1/backpack.obj";
 
 	Shader objectShader = Shader(
-		"geomShaderTest.vs", "geomShaderTest.fs", "geomShaderTest.gs",
-		Geometry{ 2, {2, 3}, 20, 4, 80,
-		{
-			-0.5f,  0.5f, 1, 0, 0,
-			 0.5f,  0.5f, 0, 1, 0,
-			 0.5f, -0.5f, 0, 0, 1,
-			-0.5f, -0.5f, 1, 1, 0
-		}, false }
-		//Geometry{ 2, {2, 3}, 20, 1, 20, {0, 0, 0, 1, 0}, false }
+		"lightObject.vs", "lightObject.fs", "lightObject.gs", backpack
 	);
+
+	//Shader objectShader = Shader(
+	//	"geomShaderTest.vs", "geomShaderTest.fs", "geomShaderTest.gs",
+	//	Geometry{ 2, {2, 3}, 20, 4, 80,
+	//	{
+	//		-0.5f,  0.5f, 1, 0, 0,
+	//		 0.5f,  0.5f, 0, 1, 0,
+	//		 0.5f, -0.5f, 0, 0, 1,
+	//		-0.5f, -0.5f, 1, 1, 0
+	//	}, false }
+	//	//Geometry{ 2, {2, 3}, 20, 1, 20, {0, 0, 0, 1, 0}, false }
+	//);
 
 	//objectShader.size *= 0.1f;
 
-	//std::vector<LightSource> lights = {
-	//	//LightSource(POINT, Model("mod/lightbulb/v3/bulb.obj"))
-	//	//LightSource(POINT, lightingCube, matManager.copper),
-	//	//LightSource(POINT, lightingCube, matManager.cyan_plastic),
-	//	//LightSource(POINT, lightingCube, matManager.pearl)
-	//	//LightSource(SPOTLIGHT, lightingCube, matManager.bronze),
-	//	LightSource(POINT, lightingCube, matManager.tungsten40W),
-	//	LightSource(DIRECTIONAL, lightingCube, matManager.tungsten40W),
-	//};
-	//for (auto &light : lights)
-	//{
-	//	// set a random height, and make the directional light much higher
-	//	float yPos = glm::linearRand(0.0f, 2.0f);
-	//	if (light.type == DIRECTIONAL) yPos += 3.0f;
+	std::vector<LightSource> lights = {
+		//LightSource(POINT, Model("mod/lightbulb/v3/bulb.obj"))
+		//LightSource(POINT, lightingCube, matManager.copper),
+		//LightSource(POINT, lightingCube, matManager.cyan_plastic),
+		//LightSource(POINT, lightingCube, matManager.pearl)
+		//LightSource(SPOTLIGHT, lightingCube, matManager.bronze),
+		LightSource(POINT, lightingCube, matManager.tungsten40W),
+		LightSource(DIRECTIONAL, lightingCube, matManager.tungsten40W),
+	};
+	for (auto &light : lights)
+	{
+		// set a random height, and make the directional light much higher
+		float yPos = glm::linearRand(0.0f, 2.0f);
+		if (light.type == DIRECTIONAL) yPos += 3.0f;
 
-	//	// set light's starting position in world space
-	//	light.setPosition(glm::vec3(
-	//		glm::linearRand(-2.0f, 2.0f),
-	//		yPos,
-	//		glm::linearRand(-2.0f, 2.0f)
-	//	));
+		// set light's starting position in world space
+		light.setPosition(glm::vec3(
+			glm::linearRand(-2.0f, 2.0f),
+			yPos,
+			glm::linearRand(-2.0f, 2.0f)
+		));
 
-	//	// set up a lighting direction if we switch to directional lighting
-	//	light.setDirection(
-	//		glm::vec3(
-	//			glm::linearRand(-0.2f, 0.2f),
-	//			-1.0f,
-	//			glm::linearRand(-0.3f, 0.3f)
-	//		)
-	//	);
+		// set up a lighting direction if we switch to directional lighting
+		light.setDirection(
+			glm::vec3(
+				glm::linearRand(-0.2f, 0.2f),
+				-1.0f,
+				glm::linearRand(-0.3f, 0.3f)
+			)
+		);
 
-	//}
+	}
 
-	//Camera camera = Camera();
-	//// set up world with camera, objects and lights
-	//// variables required by objects from lights are also set here
-	//World world = World(window, &camera, &objectShader, &matManager, lights);
+	Camera camera = Camera();
+	// set up world with camera, objects and lights
+	// variables required by objects from lights are also set here
+	World world = World(window, &camera, &objectShader, &matManager, lights);
 
-	//// setup user controls
-	//setupUserControls(window, &world);
+	// setup user controls
+	setupUserControls(window, &world);
 
 	// start render loop
 	while (!glfwWindowShouldClose(window))
 	{
 		// input
-		//world.update();
+		world.update();
 
 		// render
-		//world.draw();
-		objectShader.draw(GL_POINTS);
+		world.draw();
+		//objectShader.draw(GL_POINTS);
 
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);
@@ -377,13 +381,13 @@ int main()
 	}
 
 	// clean up
-	//world.screen.tearDown();
+	world.screen.tearDown();
 	objectShader.tearDown();
-	//for (auto& light : lights) 
-	//{
-	//	std::cout << "Cleaning Up Shader " << light.ID << std::endl;
-	//	light.tearDown();
-	//}
+	for (auto& light : lights) 
+	{
+		std::cout << "Cleaning Up Shader " << light.ID << std::endl;
+		light.tearDown();
+	}
 
 
 	glfwTerminate();

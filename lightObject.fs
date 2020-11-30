@@ -5,10 +5,11 @@
 #define SPOTLIGHT 2
 
 // IO
-in vec3 Normal;
-in vec3 FragPos;
-in vec4 gFragColor;
-in vec2 TexCoords;
+in IO_BLOCK {
+	vec3 Normal;
+	vec3 FragPos;
+	vec2 TexCoords;
+} fs_in;
 out vec4 FragColor;
 
 // struct declarations
@@ -63,22 +64,15 @@ vec3 CalcRefraction(float iRefrIndex, float oRefrIndex, vec3 normal, vec3 viewDi
 
 
 void main() {
-    if (!bool(toggleGouraudPhong))
-    {
-        FragColor = CalcLight();
-	}
-    else
-    {
-        FragColor = gFragColor;
-	}
+     FragColor = CalcLight();
 }
 
 
 vec4 CalcLight() {
 
     // common properties
-    vec3 norm = normalize(Normal);
-    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 norm = normalize(fs_in.Normal);
+    vec3 viewDir = normalize(viewPos - fs_in.FragPos);
 
     // init container for results
     vec3 result = vec3(0.0f, 0.0f, 0.0f);
@@ -87,15 +81,15 @@ vec4 CalcLight() {
     for (int i = 0; i < numLights; i++)
     {
         if (lights[i].type == DIRECTIONAL) result += CalcDirLight(lights[i], norm, viewDir);
-        if (lights[i].type == POINT) result +=  CalcPointLight(lights[i], norm, FragPos, viewDir);
-        if (lights[i].type == SPOTLIGHT) result += CalcSpotLight(lights[i], norm, FragPos, viewDir);
+        if (lights[i].type == POINT) result +=  CalcPointLight(lights[i], norm, fs_in.FragPos, viewDir);
+        if (lights[i].type == SPOTLIGHT) result += CalcSpotLight(lights[i], norm, fs_in.FragPos, viewDir);
 	}
 
     // add reflection
-    //result += CalcReflection(norm, viewDir);
+    result += CalcReflection(norm, viewDir);
 
     // add refraction
-    result = CalcRefraction(1, 1.52, norm, viewDir);
+    // result = CalcRefraction(1, 1.52, norm, viewDir);
 
     // apply emission (if any)
     if (addEmission) result += CalcEmission(animateEmission);
@@ -105,13 +99,13 @@ vec4 CalcLight() {
 
 
 vec3 CalcAmbient(Light light) {
-    return light.ambient * vec3(texture(material.diffuse, TexCoords));
+    return light.ambient * vec3(texture(material.diffuse, fs_in.TexCoords));
 }
 
 
 vec3 CalcDiffuse(Light light, vec3 lgtDirection, vec3 normal) {
     float diffMult = max(dot(normal, lgtDirection), 0.0);
-    return light.diffuse * diffMult * vec3(texture(material.diffuse, TexCoords));
+    return light.diffuse * diffMult * vec3(texture(material.diffuse, fs_in.TexCoords));
 }
 
 
@@ -120,7 +114,7 @@ vec3 CalcSpecular(Light light, vec3 lgtDirection, vec3 viewDirection, vec3 norma
     vec3 reflectDir = reflect(-lgtDirection, normal);
     float spec = pow(max(dot(viewDirection, reflectDir), 0.0), material.shininess);
 
-    vec3 specTexVec = vec3(texture(material.specular, TexCoords));
+    vec3 specTexVec = vec3(texture(material.specular, fs_in.TexCoords));
     if (invertSpec) specTexVec = vec3(1.0f, 1.0f, 1.0f) - specTexVec;
 
     return light.specular * spec * specTexVec;
@@ -139,7 +133,7 @@ vec3 CalcReflection(vec3 normal, vec3 viewDir)
 vec3 CalcRefraction(float iRefrIndex, float oRefrIndex, vec3 normal, vec3 viewDir)
 {
     float ratio = iRefrIndex / oRefrIndex;
-    vec3 I = -normalize(FragPos - viewPos);
+    vec3 I = -normalize(fs_in.FragPos - viewPos);
     vec3 R = refract(I, -normal, ratio);
     return texture(skybox, R).rgb;
 }
@@ -148,7 +142,7 @@ vec3 CalcRefraction(float iRefrIndex, float oRefrIndex, vec3 normal, vec3 viewDi
 
 vec3 CalcEmission(bool animated) {
 
-    vec3 emission = vec3(texture(material.emission, TexCoords)).rgb;
+    vec3 emission = vec3(texture(material.emission, fs_in.TexCoords)).rgb;
     if (animated)
     {
         float loopTime = 10.0;  // seconds

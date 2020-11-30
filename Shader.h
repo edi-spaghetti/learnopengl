@@ -40,6 +40,7 @@ public:
 		Geometry geo, Material mat,
 		Texture* textures = NULL, unsigned int nTex = 0);
 	Shader(std::string vertPath, std::string fragPath, Model mod);
+	Shader(std::string vertPath, std::string fragPath, std::string geomPath, Model mod);
 	Shader(std::string vertPath, std::string fragPath, CubeMap cm);
 	~Shader();
 	void tearDown();

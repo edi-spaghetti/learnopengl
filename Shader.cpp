@@ -35,6 +35,14 @@ Shader::Shader(std::string vertPath, std::string fragPath, Model mod)
 }
 
 
+Shader::Shader(std::string vertPath, std::string fragPath, std::string geomPath, Model mod)
+{
+	createShaderProgram(vertPath, fragPath, geomPath);
+	this->mod = mod;
+	modelLoaded = true;
+}
+
+
 Shader::Shader(std::string vertPath, std::string fragPath, CubeMap cm)
 {
 	createShaderProgram(vertPath, fragPath);
