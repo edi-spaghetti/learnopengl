@@ -32,6 +32,7 @@ public:
 	float currentAlpha = 0.2f;
 
 	// creates a new shader program
+	Shader(std::map<int, std::string> shaders, Geometry geo);
 	Shader(std::string vertPath, std::string fragPath, std::string geomPath,
 		Geometry geo);
 	Shader(std::string vertPath, std::string fragPath, 
@@ -89,6 +90,7 @@ public:
 	void setMatrix(const std::string& name, glm::mat3 value, bool useNormID = false) const;
 	void setVec3(const std::string& name, float x, float y, float z) const;
 	void setVec3(const std::string& name, glm::vec3 value) const;
+	void setVec2(std::string name, glm::vec2 value, int index = -1) const;
 
 	void increaseTransparency();
 	void decreaseTransparency();
@@ -144,6 +146,13 @@ public:
 
 	bool doLogging = true;
 
+	std::map<GLenum, std::string> stageNames{
+		{GL_VERTEX_SHADER, "VERTEX"},
+		{GL_GEOMETRY_SHADER, "GEOMETRY"},
+		{GL_FRAGMENT_SHADER, "FRAGMENT"}
+	};
+
+	void createShaderProgram(std::map<int, std::string> shaders);
 	void createShaderProgram(std::string vertPath, std::string fragPath, 
 		std::string geomPath = "");
 	void createNormalShaderProgram(std::string vertPath, std::string fragPath,

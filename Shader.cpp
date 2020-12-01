@@ -70,6 +70,15 @@ Shader::Shader(std::string vertPath, std::string fragPath, std::string geomPath,
 }
 
 
+Shader::Shader(std::map<int, std::string> shaders, Geometry geo)
+{
+	createShaderProgram(shaders);
+
+	loadGeometry(geo);
+	geometryLoaded = true;
+}
+
+
 Shader::~Shader() { }
 
 
@@ -416,6 +425,43 @@ void Shader::createNormalShaderProgram(std::string vertPath, std::string fragPat
 }
 
 
+void Shader::createShaderProgram(std::map<int, std::string> shaders)
+{
+	ID = glCreateProgram();
+
+	std::vector<int> stages;
+	for (auto type : { GL_VERTEX_SHADER , GL_GEOMETRY_SHADER, GL_FRAGMENT_SHADER })
+	{
+		if (shaders.count(type))
+		{
+			stages.push_back(createShaderStage(shaders[type], type));
+			std::cout << "Added " << stageNames[type] 
+				<< " shader stage" << std::endl;
+		}
+	}
+
+	for (auto stageID : stages)
+	{
+		glAttachShader(ID, stageID);
+	}
+	glLinkProgram(ID);
+
+	int success;
+	char infoLog[512];
+	glGetProgramiv(ID, GL_LINK_STATUS, &success);
+	if (!success)
+	{
+		glGetProgramInfoLog(ID, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+
+	for (auto stageID : stages)
+	{
+		glDeleteShader(stageID);
+	}
+}
+
+
 std::string Shader::readShaderFile(std::string shader_file)
 {
 	std::ifstream file(shader_file);
@@ -443,12 +489,6 @@ int Shader::createShaderStage(std::string path, GLenum type)
 	glShaderSource(vid, 1, &shader_source, NULL);
 	glCompileShader(vid);
 
-	std::map<GLenum, std::string> name{
-		{GL_VERTEX_SHADER, "VERTEX"},
-		{GL_GEOMETRY_SHADER, "GEOMETRY"},
-		{GL_FRAGMENT_SHADER, "FRAGMENT"}
-	};
-
 	int success;
 	char infoLog[512];
 	glGetShaderiv(vid, GL_COMPILE_STATUS, &success);
@@ -457,7 +497,7 @@ int Shader::createShaderStage(std::string path, GLenum type)
 		glGetShaderInfoLog(vid, 512, NULL, infoLog);
 		std::cout 
 			<< "ERROR::SHADER::" 
-			<< name[type] 
+			<< stageNames[type] 
 			<<"::COMPILATION_FAILED\n" 
 			<< infoLog 
 			<< std::endl;
@@ -743,6 +783,26 @@ void Shader::setVec3(const std::string& name, glm::vec3 value) const
 	unsigned int vecLoc = glGetUniformLocation(ID, name.c_str());
 	glUniform3f(glGetUniformLocation(ID, name.c_str()), value.x, value.y, value.z);
 }
+
+
+void Shader::setVec2(std::string name, glm::vec2 value, int index) const
+{
+	glUseProgram(ID);
+
+	if (index > -1)
+	{
+		name.append("[");
+		name.append(std::to_string(index));
+		name.append("]");
+	}
+	unsigned int vecLoc = glGetUniformLocation(ID, name.c_str());
+	glUniform2f(vecLoc, value.x, value.y);
+	if (doLogging) 
+		printf("Set %s %s\n", 
+			name.c_str(), glm::to_string(value).c_str()
+		);
+}
+
 
 // light source functions
 // ---------------------------------------------------------------------------
