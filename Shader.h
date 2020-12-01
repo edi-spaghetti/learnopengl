@@ -134,8 +134,12 @@ public:
 
 //protected:
 	unsigned int VBO;
+	std::vector<unsigned int> instanceBuffers;
 	unsigned int VAO;
 	unsigned int EBO;	
+
+	void addInstancedVertexAttribute(std::vector<glm::vec2> data, 
+		unsigned int frequency);
 
 	float maxAlpha = 1.0f;
 	float minAlpha = 0.0f;

@@ -99,6 +99,11 @@ void Shader::tearDown()
 		}
 	}
 
+	for (auto id : instanceBuffers)
+	{
+		glDeleteBuffers(1, &id);
+	}
+
 	glDeleteProgram(ID);
 	if (normID) glDeleteProgram(normID);
 }
@@ -531,7 +536,7 @@ void Shader::loadGeometry(Geometry geo)
 	// bind and set data into vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, geo.dataSize, geo.data, GL_STATIC_DRAW);
-	std::cout << "VBO: size=" << geo.dataSize << std::endl;
+	printf("glBufferData(GL_ARRAY_BUFFER, %d, <data>, GL_STATIC_DRAW)\n", geo.dataSize);
 
 	// bind and set element buffers
 	if (geo.useIndices)
@@ -549,29 +554,22 @@ void Shader::loadGeometry(Geometry geo)
 		{
 			sum += geo.attributes[i];
 		}
-		
+
 		unsigned int offset = sum * sizeof(float);
-		
+
 		glVertexAttribPointer(
-			attr, 
-			geo.attributes[attr], 
-			GL_FLOAT, 
-			GL_FALSE, 
-			geo.stride, 
-			(void*) offset
+			attr,
+			geo.attributes[attr],
+			GL_FLOAT,
+			GL_FALSE,
+			geo.stride,
+			(void*)offset
 		);
 		glEnableVertexAttribArray(attr);
-
-		std::cout 
-			<< "Attribute:"
-			<< " attr=" << attr
-			<< " sumAttr=" << sum
-			<< " lenAttr=" << geo.attributes[attr]
-			<< " stride=" << geo.stride 
-			<< " offset=" << offset 
-		<< std::endl;
+		printf("glVertexAttribPointer(%d, %d, GL_FLOAT, GL_FALSE, %d, %d)\n",
+			attr, geo.attributes[attr], geo.stride, offset
+		);
 	}
-
 	// unbind VBO, VAO and EBO
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -580,6 +578,40 @@ void Shader::loadGeometry(Geometry geo)
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
+}
+
+
+void Shader::addInstancedVertexAttribute(std::vector<glm::vec2> data, unsigned int frequency)
+{
+	// get the vertex array object
+	glBindVertexArray(VAO);
+	
+	// create and keep track of a new VBO
+	unsigned int newVBO;
+	glGenBuffers(1, &newVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, newVBO);
+	// assume we're instantiating from geometry for now
+	int attribIndex = geometry.numAttributes + instanceBuffers.size();
+	instanceBuffers.push_back(newVBO);
+
+	int itemSize = sizeof(data[0]);
+	int dataSize = itemSize * data.size();
+	//glm::vec2* data_arr = &data[0];
+	glBufferData(GL_ARRAY_BUFFER, dataSize, &data[0], GL_STATIC_DRAW);
+	printf("glBufferData(GL_ARRAY_BUFFER, %d, <data>, GL_STATIC_DRAW)\n", dataSize);
+	
+	// append attribute
+	glVertexAttribPointer(attribIndex, 2, GL_FLOAT, GL_FALSE, itemSize, (void*)0);
+	printf("INSTANCE glVertexAttribPointer(%d, 2, GL_FLOAT, Gl_FALSE, %d, (void*)0)\n", 
+		attribIndex, itemSize);
+
+	glEnableVertexAttribArray(attribIndex);
+	glVertexAttribDivisor(attribIndex, frequency);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	printf("INSTANCE glVertexAttribDivisor(%d, %d)\n", 
+		attribIndex, frequency);
 }
 
 

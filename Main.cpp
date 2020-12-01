@@ -329,7 +329,7 @@ int main()
 		}
 	);
 
-	int index = 0;
+	std::vector<glm::vec2> translations;
 	float offset = 0.1f;
 	for (int y = -10; y < 10; y += 2)
 	{
@@ -339,9 +339,11 @@ int main()
 			t.x = (float)x / 10.0f + offset;
 			t.y = (float)y / 10.0f + offset;
 			
-			instanceShader.setVec2("offsets", t, index++);
+			translations.push_back(t);
 		}
 	}
+
+	instanceShader.addInstancedVertexAttribute(translations, 1);
 
 	//Shader objectShader = Shader(
 	//	"geomShaderTest.vs", "geomShaderTest.fs", "geomShaderTest.gs",
@@ -397,7 +399,7 @@ int main()
 
 	//// setup user controls
 	//setupUserControls(window, &world);
-
+	bool doLogging = true;
 	// start render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -410,8 +412,13 @@ int main()
 		glUseProgram(instanceShader.ID);
 		glBindVertexArray(instanceShader.VAO);
 		glDrawArraysInstanced(GL_TRIANGLES, 0, 
-			instanceShader.geometry.dataLength, index);
-
+			instanceShader.geometry.dataLength, translations.size());
+		if (doLogging)
+		{
+			printf("Drawing triangles from %d vertices x %d instances",
+				instanceShader.geometry.dataLength, translations.size());
+			doLogging = false;
+		}
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
