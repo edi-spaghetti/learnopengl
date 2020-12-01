@@ -276,6 +276,7 @@ void World::draw()
 	// set the reverse view on each object
 	skybox.setMatrix("view", glm::mat4(glm::mat3(reverseView)));
 	object->setMatrix("view", reverseView);
+	if (object->drawNormals) object->setMatrix("view", reverseView, true);
 	for (auto& light : lights)
 	{
 		light.setMatrix("view", reverseView);
@@ -344,6 +345,11 @@ void World::drawObjects()
 			++it)
 		{
 			it->second.draw(object->ID);
+			if (object->drawNormals)
+			{
+				if (this->doLogging) std::cout << "Rendering normals" << std::endl;
+				it->second.draw(object->normID);
+			}
 		}
 
 	}
@@ -379,6 +385,13 @@ void World::updateAttributes()
 		light.setMatrix("model", light.model);
 		light.setMatrix("view", view);
 		light.setMatrix("projection", projection);
+	}
+
+	if (object->drawNormals)
+	{
+		object->setMatrix("model", object->model, true);
+		object->setMatrix("view", view, true);
+		object->setMatrix("projection", projection, true);
 	}
 
 	// settings

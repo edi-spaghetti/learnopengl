@@ -27,6 +27,7 @@ class Shader
 {
 public:
 	unsigned int ID;
+	unsigned int normID;
 	float currentZoom = 0.0f;
 	float currentAlpha = 0.2f;
 
@@ -84,8 +85,8 @@ public:
 	void setBool(const std::string& name, bool value) const;
 	void setInt(const std::string& name, int value) const;
 	void setFloat(const std::string& name, float value) const;
-	void setMatrix(const std::string& name, glm::mat4 value) const;
-	void setMatrix(const std::string& name, glm::mat3 value) const;
+	void setMatrix(const std::string& name, glm::mat4 value, bool useNormID = false) const;
+	void setMatrix(const std::string& name, glm::mat3 value, bool useNormID = false) const;
 	void setVec3(const std::string& name, float x, float y, float z) const;
 	void setVec3(const std::string& name, glm::vec3 value) const;
 
@@ -118,6 +119,7 @@ public:
 	bool invertSpec = false;
 	bool addEmission = false;
 	bool animateEmission = false;
+	bool drawNormals = true;
 
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat3 getNormalMatrix();
@@ -144,6 +146,8 @@ public:
 
 	void createShaderProgram(std::string vertPath, std::string fragPath, 
 		std::string geomPath = "");
+	void createNormalShaderProgram(std::string vertPath, std::string fragPath,
+		std::string geomPath);
 	static std::string readShaderFile(std::string shader_file);
 	int createShaderStage(std::string path, GLenum type);
 };
@@ -203,4 +207,4 @@ public:
 };
 
 
-#endif
+#endif SHADER_H

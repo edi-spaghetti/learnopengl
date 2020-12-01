@@ -29,6 +29,8 @@ Shader::Shader(
 Shader::Shader(std::string vertPath, std::string fragPath, Model mod)
 {
 	createShaderProgram(vertPath, fragPath);
+	createNormalShaderProgram("lightObjectNormal.vs", "lightObjectNormal.fs", 
+		"lightObjectNormal.gs");
 
 	this->mod = mod;
 	modelLoaded = true;
@@ -38,6 +40,7 @@ Shader::Shader(std::string vertPath, std::string fragPath, Model mod)
 Shader::Shader(std::string vertPath, std::string fragPath, std::string geomPath, Model mod)
 {
 	createShaderProgram(vertPath, fragPath, geomPath);
+
 	this->mod = mod;
 	modelLoaded = true;
 }
@@ -88,6 +91,7 @@ void Shader::tearDown()
 	}
 
 	glDeleteProgram(ID);
+	if (normID) glDeleteProgram(normID);
 }
 
 
@@ -104,6 +108,11 @@ void Shader::draw(GLenum mode)
 		
 		if (doLogging) std::cout << "Drawing Opaque Meshes" << std::endl;
 		mod.draw(ID);
+		if (drawNormals)
+		{
+		      if (doLogging) std::cout << "Drawing Normals" << std::endl;
+		      mod.draw(normID);
+		}
 		if (this->doLogging) this->doLogging = false;
 		return;
 
@@ -366,6 +375,37 @@ void Shader::createShaderProgram(std::string vertPath, std::string fragPath,
 	if (!success)
 	{
 		glGetProgramInfoLog(ID, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+
+	// tidy up by deleting shaders
+	glDeleteShader(vert_id);
+	if (!geomPath.empty()) glDeleteShader(geom_id);
+	glDeleteShader(frag_id);
+}
+
+
+void Shader::createNormalShaderProgram(std::string vertPath, std::string fragPath,
+	std::string geomPath)
+{
+	normID = glCreateProgram();
+
+	int vert_id = createShaderStage(vertPath, GL_VERTEX_SHADER);
+	int geom_id;
+	if (!geomPath.empty()) geom_id = createShaderStage(geomPath, GL_GEOMETRY_SHADER);
+	int frag_id = createShaderStage(fragPath, GL_FRAGMENT_SHADER);
+
+	glAttachShader(normID, vert_id);
+	if (!geomPath.empty()) glAttachShader(normID, geom_id);
+	glAttachShader(normID, frag_id);
+	glLinkProgram(normID);
+
+	int success;
+	char infoLog[512];
+	glGetProgramiv(normID, GL_LINK_STATUS, &success);
+	if (!success)
+	{
+		glGetProgramInfoLog(normID, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
 
@@ -659,18 +699,32 @@ void Shader::setFloat(const std::string& name, float value) const
 	glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-void Shader::setMatrix(const std::string& name, glm::mat4 value) const
+void Shader::setMatrix(const std::string& name, glm::mat4 value, bool useNormID) const
 {
-	glUseProgram(ID);
-	unsigned int transformLoc = glGetUniformLocation(ID, name.c_str());
+	unsigned int thisID;
+	if (useNormID) {
+		thisID = normID;
+	}
+	else {
+		thisID = ID;
+	}
+	glUseProgram(thisID);
+	unsigned int transformLoc = glGetUniformLocation(thisID, name.c_str());
 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(value));
 }
 
 
-void Shader::setMatrix(const std::string& name, glm::mat3 value) const
+void Shader::setMatrix(const std::string& name, glm::mat3 value, bool useNormID) const
 {
-	glUseProgram(ID);
-	unsigned int transformLoc = glGetUniformLocation(ID, name.c_str());
+	unsigned int thisID;
+	if (useNormID) {
+		thisID = normID;
+	}
+	else {
+		thisID = ID;
+	}
+	glUseProgram(thisID);
+	unsigned int transformLoc = glGetUniformLocation(thisID, name.c_str());
 	glUniformMatrix3fv(transformLoc, 1, GL_FALSE, glm::value_ptr(value));
 }
 

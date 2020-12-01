@@ -307,7 +307,7 @@ int main()
 	std::string backpack = "mod/backpack/v1/backpack.obj";
 
 	Shader objectShader = Shader(
-		"lightObject.vs", "lightObject.fs", "lightObject.gs", backpack
+		"lightObject.vs", "lightObject.fs", Model(backpack)
 	);
 
 	//Shader objectShader = Shader(
