@@ -119,7 +119,7 @@ public:
 	bool invertSpec = false;
 	bool addEmission = false;
 	bool animateEmission = false;
-	bool drawNormals = true;
+	bool drawNormals = false;
 
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat3 getNormalMatrix();

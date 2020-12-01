@@ -172,6 +172,13 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 		//world->object->shininess.reset();
 		std::cout << "Resetting lights deprecated, pending multiple lights implementation" << std::endl;
 	}
+	if (key == GLFW_KEY_N)
+	{
+		world->object->drawNormals = !world->object->drawNormals;
+		std::cout << "Toggled drawing normals " 
+			<< world->object->drawNormals 
+			<< std::endl;
+	}
 
 	int attributeChange = 0;
 	if (key == GLFW_KEY_PAGE_UP) attributeChange = ATTR_INCREASE;
