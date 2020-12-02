@@ -433,12 +433,12 @@ int main()
 
 	// world set up
 	world.skybox = Shader("skybox.vs", "skybox.fs", CubeMap({
-		"tex/skybox/right.jpg",
-		"tex/skybox/left.jpg",
-		"tex/skybox/top.jpg",
-		"tex/skybox/bottom.jpg",
-		"tex/skybox/back.jpg",
-		"tex/skybox/front.jpg" }, "skybox"));
+		"tex/space/1K/posX.jpg",
+		"tex/space/1K/negX.jpg",
+		"tex/space/1K/posY.jpg",
+		"tex/space/1K/negY.jpg",
+		"tex/space/1K/posZ.jpg",
+		"tex/space/1K/negZ.jpg" }, "skybox"));
 	// set skybox sampler to last tex unit + 1
 	for (auto& object : world.objects)
 	{
