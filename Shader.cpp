@@ -155,6 +155,7 @@ void Shader::draw(GLenum mode)
 	{
 		glDepthMask(GL_FALSE);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.ID);
+		if (doLogging) printf("Loaded cubemap texture\n");
 	}
 
 	if (elementBuffer) 

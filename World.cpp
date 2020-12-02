@@ -333,6 +333,7 @@ void World::drawObjects()
 			light.draw();
 	}
 
+	if (doLogging) printf("Drawing skybox\n");
 	skybox.draw();
 
 	// transparency pass
