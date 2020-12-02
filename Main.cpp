@@ -316,22 +316,25 @@ int main()
 	// TODO
 
 	// set rock's starting position in world space
-	glm::vec2 orbit = glm::circularRand(10);
-	rock.setPosition(glm::vec3(
-		10,
-		glm::linearRand(-0.5f, 0.5f),
-		10
-	));
+	glm::vec2 orbit = glm::circularRand(10.0f);
+	float randY = glm::linearRand(-0.5f, 0.5f);
+	glm::vec3 initPos = glm::vec3(orbit.x, randY, orbit.y);
+	planet.setPosition(initPos);
+	printf("Planet Init Position %f %f %f\n", orbit.x, randY, orbit.y);
+
+	orbit = glm::circularRand(5.0f);
+	randY = glm::linearRand(-0.5f, 0.5f);
+	initPos = glm::vec3(planet.position.x + orbit.x, randY, planet.position.z + orbit.y);
+	rock.setPosition(initPos);
+	printf("Rock Init Position %s\n", glm::to_string(initPos).c_str());
 
 	// set up a random direction
-	rock.setDirection(
-		glm::vec3(
-			glm::linearRand(-1, 1),
-			glm::linearRand(-1, 1),
-			glm::linearRand(-1, 1)
-		)
-	);
+	glm::vec3 spin = glm::sphericalRand(1.0f);
+	rock.setDirection(spin);
+	printf("Rock Init Direction %s\n", glm::to_string(spin).c_str());
 
+	float size = glm::linearRand(0.1f, 0.75f);
+	rock.size = glm::vec3(size);
 
 	// add objects to list, to later be added to world on initialisation
 	objects.push_back(planet);
@@ -397,7 +400,7 @@ int main()
 	//	//LightSource(POINT, lightingCube, matManager.pearl)
 	//	//LightSource(SPOTLIGHT, lightingCube, matManager.bronze),
 	//	LightSource(POINT, lightingCube, matManager.tungsten40W),
-		LightSource(DIRECTIONAL, lightingCube, matManager.tungsten40W),
+		LightSource(POINT, lightingCube, matManager.sunlight),
 	};
 
 	// lights setup
@@ -405,25 +408,23 @@ int main()
 	for (auto &light : lights)
 	{
 		// set a random height, and make the directional light much higher
-		float yPos = glm::linearRand(0.0f, 2.0f);
-		if (light.type == DIRECTIONAL) yPos += 3.0f;
+		//float yPos = glm::linearRand(0.0f, 2.0f);
+		//if (light.type == DIRECTIONAL) yPos += 3.0f;
 
 		// set light's starting position in world space
-		light.setPosition(glm::vec3(
-			glm::linearRand(-2.0f, 2.0f),
-			yPos,
-			glm::linearRand(-2.0f, 2.0f)
-		));
+		light.setPosition(glm::vec3(0, 0, 0));
 
-		// set up a lighting direction if we switch to directional lighting
+		// set up a lighting direction
 		light.setDirection(
 			glm::vec3(
 				glm::linearRand(-0.2f, 0.2f),
-				-1.0f,
+				0,
 				glm::linearRand(-0.3f, 0.3f)
 			)
 		);
 
+		// bump up attenutation to max
+		light.setAttenuation(11);
 	}
 
 	Camera camera = Camera();

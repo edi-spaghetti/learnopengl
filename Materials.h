@@ -171,9 +171,15 @@ public:
         glm::vec3(1.0f, 0.7725f, 0.5607f),
         0.4f
     );
+    Material sunlight = Material(
+        glm::vec3(0.05f),
+        glm::vec3(0.5f),
+        glm::vec3(1.0f),
+        1
+    );
 
     unsigned int currentMaterial = 0;
-    static const int numMaterials = 25;
+    static const int numMaterials = 26;
     Material* materials[numMaterials] = {
         &emerald,        &jade,          &obsidian,
         &turquoise,      &brass,         &bronze,
@@ -183,7 +189,7 @@ public:
         &green_rubber,   &red_rubber,    &white_rubber,
         &yellow_rubber,  &pearl,         &ruby,
         &chrome,         &copper,        &silver,
-        &tungsten40W
+        &tungsten40W,    &sunlight
     };
 
 
