@@ -32,6 +32,7 @@ public:
 	float currentAlpha = 0.2f;
 
 	// creates a new shader program
+	Shader() {};
 	Shader(std::map<int, std::string> shaders, Geometry geo);
 	Shader(std::string vertPath, std::string fragPath, std::string geomPath,
 		Geometry geo);

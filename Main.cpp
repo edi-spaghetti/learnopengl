@@ -284,7 +284,7 @@ int main()
 	//glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//MaterialManager matManager = MaterialManager();
+	MaterialManager matManager = MaterialManager();
 
 	//const int nTextures = 3;
 	//Texture textures[nTextures] = {
@@ -305,45 +305,76 @@ int main()
 	//std::string bulb = "mod/lightbulb/v3/bulb.obj";
 	//std::string eye = "mod/eyeball/v1/eyeball.obj";
 	//std::string backpack = "mod/backpack/v1/backpack.obj";
+	std::string planetPath = "mod/planet/v1/planet.obj";
+	std::string rockPath = "mod/rock/v1/rock.obj";
+
+	std::vector<Shader> objects;
+	Shader planet = Shader("lightObject.vs", "lightObject.fs", Model(planetPath));
+	Shader rock =  Shader("lightObject.vs", "lightObject.fs", Model(rockPath));
+
+	// configure object shaders, including instancing
+	// TODO
+
+	// set rock's starting position in world space
+	glm::vec2 orbit = glm::circularRand(10);
+	rock.setPosition(glm::vec3(
+		10,
+		glm::linearRand(-0.5f, 0.5f),
+		10
+	));
+
+	// set up a random direction
+	rock.setDirection(
+		glm::vec3(
+			glm::linearRand(-1, 1),
+			glm::linearRand(-1, 1),
+			glm::linearRand(-1, 1)
+		)
+	);
+
+
+	// add objects to list, to later be added to world on initialisation
+	objects.push_back(planet);
+	objects.push_back(rock);
 
 	//Shader objectShader = Shader(
 	//	"lightObject.vs", "lightObject.fs", Model(backpack)
 	//);
 
-	Shader instanceShader = Shader(
-		std::map<int, std::string> {
-			{ GL_VERTEX_SHADER, "instanceTest.vs" },
-			{ GL_FRAGMENT_SHADER, "instanceTest.fs" }
-		},
-		Geometry{
-			2, {2, 3}, 20, 6, 120,
-			{    // positions     // colors
-				-0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
-				 0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
-				-0.05f, -0.05f,  0.0f, 0.0f, 1.0f,
+	//Shader instanceShader = Shader(
+	//	std::map<int, std::string> {
+	//		{ GL_VERTEX_SHADER, "instanceTest.vs" },
+	//		{ GL_FRAGMENT_SHADER, "instanceTest.fs" }
+	//	},
+	//	Geometry{
+	//		2, {2, 3}, 20, 6, 120,
+	//		{    // positions     // colors
+	//			-0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
+	//			 0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
+	//			-0.05f, -0.05f,  0.0f, 0.0f, 1.0f,
 
-				-0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
-				 0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
-				 0.05f,  0.05f,  0.0f, 1.0f, 1.0f
-			}, false
-		}
-	);
+	//			-0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
+	//			 0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
+	//			 0.05f,  0.05f,  0.0f, 1.0f, 1.0f
+	//		}, false
+	//	}
+	//);
 
-	std::vector<glm::vec2> translations;
-	float offset = 0.1f;
-	for (int y = -10; y < 10; y += 2)
-	{
-		for (int x = -10; x < 10; x += 2)
-		{
-			glm::vec2 t;
-			t.x = (float)x / 10.0f + offset;
-			t.y = (float)y / 10.0f + offset;
-			
-			translations.push_back(t);
-		}
-	}
+	//std::vector<glm::vec2> translations;
+	//float offset = 0.1f;
+	//for (int y = -10; y < 10; y += 2)
+	//{
+	//	for (int x = -10; x < 10; x += 2)
+	//	{
+	//		glm::vec2 t;
+	//		t.x = (float)x / 10.0f + offset;
+	//		t.y = (float)y / 10.0f + offset;
+	//		
+	//		translations.push_back(t);
+	//	}
+	//}
 
-	instanceShader.addInstancedVertexAttribute(translations, 1);
+	//instanceShader.addInstancedVertexAttribute(translations, 1);
 
 	//Shader objectShader = Shader(
 	//	"geomShaderTest.vs", "geomShaderTest.fs", "geomShaderTest.gs",
@@ -359,80 +390,102 @@ int main()
 
 	//objectShader.size *= 0.1f;
 
-	//std::vector<LightSource> lights = {
+	std::vector<LightSource> lights = {
 	//	//LightSource(POINT, Model("mod/lightbulb/v3/bulb.obj"))
 	//	//LightSource(POINT, lightingCube, matManager.copper),
 	//	//LightSource(POINT, lightingCube, matManager.cyan_plastic),
 	//	//LightSource(POINT, lightingCube, matManager.pearl)
 	//	//LightSource(SPOTLIGHT, lightingCube, matManager.bronze),
 	//	LightSource(POINT, lightingCube, matManager.tungsten40W),
-	//	LightSource(DIRECTIONAL, lightingCube, matManager.tungsten40W),
-	//};
-	//for (auto &light : lights)
-	//{
-	//	// set a random height, and make the directional light much higher
-	//	float yPos = glm::linearRand(0.0f, 2.0f);
-	//	if (light.type == DIRECTIONAL) yPos += 3.0f;
+		LightSource(DIRECTIONAL, lightingCube, matManager.tungsten40W),
+	};
 
-	//	// set light's starting position in world space
-	//	light.setPosition(glm::vec3(
-	//		glm::linearRand(-2.0f, 2.0f),
-	//		yPos,
-	//		glm::linearRand(-2.0f, 2.0f)
-	//	));
+	// lights setup
+	// TODO: move to function
+	for (auto &light : lights)
+	{
+		// set a random height, and make the directional light much higher
+		float yPos = glm::linearRand(0.0f, 2.0f);
+		if (light.type == DIRECTIONAL) yPos += 3.0f;
 
-	//	// set up a lighting direction if we switch to directional lighting
-	//	light.setDirection(
-	//		glm::vec3(
-	//			glm::linearRand(-0.2f, 0.2f),
-	//			-1.0f,
-	//			glm::linearRand(-0.3f, 0.3f)
-	//		)
-	//	);
+		// set light's starting position in world space
+		light.setPosition(glm::vec3(
+			glm::linearRand(-2.0f, 2.0f),
+			yPos,
+			glm::linearRand(-2.0f, 2.0f)
+		));
 
-	//}
+		// set up a lighting direction if we switch to directional lighting
+		light.setDirection(
+			glm::vec3(
+				glm::linearRand(-0.2f, 0.2f),
+				-1.0f,
+				glm::linearRand(-0.3f, 0.3f)
+			)
+		);
 
-	//Camera camera = Camera();
+	}
+
+	Camera camera = Camera();
 	//// set up world with camera, objects and lights
 	//// variables required by objects from lights are also set here
-	//World world = World(window, &camera, &objectShader, &matManager, lights);
+	World world = World(window, &camera, objects, &matManager, lights);
 
-	//// setup user controls
-	//setupUserControls(window, &world);
+	// world set up
+	world.skybox = Shader("skybox.vs", "skybox.fs", CubeMap({
+		"tex/skybox/right.jpg",
+		"tex/skybox/left.jpg",
+		"tex/skybox/top.jpg",
+		"tex/skybox/bottom.jpg",
+		"tex/skybox/back.jpg",
+		"tex/skybox/front.jpg" }, "skybox"));
+	// set skybox sampler to last tex unit + 1
+	for (auto& object : world.objects)
+	{
+		object.setInt(world.skybox.cubeMap.name, object.numTextures);
+	}
+
+	// setup user controls
+	setupUserControls(window, &world);
 	bool doLogging = true;
 	// start render loop
 	while (!glfwWindowShouldClose(window))
 	{
 		// input
-		//world.update();
+		world.update();
 
 		// render
-		//world.draw();
+		world.draw();
 		//objectShader.draw(GL_POINTS);
-		glUseProgram(instanceShader.ID);
-		glBindVertexArray(instanceShader.VAO);
-		glDrawArraysInstanced(GL_TRIANGLES, 0, 
-			instanceShader.geometry.dataLength, translations.size());
-		if (doLogging)
-		{
-			printf("Drawing triangles from %d vertices x %d instances",
-				instanceShader.geometry.dataLength, translations.size());
-			doLogging = false;
-		}
+		//glUseProgram(instanceShader.ID);
+		//glBindVertexArray(instanceShader.VAO);
+		//glDrawArraysInstanced(GL_TRIANGLES, 0, 
+		//	instanceShader.geometry.dataLength, translations.size());
+		//if (doLogging)
+		//{
+		//	printf("Drawing triangles from %d vertices x %d instances",
+		//		instanceShader.geometry.dataLength, translations.size());
+		//	doLogging = false;
+		//}
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
 	// clean up
-	instanceShader.tearDown();
-	//world.screen.tearDown();
+	//instanceShader.tearDown();
+	world.screen.tearDown();
 	//objectShader.tearDown();
-	//for (auto& light : lights) 
-	//{
-	//	std::cout << "Cleaning Up Shader " << light.ID << std::endl;
-	//	light.tearDown();
-	//}
+	for (auto& object : objects)
+	{
+		printf("Cleaning up object shader %d\n", object.ID);
+		object.tearDown();
+	}
+	for (auto& light : lights) 
+	{
+		std::cout << "Cleaning Up Shader " << light.ID << std::endl;
+		light.tearDown();
+	}
 
 
 	glfwTerminate();

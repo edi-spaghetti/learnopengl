@@ -137,19 +137,25 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 	}
 	if (key == GLFW_KEY_4)
 	{
-		world->object->invertSpec = !world->object->invertSpec;
-		std::cout << "Inverted Spec" << std::endl;
+		//for (auto& object : world->objects)
+		//{
+		//	object.invertSpec = !object.invertSpec;
+		//	std::cout << "Inverted Spec" << std::endl;
+		//}
+
 	}
 	if (key == GLFW_KEY_5)
 	{
-		world->object->addEmission = !world->object->addEmission;
-		std::cout << "Toggled Emission" << std::endl;
+		printf("Emission is deprecated");
+		//world->object->addEmission = !world->object->addEmission;
+		//std::cout << "Toggled Emission" << std::endl;
 	}
 	if (key == GLFW_KEY_6)
 	{
-		world->object->addEmission = true;
-		world->object->animateEmission = !world->object->animateEmission;
-		std::cout << "Toggled Emission Animation" << std::endl;
+		//world->object->addEmission = true;
+		//world->object->animateEmission = !world->object->animateEmission;
+		//std::cout << "Toggled Emission Animation" << std::endl;
+		printf("Animated emission deprecated");
 	}
 	if (key == GLFW_KEY_7)
 	{
@@ -174,10 +180,13 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 	}
 	if (key == GLFW_KEY_N)
 	{
-		world->object->drawNormals = !world->object->drawNormals;
-		std::cout << "Toggled drawing normals " 
-			<< world->object->drawNormals 
-			<< std::endl;
+		for (auto& object : world->objects)
+		{
+			object.drawNormals = !object.drawNormals;
+			std::cout << "Toggled drawing normals "
+				<< object.drawNormals
+				<< std::endl;
+		}
 	}
 
 	int attributeChange = 0;
@@ -275,28 +284,6 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 		//int newIndex = (world->light->attenuationIndex + 1) % world->light->numAttenuationSettings;
 		//world->light->setAttenuation(newIndex);
 		//std::cout << "Set light attenuation to " << world->light->distance << std::endl;
-	}
-
-	// Deprecated
-	if (key == GLFW_KEY_UP)
-	{
-		world->object->currentZoom += 0.05;
-		world->object->setFloat("zoom", world->object->currentZoom);
-		std::cout << "set zoom to " << world->object->currentZoom << std::endl;
-	}
-	else if (key == GLFW_KEY_DOWN)
-	{
-		world->object->currentZoom -= 0.05;
-		world->object->setFloat("zoom", world->object->currentZoom);
-		std::cout << "set zoom to " << world->object->currentZoom << std::endl;
-	}
-	else if (key == GLFW_KEY_LEFT)
-	{
-		world->object->increaseTransparency();
-	}
-	else if (key == GLFW_KEY_RIGHT)
-	{
-		world->object->decreaseTransparency();
 	}
 }
 

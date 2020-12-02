@@ -596,7 +596,6 @@ void Shader::addInstancedVertexAttribute(std::vector<glm::vec2> data, unsigned i
 
 	int itemSize = sizeof(data[0]);
 	int dataSize = itemSize * data.size();
-	//glm::vec2* data_arr = &data[0];
 	glBufferData(GL_ARRAY_BUFFER, dataSize, &data[0], GL_STATIC_DRAW);
 	printf("glBufferData(GL_ARRAY_BUFFER, %d, <data>, GL_STATIC_DRAW)\n", dataSize);
 	
@@ -604,14 +603,14 @@ void Shader::addInstancedVertexAttribute(std::vector<glm::vec2> data, unsigned i
 	glVertexAttribPointer(attribIndex, 2, GL_FLOAT, GL_FALSE, itemSize, (void*)0);
 	printf("INSTANCE glVertexAttribPointer(%d, 2, GL_FLOAT, Gl_FALSE, %d, (void*)0)\n", 
 		attribIndex, itemSize);
-
 	glEnableVertexAttribArray(attribIndex);
 	glVertexAttribDivisor(attribIndex, frequency);
+	printf("INSTANCE glVertexAttribDivisor(%d, %d)\n",
+		attribIndex, frequency);
+
+	// and clean up
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
-	printf("INSTANCE glVertexAttribDivisor(%d, %d)\n", 
-		attribIndex, frequency);
 }
 
 

@@ -4,7 +4,7 @@
 #include "World.h"
 
 
-World::World(GLFWwindow* win, Camera* cam, Shader* obj, 
+World::World(GLFWwindow* win, Camera* cam, std::vector<Shader> objs, 
 	MaterialManager* mng, std::vector<LightSource> lgts)
 {
 
@@ -14,7 +14,7 @@ World::World(GLFWwindow* win, Camera* cam, Shader* obj,
 
 	window = win;
 	camera = cam;
-	object = obj;
+	objects = objs;
 	matManager = mng;
 	lights = lgts;
 
@@ -27,31 +27,31 @@ World::World(GLFWwindow* win, Camera* cam, Shader* obj,
 	setupPostProcessing();
 
 	// initialise object material uniforms
-	if (!object->texLoaded)
+	for (auto &object : objects)
 	{
-		// ambient
-		object->setVec3("material.ambient", object->ambient.value);
-		if (this->doLogging) std::cout << "object material.ambient > " 
-			<< glm::to_string(object->ambient.value) << std::endl;
+		if (!object.texLoaded)
+		{
+			// ambient
+			object.setVec3("material.ambient", object.ambient.value);
+			if (this->doLogging) std::cout << "object material.ambient > "
+				<< glm::to_string(object.ambient.value) << std::endl;
 
-		// diffuse
-		object->setVec3("material.diffuse", object->diffuse.value);
-		if (this->doLogging) std::cout << "object material.diffuse > " 
-			<< glm::to_string(object->diffuse.value) << std::endl;
+			// diffuse
+			object.setVec3("material.diffuse", object.diffuse.value);
+			if (this->doLogging) std::cout << "object material.diffuse > "
+				<< glm::to_string(object.diffuse.value) << std::endl;
 
-		// specular
-		object->setVec3("material.specular", object->specular.value);
-		if (this->doLogging) std::cout << "object material.specular > " 
-			<< glm::to_string(object->specular.value) << std::endl;
+			// specular
+			object.setVec3("material.specular", object.specular.value);
+			if (this->doLogging) std::cout << "object material.specular > "
+				<< glm::to_string(object.specular.value) << std::endl;
+		}
+
+		// shininess
+		object.setFloat("material.shininess", object.shininess.value);
+		if (this->doLogging) std::cout << "object material.shininess > "
+			<< object.shininess.value << std::endl;
 	}
-
-	// shininess
-	object->setFloat("material.shininess", object->shininess.value);
-	if (this->doLogging) std::cout << "object material.shininess > " 
-		<< object->shininess.value << std::endl;
-
-	// set skybox sampler to last tex unit + 1
-	object->setInt(this->skybox.cubeMap.name, object->numTextures);
 
 	// initalise light properties on objects
 	std::cout << "Initial Setting " << lights.size() << " lights properties" 
@@ -62,60 +62,63 @@ World::World(GLFWwindow* win, Camera* cam, Shader* obj,
 	{
 		i++;
 
-		// type
-		object->setInt(light.uniform(i, "type"), light.type);
-		if (this->doLogging) std::cout << "object " << (light.uniform(i, "type")) 
-			<< " > " << light.type << std::endl;
+		for (auto& object : objects)
+		{
+			// type
+			object.setInt(light.uniform(i, "type"), light.type);
+			if (this->doLogging) std::cout << "object " << (light.uniform(i, "type"))
+				<< " > " << light.type << std::endl;
 
-		// position
-		object->setVec3(light.uniform(i, "position"), light.position);
-		if (this->doLogging) std::cout << "object " << (light.uniform(i, "position"))
-			<< " > " << glm::to_string(light.position) << std::endl;
+			// position
+			object.setVec3(light.uniform(i, "position"), light.position);
+			if (this->doLogging) std::cout << "object " << (light.uniform(i, "position"))
+				<< " > " << glm::to_string(light.position) << std::endl;
 
-		// direction
-		object->setVec3(light.uniform(i, "direction"), light.direction);
-		if (this->doLogging) std::cout << "object " << (light.uniform(i, "direction"))
-			<< " > " << glm::to_string(light.direction) << std::endl;
+			// direction
+			object.setVec3(light.uniform(i, "direction"), light.direction);
+			if (this->doLogging) std::cout << "object " << (light.uniform(i, "direction"))
+				<< " > " << glm::to_string(light.direction) << std::endl;
 
-		// ambient
-		object->setVec3(light.uniform(i, "ambient"), glm::vec3(light.ambient.value));
-		if (this->doLogging) std::cout << "object " << (light.uniform(i, "ambient")) 
-			<< " > " << glm::to_string(light.ambient.value) << std::endl;
-		
-		// diffuse
-		object->setVec3(light.uniform(i, "diffuse"), glm::vec3(light.diffuse.value));
-		if (this->doLogging) std::cout << "object " << (light.uniform(i, "diffuse")) 
-			<< " > " << glm::to_string(light.diffuse.value) << std::endl;
-		
-		// specular
-		object->setVec3(light.uniform(i, "specular"), glm::vec3(light.specular.value));
-		if (this->doLogging) std::cout << "object " << (light.uniform(i, "specular")) 
-			<< " > " << glm::to_string(light.specular.value) << std::endl;
+			// ambient
+			object.setVec3(light.uniform(i, "ambient"), glm::vec3(light.ambient.value));
+			if (this->doLogging) std::cout << "object " << (light.uniform(i, "ambient"))
+				<< " > " << glm::to_string(light.ambient.value) << std::endl;
 
-		// constant
-		object->setFloat(light.uniform(i, "constant"), light.constant);
-		if (this->doLogging) std::cout << "object " << (light.uniform(i, "constant"))
-			<< " > " << light.constant << std::endl;
+			// diffuse
+			object.setVec3(light.uniform(i, "diffuse"), glm::vec3(light.diffuse.value));
+			if (this->doLogging) std::cout << "object " << (light.uniform(i, "diffuse"))
+				<< " > " << glm::to_string(light.diffuse.value) << std::endl;
 
-		// linear
-		object->setFloat(light.uniform(i, "linear"), light.linear);
-		if (this->doLogging) std::cout << "object " << (light.uniform(i, "linear"))
-			<< " > " << light.linear << std::endl;
+			// specular
+			object.setVec3(light.uniform(i, "specular"), glm::vec3(light.specular.value));
+			if (this->doLogging) std::cout << "object " << (light.uniform(i, "specular"))
+				<< " > " << glm::to_string(light.specular.value) << std::endl;
 
-		// quadratic
-		object->setFloat(light.uniform(i, "quadratic"), light.quadratic);
-		if (this->doLogging) std::cout << "object " << (light.uniform(i, "quadratic"))
-			<< " > " << light.quadratic << std::endl;
+			// constant
+			object.setFloat(light.uniform(i, "constant"), light.constant);
+			if (this->doLogging) std::cout << "object " << (light.uniform(i, "constant"))
+				<< " > " << light.constant << std::endl;
 
-		// innerBeam
-		object->setFloat(light.uniform(i, "innerBeam"), light.innerBeam);
-		if (this->doLogging) std::cout << "object " << (light.uniform(i, "innerBeam"))
-			<< " > " << light.innerBeam << std::endl;
+			// linear
+			object.setFloat(light.uniform(i, "linear"), light.linear);
+			if (this->doLogging) std::cout << "object " << (light.uniform(i, "linear"))
+				<< " > " << light.linear << std::endl;
 
-		// outerBeam
-		object->setFloat(light.uniform(i, "outerBeam"), light.outerBeam);
-		if (this->doLogging) std::cout << "object " << (light.uniform(i, "outerBeam"))
-			<< " > " << light.outerBeam << std::endl;
+			// quadratic
+			object.setFloat(light.uniform(i, "quadratic"), light.quadratic);
+			if (this->doLogging) std::cout << "object " << (light.uniform(i, "quadratic"))
+				<< " > " << light.quadratic << std::endl;
+
+			// innerBeam
+			object.setFloat(light.uniform(i, "innerBeam"), light.innerBeam);
+			if (this->doLogging) std::cout << "object " << (light.uniform(i, "innerBeam"))
+				<< " > " << light.innerBeam << std::endl;
+
+			// outerBeam
+			object.setFloat(light.uniform(i, "outerBeam"), light.outerBeam);
+			if (this->doLogging) std::cout << "object " << (light.uniform(i, "outerBeam"))
+				<< " > " << light.outerBeam << std::endl;
+		}
 
 		// outline colour
 		light.setVec3("outlineColour", light.outlineColour);
@@ -275,8 +278,11 @@ void World::draw()
 
 	// set the reverse view on each object
 	skybox.setMatrix("view", glm::mat4(glm::mat3(reverseView)));
-	object->setMatrix("view", reverseView);
-	if (object->drawNormals) object->setMatrix("view", reverseView, true);
+	for (auto& object : objects)
+	{
+		object.setMatrix("view", reverseView);
+		if (object.drawNormals) object.setMatrix("view", reverseView, true);
+	}
 	for (auto& light : lights)
 	{
 		light.setMatrix("view", reverseView);
@@ -313,8 +319,11 @@ void World::drawObjects()
 	// disable writing to stencil before doing outline pass
 	glStencilMask(0x00);
 
-	object->useTextureUnit(GL_TEXTURE_CUBE_MAP, object->numTextures, skybox.ID);
-	object->draw();
+	for (auto& object : objects)
+	{
+		object.useTextureUnit(GL_TEXTURE_CUBE_MAP, object.numTextures, skybox.ID);
+		object.draw();
+	}
 	int i = -1;
 	for (auto& light : lights)
 	{
@@ -328,32 +337,33 @@ void World::drawObjects()
 
 	// transparency pass
 	if (this->doLogging) std::cout << "Rendering opacity pass" << std::endl;
-	if (object->modelLoaded)
+	for (auto& object : objects)
 	{
-		// sort meshes by distance
-		std::map<float, Mesh> meshByDistance;
-		for (Mesh mesh : object->mod.getTransparentMeshes())
+		if (object.modelLoaded)
 		{
-			glm::vec3 position = object->position + mesh.localPosition;
-			float distance = glm::length(camera->position - position);
-			meshByDistance[distance] = mesh;
-		}
-
-		// now render in reverse order
-		for (std::map<float, Mesh>::reverse_iterator it = meshByDistance.rbegin();
-			it != meshByDistance.rend();
-			++it)
-		{
-			it->second.draw(object->ID);
-			if (object->drawNormals)
+			// sort meshes by distance
+			std::map<float, Mesh> meshByDistance;
+			for (Mesh mesh : object.mod.getTransparentMeshes())
 			{
-				if (this->doLogging) std::cout << "Rendering normals" << std::endl;
-				it->second.draw(object->normID);
+				glm::vec3 position = object.position + mesh.localPosition;
+				float distance = glm::length(camera->position - position);
+				meshByDistance[distance] = mesh;
+			}
+
+			// now render in reverse order
+			for (std::map<float, Mesh>::reverse_iterator it = meshByDistance.rbegin();
+				it != meshByDistance.rend();
+				++it)
+			{
+				it->second.draw(object.ID);
+				if (object.drawNormals)
+				{
+					if (this->doLogging) std::cout << "Rendering normals" << std::endl;
+					it->second.draw(object.normID);
+				}
 			}
 		}
-
 	}
-
 	// outline pass
 	lights[currentSelection].drawWithOutline();
 }
@@ -377,21 +387,24 @@ void World::updateAttributes()
 	// set MVP matrices
 	skybox.setMatrix("view", glm::mat4(glm::mat3(view)));
 	skybox.setMatrix("projection", projection);
-	object->setMatrix("model", object->model);
-	object->setMatrix("view", view);
-	object->setMatrix("projection", projection);
+	for (auto& object : objects)
+	{
+		object.setMatrix("model", object.model);
+		object.setMatrix("view", view);
+		object.setMatrix("projection", projection);
+
+		if (object.drawNormals)
+		{
+			object.setMatrix("model", object.model, true);
+			object.setMatrix("view", view, true);
+			object.setMatrix("projection", projection, true);
+		}
+	}
 	for (auto &light : lights)
 	{
 		light.setMatrix("model", light.model);
 		light.setMatrix("view", view);
 		light.setMatrix("projection", projection);
-	}
-
-	if (object->drawNormals)
-	{
-		object->setMatrix("model", object->model, true);
-		object->setMatrix("view", view, true);
-		object->setMatrix("projection", projection, true);
 	}
 
 	// settings
@@ -400,36 +413,39 @@ void World::updateAttributes()
 	// TODO: refactor vertex shader to support multiple lights
 	// gouraud / phong
 	//object->setInt("toggleGouraudPhong", int(toggleGouraudPhong));
-	// invert spec
-	object->setBool("invertSpec", object->invertSpec);
-	if (this->doLogging) std::cout << "invertSpec > " << object->invertSpec << std::endl;
-	// emission
-	object->setBool("addEmission", object->addEmission);
-	if (this->doLogging) std::cout << "addEmission > " << object->addEmission << std::endl;
-	// emission animation
-	object->setBool("animateEmission", object->animateEmission);
-	if (this->doLogging) std::cout << "animateEmission > "
-		<< object->animateEmission << std::endl;
-	// time
-	object->setFloat("time", static_cast<float>(glfwGetTime()));
-	if (this->doLogging) std::cout << "time > "
-		<< static_cast<float>(glfwGetTime()) << std::endl;
-	// number of lights
-	object->setInt("numLights", this->lights.size());
-	if (this->doLogging) std::cout << "numLights > " << this->lights.size() << std::endl;
-	// view position
-	object->setVec3("viewPos", this->camera->position);
-	if (this->doLogging) std::cout << "object viewPos > "
-		<< glm::to_string(this->camera->position) << std::endl;
-	// normal matrix
-	object->setMatrix("normalMatrix", object->getNormalMatrix());
-	if (this->doLogging) std::cout << "object normalMatrix > " << std::endl;
-	
-	// TODO: dict (hash table?) of booleans so we can set all at once
-	// update material uniforms
-	object->setFloat("material.shininess", 32.0f);// object->shininess.value);
-	if (this->doLogging) std::cout << "object material.shininess > "
-		<< object->shininess.value << std::endl;
+	for (auto& object : objects)
+	{
+		// invert spec
+		object.setBool("invertSpec", object.invertSpec);
+		if (this->doLogging) std::cout << "invertSpec > " << object.invertSpec << std::endl;
+		// emission
+		object.setBool("addEmission", object.addEmission);
+		if (this->doLogging) std::cout << "addEmission > " << object.addEmission << std::endl;
+		// emission animation
+		object.setBool("animateEmission", object.animateEmission);
+		if (this->doLogging) std::cout << "animateEmission > "
+			<< object.animateEmission << std::endl;
+		// time
+		object.setFloat("time", static_cast<float>(glfwGetTime()));
+		if (this->doLogging) std::cout << "time > "
+			<< static_cast<float>(glfwGetTime()) << std::endl;
+		// number of lights
+		object.setInt("numLights", this->lights.size());
+		if (this->doLogging) std::cout << "numLights > " << this->lights.size() << std::endl;
+		// view position
+		object.setVec3("viewPos", this->camera->position);
+		if (this->doLogging) std::cout << "object viewPos > "
+			<< glm::to_string(this->camera->position) << std::endl;
+		// normal matrix
+		object.setMatrix("normalMatrix", object.getNormalMatrix());
+		if (this->doLogging) std::cout << "object normalMatrix > " << std::endl;
+
+		// TODO: dict (hash table?) of booleans so we can set all at once
+		// update material uniforms
+		object.setFloat("material.shininess", 32.0f);// object.shininess.value);
+		if (this->doLogging) std::cout << "object material.shininess > "
+			<< object.shininess.value << std::endl;
+	}
 
 	// update light uniforms
 	int i = -1;
@@ -457,89 +473,104 @@ void World::updateAttributes()
 		}
 
 		// position
-		object->setVec3(light.uniform(i, "position"), light.position);
-		if (this->doLogging) std::cout << "object " << (light.uniform(i, "position"))
-			<< " > " << glm::to_string(light.position) << std::endl;
 		light.setVec3("light.position", light.position);
-		if (this->doLogging) std::cout << i << " light.position > " 
+		if (this->doLogging) std::cout << i << " light.position > "
 			<< glm::to_string(light.position) << std::endl;
 
-		// direction
-		object->setVec3(light.uniform(i, "direction"), light.direction);
-		if (this->doLogging) std::cout << "object "
-			<< (light.uniform(i, "direction")) << " > "
-			<< glm::to_string(light.direction) << std::endl;
-
-		if (light.type == SPOTLIGHT)
-		{
-			
-			// inner beam
-			object->setFloat(light.uniform(i, "innerBeam"), light.innerBeam);
-			if (this->doLogging) std::cout << "object " 
-				<< (light.uniform(i, "innerBeam")) << " > " 
-				<< light.innerBeam << std::endl;
-			
-			// outer beam
-			object->setFloat(light.uniform(i, "outerBeam"), light.outerBeam);
-			if (this->doLogging) std::cout << "object " 
-				<< (light.uniform(i, "outerBeam")) << " > " 
-				<< light.outerBeam << std::endl;
-		}
-		if (light.type != DIRECTIONAL)
-		{
-			
-			// attenuation
-			// -----------
-
-			// constant
-			object->setFloat(light.uniform(i, "constant"), light.constant);
-			if (this->doLogging) std::cout << "object " 
-				<< (light.uniform(i, "constant")) << " > " 
-				<< light.constant << std::endl;
-
-			// linear
-			object->setFloat(light.uniform(i, "linear"), light.linear);
-			if (this->doLogging) std::cout << "object " 
-				<< (light.uniform(i, "linear")) << " > " 
-				<< light.linear << std::endl;
-
-			// quadratic
-			object->setFloat(light.uniform(i, "quadratic"), light.quadratic);
-			if (this->doLogging) std::cout << "object " 
-				<< (light.uniform(i, "quadratic")) << " > " 
-				<< light.quadratic << std::endl;
-		}
-
 		// phong materials
-		
+
 		// ambient
 		light.setVec3("light.ambient", glm::vec3(light.ambient.value));
 		if (this->doLogging) std::cout << i << " light.ambient > "
 			<< glm::to_string(glm::vec3(light.ambient.value)) << std::endl;
-		object->setVec3(light.uniform(i, "ambient"), glm::vec3(light.ambient.value));
-		if (this->doLogging) std::cout << "object " << (light.uniform(i, "ambient"))
-			<< " > " << glm::to_string(glm::vec3(light.ambient.value)) << std::endl;
 
 		// diffuse
 		light.setVec3("light.diffuse", glm::vec3(light.diffuse.value));
 		if (this->doLogging) std::cout << i << " light.diffuse > "
 			<< glm::to_string(glm::vec3(light.diffuse.value)) << std::endl;
-		object->setVec3(light.uniform(i, "diffuse"), glm::vec3(light.diffuse.value));
-		if (this->doLogging) std::cout << "object " << (light.uniform(i, "diffuse"))
-			<< " > " << glm::to_string(glm::vec3(light.diffuse.value)) << std::endl;
 
 		// specular
 		light.setVec3("light.specular", glm::vec3(light.specular.value));
 		if (this->doLogging) std::cout << i << " light.specular > "
 			<< glm::to_string(glm::vec3(light.specular.value)) << std::endl;
-		object->setVec3(light.uniform(i, "specular"), glm::vec3(light.specular.value));
-		if (this->doLogging) std::cout << "object " << (light.uniform(i, "specular"))
-			<< " > " << glm::to_string(glm::vec3(light.specular.value)) << std::endl;
 
 		// shininess
 		light.setFloat("light.shininess", light.shininess.value);
 		if (this->doLogging) std::cout << i << " light.shininess > "
 			<< light.shininess.value << std::endl;
+
+		for (auto& object : objects)
+		{
+
+			// position
+			object.setVec3(light.uniform(i, "position"), light.position);
+			if (this->doLogging) std::cout << "object " << (light.uniform(i, "position"))
+				<< " > " << glm::to_string(light.position) << std::endl;
+
+			// direction
+			object.setVec3(light.uniform(i, "direction"), light.direction);
+			if (this->doLogging) std::cout << "object "
+				<< (light.uniform(i, "direction")) << " > "
+				<< glm::to_string(light.direction) << std::endl;
+
+			if (light.type == SPOTLIGHT)
+			{
+
+				// inner beam
+				object.setFloat(light.uniform(i, "innerBeam"), light.innerBeam);
+				if (this->doLogging) std::cout << "object "
+					<< (light.uniform(i, "innerBeam")) << " > "
+					<< light.innerBeam << std::endl;
+
+				// outer beam
+				object.setFloat(light.uniform(i, "outerBeam"), light.outerBeam);
+				if (this->doLogging) std::cout << "object "
+					<< (light.uniform(i, "outerBeam")) << " > "
+					<< light.outerBeam << std::endl;
+			}
+			if (light.type != DIRECTIONAL)
+			{
+
+				// attenuation
+				// -----------
+
+				// constant
+				object.setFloat(light.uniform(i, "constant"), light.constant);
+				if (this->doLogging) std::cout << "object "
+					<< (light.uniform(i, "constant")) << " > "
+					<< light.constant << std::endl;
+
+				// linear
+				object.setFloat(light.uniform(i, "linear"), light.linear);
+				if (this->doLogging) std::cout << "object "
+					<< (light.uniform(i, "linear")) << " > "
+					<< light.linear << std::endl;
+
+				// quadratic
+				object.setFloat(light.uniform(i, "quadratic"), light.quadratic);
+				if (this->doLogging) std::cout << "object "
+					<< (light.uniform(i, "quadratic")) << " > "
+					<< light.quadratic << std::endl;
+			}
+
+			// phong materials
+
+			// ambient
+			object.setVec3(light.uniform(i, "ambient"), glm::vec3(light.ambient.value));
+			if (this->doLogging) std::cout << "object " << (light.uniform(i, "ambient"))
+				<< " > " << glm::to_string(glm::vec3(light.ambient.value)) << std::endl;
+
+			// diffuse
+			object.setVec3(light.uniform(i, "diffuse"), glm::vec3(light.diffuse.value));
+			if (this->doLogging) std::cout << "object " << (light.uniform(i, "diffuse"))
+				<< " > " << glm::to_string(glm::vec3(light.diffuse.value)) << std::endl;
+
+			// specular
+			object.setVec3(light.uniform(i, "specular"), glm::vec3(light.specular.value));
+			if (this->doLogging) std::cout << "object " << (light.uniform(i, "specular"))
+				<< " > " << glm::to_string(glm::vec3(light.specular.value)) << std::endl;
+
+		}
 	}
 }
 
@@ -614,8 +645,13 @@ void World::updateModel()
 	}
 
 	// now do the object
-	object->model = glm::mat4(1.0f);
-	object->model = glm::scale(object->model, object->size);
+	for (auto& object : objects)
+	{
+		object.model = glm::mat4(1.0f);
+		object.model = glm::translate(object.model, object.position);
+		object.model = glm::scale(object.model, object.size);
+		// TODO: rotation using direction
+	}
 
 	// TODO: object movement
 }
