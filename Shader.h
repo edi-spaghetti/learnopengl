@@ -12,6 +12,7 @@
 #include <sstream>
 #include <iostream>
 #include <map>
+#include <any>
 
 #include "Geometry.h"
 #include "Texture.h"
@@ -30,10 +31,12 @@ public:
 	unsigned int normID;
 	float currentZoom = 0.0f;
 	float currentAlpha = 0.2f;
+	std::string name;
 
 	// creates a new shader program
 	Shader() {};
 	Shader(std::map<int, std::string> shaders, Geometry geo);
+	Shader(std::map<int, std::string> shaders, Model mod);
 	Shader(std::string vertPath, std::string fragPath, std::string geomPath,
 		Geometry geo);
 	Shader(std::string vertPath, std::string fragPath, 
@@ -145,6 +148,8 @@ public:
 	void addInstancedVertexAttribute(std::vector<glm::vec2> data, 
 		unsigned int frequency);
 	void addInstancedVertexAttribute(std::vector<glm::mat4> data,
+		unsigned int frequency, unsigned int position);
+	void addInstancedVertexAttribute(std::vector<glm::mat3> data,
 		unsigned int frequency, unsigned int position);
 
 	float maxAlpha = 1.0f;

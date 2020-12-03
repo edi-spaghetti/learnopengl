@@ -79,6 +79,19 @@ Shader::Shader(std::map<int, std::string> shaders, Geometry geo)
 }
 
 
+Shader::Shader(std::map<int, std::string> shaders, Model mod)
+{
+	createShaderProgram(shaders);
+	
+	// temporarily disable this
+	//createNormalShaderProgram("lightObjectNormal.vs", "lightObjectNormal.fs",
+	//	"lightObjectNormal.gs");
+
+	this->mod = mod;
+	modelLoaded = true;
+}
+
+
 Shader::~Shader() { }
 
 
@@ -115,12 +128,12 @@ void Shader::draw(GLenum mode)
 {	
 	
 	glUseProgram(ID);
-	if (this->doLogging) std::cout << "Drawing Shader " << ID << std::endl;
+	if (this->doLogging) printf("Drawing %s Shader %d\n", name.c_str(), ID);
 
 	if (this->modelLoaded)
 	{
 		
-		if (doLogging) std::cout << "Drawing Opaque Meshes" << std::endl;
+		if (doLogging) printf("Drawing model, %d instances\n", instances);
 		mod.draw(ID, instances);
 		if (drawNormals)
 		{
@@ -656,7 +669,56 @@ void Shader::addInstancedVertexAttribute(std::vector<glm::mat4> data,
 		for (int i = 0; i < 4; i++)
 		{
 			glVertexAttribDivisor(position + i, frequency);
-			printf("INSTANCE vertex divisor set at %d, %d", position + i, frequency);
+			printf("INSTANCE vertex divisor set at %d, %d\n", position + i, frequency);
+		}
+	}
+
+	// and clean up
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+
+void Shader::addInstancedVertexAttribute(std::vector<glm::mat3> data,
+	unsigned int frequency, unsigned int position)
+{
+
+	// create and keep track of a new VBO
+	unsigned int newVBO;
+	glGenBuffers(1, &newVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, newVBO);
+	instanceBuffers.push_back(newVBO);
+
+	// buffer data into it
+	std::size_t itemSize = sizeof(data[0]);
+	std::size_t vec3Size = sizeof(glm::vec3);
+	int itemCount = itemSize / vec3Size;
+	int dataSize = itemSize * data.size();
+	glBufferData(GL_ARRAY_BUFFER, dataSize, &data[0], GL_STATIC_DRAW);
+	printf("INSTANCE glBufferData(GL_ARRAY_BUFFER, %d, <data>, GL_STATIC_DRAW)\n", dataSize);
+
+	for (auto& mesh : mod.getAllMeshes())
+	{
+		glBindVertexArray(mesh->VAO);
+		for (int i = 0; i < 3; i++)
+		{
+			glEnableVertexAttribArray(position + i);
+			glVertexAttribPointer(
+				position + i,
+				itemCount,
+				GL_FLOAT, GL_FALSE,
+				itemSize,
+				(void*)(i * vec3Size)
+			);
+			printf("INSTANCE glVertexAttribPointer(%d, %d, GL_FLOAT, GL_FALSE, %d, (void*)%d)\n",
+				position + i, itemCount, itemSize, i * vec3Size);
+
+		}
+
+		for (int i = 0; i < 3; i++)
+		{
+			glVertexAttribDivisor(position + i, frequency);
+			printf("INSTANCE vertex divisor set at %d, %d\n", position + i, frequency);
 		}
 	}
 

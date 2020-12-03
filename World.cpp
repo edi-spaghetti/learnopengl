@@ -626,16 +626,12 @@ void World::updateModel()
 		light->model = model;
 	}
 
-	// now do the object
+	// now do the objects
 	for (auto& object : objects)
 	{
-		if (!object->instances) {
-			glm::mat4 model = object->genModelMatrix();
-			object->model = model;
-		}
+		glm::mat4 model = object->genModelMatrix();
+		object->model = model;
 	}
-
-	// TODO: object movement
 }
 
 

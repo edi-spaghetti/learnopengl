@@ -107,10 +107,13 @@ void Mesh::draw(unsigned int ID, unsigned int instances) {
 			GL_TRIANGLES, indices.size(), 
 			GL_UNSIGNED_INT, 0, instances
 		);
+		if (doLogging) printf("Drawing %d instanced meshes (%d indices)\n", 
+			indices.size(), instances);
 	}
 	else
 	{
 		glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
+		if (doLogging) printf("Drawing mesh (%d indices)\n", indices.size());
 	}
 
 	//if (this->doLogging) std::cout << "DrawElements: count=" 

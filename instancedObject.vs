@@ -4,10 +4,10 @@ layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoords;
 layout (location = 3) in mat4 model;
 // locations 4, 5 and 6 are also used by model attribute
+layout (location = 7) in mat3 normalMatrix;
 
 uniform mat4 view;
 uniform mat4 projection;
-uniform mat3 normalMatrix;
 
 out IO_BLOCK {
 	vec3 Normal;

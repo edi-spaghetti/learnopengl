@@ -312,7 +312,11 @@ int main()
 
 	// Planet Setup
 	// --------------------------------------------------------------------------
-	Shader* planet = new Shader("lightObject.vs", "lightObject.fs", Model(planetPath));
+	Shader* planet = new Shader(std::map<int, std::string> { 
+		{ GL_VERTEX_SHADER,   "lightObject.vs" }, 
+		{ GL_FRAGMENT_SHADER, "lightObject.fs" }
+	}, Model(planetPath));
+	planet->name = "planet";
 
 	// set planet's starting position in world space
 	glm::vec2 orbit = glm::circularRand(10.0f);
@@ -329,23 +333,32 @@ int main()
 	objects.push_back(planet);
 
 
-	// Planet Setup
+	// Rock Setup
 	// --------------------------------------------------------------------------
-	Shader* rock = new Shader("instancedObject.vs", "lightObject.fs", Model(rockPath));
+	Shader* rock = new Shader(std::map<int, std::string> {
+		{ GL_VERTEX_SHADER, "instancedObject.vs" },
+		{ GL_FRAGMENT_SHADER, "lightObject.fs" }
+	}, Model(rockPath));
+	rock->name = "rock";
 
 	// configure positions and instancing
-	unsigned int instances = 50;
+	unsigned int instances = 500;
 	std::srand(glfwGetTime());
 	float radius = 25.0f;
 	float offset = 2.5f;
 
 	std::vector<glm::mat4> modelMatrices;
+	std::vector<glm::mat3> normalMatrices;
 	for (unsigned int i = 0; i < instances; i++)
 	{
 		// set at random orbit around sun
 		orbit = glm::circularRand(radius);
-		randY = glm::linearRand(-offset, offset);
-		initPos = glm::vec3(orbit[0], randY, orbit[1]);
+		glm::vec3 randOffset = glm::sphericalRand(offset);
+		initPos = glm::vec3(
+			orbit[0] + randOffset.x, 
+			randY + randOffset.y, 
+			orbit[1] + randOffset.z
+		);
 		rock->setPosition(initPos);
 		printf("Rock Init Position %s\n", glm::to_string(initPos).c_str());
 
@@ -359,11 +372,17 @@ int main()
 		rock->size = glm::vec3(size);
 		printf("Rock initialised at %.2fx size\n", size);
 
-		// keep track of matrix per instance
-		modelMatrices.push_back(rock->genModelMatrix());
+		// keep track of matrices per instance
+		glm::mat4 model = rock->genModelMatrix();
+		rock->model = model;
+		glm::mat3 normal = rock->getNormalMatrix();
+		modelMatrices.push_back(model);
+		normalMatrices.push_back(normal);
 		rock->instances++;
 	}
 	rock->addInstancedVertexAttribute(modelMatrices, 1, 3);
+	rock->addInstancedVertexAttribute(normalMatrices, 1, 7);
+	objects.push_back(rock);
 
 	// add objects to list, to later be added to world on initialisation
 
@@ -422,6 +441,7 @@ int main()
 
 	std::vector<LightSource*> lights;
 	LightSource* sun = new LightSource(POINT, lightingCube, matManager.sunlight);
+	sun->name = "sun";
 	lights.push_back(sun);
 
 	// lights setup
@@ -461,6 +481,7 @@ int main()
 		"tex/space/1K/negY.jpg",
 		"tex/space/1K/posZ.jpg",
 		"tex/space/1K/negZ.jpg" }, "skybox"));
+	world.skybox.name = "skybox";
 	// set skybox sampler to last tex unit + 1
 	for (auto& object : world.objects)
 	{
