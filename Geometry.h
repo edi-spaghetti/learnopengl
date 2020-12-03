@@ -54,9 +54,9 @@ public:
 	void setOpacity(float opacity) { this->opacity = opacity; };
 	void setLocalPosition(glm::vec3 position) { this->localPosition = position; };
 
-	void draw(unsigned int ID);
-private:
+	void draw(unsigned int ID, unsigned int instances = 0);
 	unsigned int VAO, VBO, EBO;
+private:
 	void setupMesh();
 	bool doLogging = true;
 };
@@ -69,8 +69,9 @@ public:
 		loadModel(path);
 	};
 	void tearDown();
-	void draw(unsigned int ID);
+	void draw(unsigned int ID, unsigned int instances = 0);
 	const std::vector<Mesh> getTransparentMeshes() { return transparentMeshes; };
+	const std::vector<Mesh*> getAllMeshes();
 private:
 	std::vector<Mesh> meshes;
 	std::vector<Mesh> transparentMeshes;

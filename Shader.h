@@ -93,6 +93,8 @@ public:
 	void setVec3(const std::string& name, glm::vec3 value) const;
 	void setVec2(std::string name, glm::vec2 value, int index = -1) const;
 
+	glm::mat4 genModelMatrix();
+
 	void increaseTransparency();
 	void decreaseTransparency();
 
@@ -139,8 +141,11 @@ public:
 	unsigned int VAO;
 	unsigned int EBO;	
 
+	unsigned int instances = 0;
 	void addInstancedVertexAttribute(std::vector<glm::vec2> data, 
 		unsigned int frequency);
+	void addInstancedVertexAttribute(std::vector<glm::mat4> data,
+		unsigned int frequency, unsigned int position);
 
 	float maxAlpha = 1.0f;
 	float minAlpha = 0.0f;

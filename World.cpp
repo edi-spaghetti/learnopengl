@@ -356,11 +356,11 @@ void World::drawObjects()
 				it != meshByDistance.rend();
 				++it)
 			{
-				it->second.draw(object->ID);
+				it->second.draw(object->ID, object->instances);
 				if (object->drawNormals)
 				{
 					if (this->doLogging) std::cout << "Rendering normals" << std::endl;
-					it->second.draw(object->normID);
+					it->second.draw(object->normID, object->instances);
 				}
 			}
 		}
@@ -390,13 +390,13 @@ void World::updateAttributes()
 	skybox.setMatrix("projection", projection);
 	for (auto& object : objects)
 	{
-		object->setMatrix("model", object->model);
+		if (!object->instances) object->setMatrix("model", object->model);
 		object->setMatrix("view", view);
 		object->setMatrix("projection", projection);
 
 		if (object->drawNormals)
 		{
-			object->setMatrix("model", object->model, true);
+			if (!object->instances) object->setMatrix("model", object->model, true);
 			object->setMatrix("view", view, true);
 			object->setMatrix("projection", projection, true);
 		}
@@ -610,11 +610,8 @@ void World::updateProjection()
 void World::updateModel()
 {
 	// update lights first
-	int i = -1;
 	for (auto &light : lights)
 	{
-		i++;
-
 		if (light->type == SPOTLIGHT)
 		{
 			light->position = camera->position;
@@ -625,36 +622,17 @@ void World::updateModel()
 			// do position > velocity > acceleration type movement calculation
 		}
 
-
-		// reset light's model matrix back to identity
-		glm::mat4 model = glm::mat4(1.0f);
-		// TODO: rotation about a pivot
-		model = glm::translate(model, light->position);
-		model = glm::scale(model, light->size);
-		glm::mat4 LA = glm::lookAt(
-			glm::vec3(0), 
-			light->direction, 
-			light->worldUp
-		);
-		model = model * LA;
-
+		glm::mat4 model = light->genModelMatrix();
 		light->model = model;
 	}
 
 	// now do the object
 	for (auto& object : objects)
 	{
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, object->position);
-		model = glm::scale(model, object->size);
-		glm::mat4 LA = glm::lookAt(
-			glm::vec3(0),
-			object->direction,
-			object->worldUp
-		);
-		model = model * LA;
-
-		object->model = model;
+		if (!object->instances) {
+			glm::mat4 model = object->genModelMatrix();
+			object->model = model;
+		}
 	}
 
 	// TODO: object movement

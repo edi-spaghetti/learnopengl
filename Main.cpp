@@ -309,6 +309,9 @@ int main()
 	std::string rockPath = "mod/rock/v1/rock.obj";
 
 	std::vector<Shader*> objects;
+
+	// Planet Setup
+	// --------------------------------------------------------------------------
 	Shader* planet = new Shader("lightObject.vs", "lightObject.fs", Model(planetPath));
 
 	// set planet's starting position in world space
@@ -325,17 +328,20 @@ int main()
 	// add to the vector to be added to world
 	objects.push_back(planet);
 
-	// configure object shaders, including instancing
-	// TODO
+
+	// Planet Setup
+	// --------------------------------------------------------------------------
+	Shader* rock = new Shader("instancedObject.vs", "lightObject.fs", Model(rockPath));
+
+	// configure positions and instancing
 	unsigned int instances = 50;
 	std::srand(glfwGetTime());
 	float radius = 25.0f;
 	float offset = 2.5f;
-	
+
+	std::vector<glm::mat4> modelMatrices;
 	for (unsigned int i = 0; i < instances; i++)
 	{
-		Shader* rock = new Shader("lightObject.vs", "lightObject.fs", Model(rockPath));
-		
 		// set at random orbit around sun
 		orbit = glm::circularRand(radius);
 		randY = glm::linearRand(-offset, offset);
@@ -351,11 +357,13 @@ int main()
 		// set a random size
 		float size = glm::linearRand(0.1f, 0.75f);
 		rock->size = glm::vec3(size);
-		printf("Rock initialised at %.2f size", size);
+		printf("Rock initialised at %.2fx size\n", size);
 
-		objects.push_back(rock);
+		// keep track of matrix per instance
+		modelMatrices.push_back(rock->genModelMatrix());
+		rock->instances++;
 	}
-
+	rock->addInstancedVertexAttribute(modelMatrices, 1, 3);
 
 	// add objects to list, to later be added to world on initialisation
 

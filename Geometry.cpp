@@ -75,7 +75,7 @@ void Mesh::setupMesh()
 }
 
 
-void Mesh::draw(unsigned int ID) {
+void Mesh::draw(unsigned int ID, unsigned int instances) {
 
 	// this ensures we're using the correct program when rednering the opacity pass
 	// could probably be optimised
@@ -101,7 +101,18 @@ void Mesh::draw(unsigned int ID) {
 		//		<< " texID=" << this->textures[i].ID << std::endl;
 	}
 
-	glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
+	if (instances)
+	{
+		glDrawElementsInstanced(
+			GL_TRIANGLES, indices.size(), 
+			GL_UNSIGNED_INT, 0, instances
+		);
+	}
+	else
+	{
+		glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
+	}
+
 	//if (this->doLogging) std::cout << "DrawElements: count=" 
 	//	<< this->indices.size() << std::endl;
 
@@ -124,11 +135,26 @@ void Model::tearDown()
 }
 
 
-void Model::draw(unsigned int ID)
+void Model::draw(unsigned int ID, unsigned int instances)
 {
 	for (unsigned int i = 0; i < this->meshes.size(); i++)
-		meshes[i].draw(ID);
+		meshes[i].draw(ID, instances);
 }
+
+
+const std::vector<Mesh*> Model::getAllMeshes() {
+	std::vector<Mesh*> returnMeshes;
+	for (auto& mesh : meshes)
+	{
+		returnMeshes.push_back(&mesh);
+	}
+	for (auto& mesh : transparentMeshes)
+	{
+		returnMeshes.push_back(&mesh);
+	}
+	return returnMeshes;
+}
+
 
 void Model::loadModel(std::string path)
 {
