@@ -313,9 +313,9 @@ void Shader::setDirection(glm::vec3 newDir)
 		initDirectionSet = true;
 		initDirection = newDir;
 	}
-	direction = newDir;
-	objRight = glm::normalize(glm::cross(direction, this->worldUp));
-	objUp = glm::normalize(glm::cross(objRight, worldUp));
+	direction = glm::normalize(newDir);
+	objRight = glm::normalize(glm::cross(direction, worldUp));
+	objUp = glm::normalize(glm::cross(objRight, direction));
 }
 
 

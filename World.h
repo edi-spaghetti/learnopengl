@@ -15,14 +15,14 @@ class Camera;  // forward declaration
 class World
 {
 public:
-	World(GLFWwindow* win, Camera* cam, std::vector<Shader> objs, MaterialManager* mng, 
-		std::vector<LightSource> lgts);
+	World(GLFWwindow* win, Camera* cam, std::vector<Shader*> objs, MaterialManager* mng, 
+		std::vector<LightSource*> lgts);
 	~World();
 
 	GLFWwindow* window;
-	std::vector<Shader> objects;
+	std::vector<Shader*> objects;
 	Camera* camera;
-	std::vector<LightSource> lights;
+	std::vector<LightSource*> lights;
 	MaterialManager* matManager;
 	Shader screen = Shader("postProcessing.vs", "postProcessing.fs");
 	// get the mirror quad roughly the same aspect ratio as screen

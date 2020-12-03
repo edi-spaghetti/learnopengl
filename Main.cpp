@@ -308,37 +308,56 @@ int main()
 	std::string planetPath = "mod/planet/v1/planet.obj";
 	std::string rockPath = "mod/rock/v1/rock.obj";
 
-	std::vector<Shader> objects;
-	Shader planet = Shader("lightObject.vs", "lightObject.fs", Model(planetPath));
-	Shader rock =  Shader("lightObject.vs", "lightObject.fs", Model(rockPath));
+	std::vector<Shader*> objects;
+	Shader* planet = new Shader("lightObject.vs", "lightObject.fs", Model(planetPath));
+
+	// set planet's starting position in world space
+	glm::vec2 orbit = glm::circularRand(10.0f);
+	float randY = glm::linearRand(-0.5f, 0.5f);
+	glm::vec3 initPos = glm::vec3(orbit[0], randY, orbit[1]);
+	planet->setPosition(initPos);
+	printf("Planet Init Position %f %f %f\n", orbit.x, randY, orbit.y);
+
+	// set a random spin
+	glm::vec2 pSpin = glm::circularRand(1);
+	planet->setDirection(glm::vec3(pSpin[0], 0, pSpin[1]));
+
+	// add to the vector to be added to world
+	objects.push_back(planet);
 
 	// configure object shaders, including instancing
 	// TODO
+	unsigned int instances = 50;
+	std::srand(glfwGetTime());
+	float radius = 25.0f;
+	float offset = 2.5f;
+	
+	for (unsigned int i = 0; i < instances; i++)
+	{
+		Shader* rock = new Shader("lightObject.vs", "lightObject.fs", Model(rockPath));
+		
+		// set at random orbit around sun
+		orbit = glm::circularRand(radius);
+		randY = glm::linearRand(-offset, offset);
+		initPos = glm::vec3(orbit[0], randY, orbit[1]);
+		rock->setPosition(initPos);
+		printf("Rock Init Position %s\n", glm::to_string(initPos).c_str());
 
-	// set rock's starting position in world space
-	glm::vec2 orbit = glm::circularRand(10.0f);
-	float randY = glm::linearRand(-0.5f, 0.5f);
-	glm::vec3 initPos = glm::vec3(orbit.x, randY, orbit.y);
-	planet.setPosition(initPos);
-	printf("Planet Init Position %f %f %f\n", orbit.x, randY, orbit.y);
+		// set up a random direction
+		glm::vec3 spin = glm::sphericalRand(1.0f);
+		rock->setDirection(spin);
+		printf("Rock Init Direction %s\n", glm::to_string(spin).c_str());
 
-	orbit = glm::circularRand(5.0f);
-	randY = glm::linearRand(-0.5f, 0.5f);
-	initPos = glm::vec3(planet.position.x + orbit.x, randY, planet.position.z + orbit.y);
-	rock.setPosition(initPos);
-	printf("Rock Init Position %s\n", glm::to_string(initPos).c_str());
+		// set a random size
+		float size = glm::linearRand(0.1f, 0.75f);
+		rock->size = glm::vec3(size);
+		printf("Rock initialised at %.2f size", size);
 
-	// set up a random direction
-	glm::vec3 spin = glm::sphericalRand(1.0f);
-	rock.setDirection(spin);
-	printf("Rock Init Direction %s\n", glm::to_string(spin).c_str());
+		objects.push_back(rock);
+	}
 
-	float size = glm::linearRand(0.1f, 0.75f);
-	rock.size = glm::vec3(size);
 
 	// add objects to list, to later be added to world on initialisation
-	objects.push_back(planet);
-	objects.push_back(rock);
 
 	//Shader objectShader = Shader(
 	//	"lightObject.vs", "lightObject.fs", Model(backpack)
@@ -393,15 +412,9 @@ int main()
 
 	//objectShader.size *= 0.1f;
 
-	std::vector<LightSource> lights = {
-	//	//LightSource(POINT, Model("mod/lightbulb/v3/bulb.obj"))
-	//	//LightSource(POINT, lightingCube, matManager.copper),
-	//	//LightSource(POINT, lightingCube, matManager.cyan_plastic),
-	//	//LightSource(POINT, lightingCube, matManager.pearl)
-	//	//LightSource(SPOTLIGHT, lightingCube, matManager.bronze),
-	//	LightSource(POINT, lightingCube, matManager.tungsten40W),
-		LightSource(POINT, lightingCube, matManager.sunlight),
-	};
+	std::vector<LightSource*> lights;
+	LightSource* sun = new LightSource(POINT, lightingCube, matManager.sunlight);
+	lights.push_back(sun);
 
 	// lights setup
 	// TODO: move to function
@@ -412,10 +425,10 @@ int main()
 		//if (light.type == DIRECTIONAL) yPos += 3.0f;
 
 		// set light's starting position in world space
-		light.setPosition(glm::vec3(0, 0, 0));
+		light->setPosition(glm::vec3(0, 0, 0));
 
 		// set up a lighting direction
-		light.setDirection(
+		light->setDirection(
 			glm::vec3(
 				glm::linearRand(-0.2f, 0.2f),
 				0,
@@ -424,7 +437,7 @@ int main()
 		);
 
 		// bump up attenutation to max
-		light.setAttenuation(11);
+		light->setAttenuation(11);
 	}
 
 	Camera camera = Camera();
@@ -443,7 +456,7 @@ int main()
 	// set skybox sampler to last tex unit + 1
 	for (auto& object : world.objects)
 	{
-		object.setInt(world.skybox.cubeMap.name, object.numTextures);
+		object->setInt(world.skybox.cubeMap.name, object->numTextures);
 	}
 
 	// setup user controls
@@ -479,13 +492,13 @@ int main()
 	//objectShader.tearDown();
 	for (auto& object : objects)
 	{
-		printf("Cleaning up object shader %d\n", object.ID);
-		object.tearDown();
+		printf("Cleaning up object shader %d\n", object->ID);
+		object->tearDown();
 	}
 	for (auto& light : lights) 
 	{
-		std::cout << "Cleaning Up Shader " << light.ID << std::endl;
-		light.tearDown();
+		std::cout << "Cleaning Up Shader " << light->ID << std::endl;
+		light->tearDown();
 	}
 
 

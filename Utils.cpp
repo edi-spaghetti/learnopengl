@@ -182,9 +182,9 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 	{
 		for (auto& object : world->objects)
 		{
-			object.drawNormals = !object.drawNormals;
+			object->drawNormals = !object->drawNormals;
 			std::cout << "Toggled drawing normals "
-				<< object.drawNormals
+				<< object->drawNormals
 				<< std::endl;
 		}
 	}
