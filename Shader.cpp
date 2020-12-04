@@ -82,10 +82,6 @@ Shader::Shader(std::map<int, std::string> shaders, Geometry geo)
 Shader::Shader(std::map<int, std::string> shaders, Model mod)
 {
 	createShaderProgram(shaders);
-	
-	// temporarily disable this
-	//createNormalShaderProgram("lightObjectNormal.vs", "lightObjectNormal.fs",
-	//	"lightObjectNormal.gs");
 
 	this->mod = mod;
 	modelLoaded = true;
@@ -135,10 +131,10 @@ void Shader::draw(GLenum mode)
 		
 		if (doLogging) printf("Drawing model, %d instances\n", instances);
 		mod.draw(ID, instances);
-		if (drawNormals)
+		if (drawNormals && instances == 0)
 		{
 		      if (doLogging) std::cout << "Drawing Normals" << std::endl;
-		      mod.draw(normID, instances);
+		      mod.draw(normID);
 		}
 		if (this->doLogging) this->doLogging = false;
 		return;

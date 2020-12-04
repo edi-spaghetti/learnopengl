@@ -191,10 +191,14 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 	{
 		for (auto& object : world->objects)
 		{
-			object->drawNormals = !object->drawNormals;
-			std::cout << "Toggled drawing normals "
-				<< object->drawNormals
-				<< std::endl;
+			// only support drawing normals on non-instanced objects for now
+			if (object->instances == 0)
+			{
+				object->drawNormals = !object->drawNormals;
+				printf("Toggled %s drawing normals %d\n", 
+					object->name.c_str(), object->drawNormals
+				);
+			}
 		}
 	}
 

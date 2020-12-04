@@ -319,6 +319,10 @@ int main()
 	}, Model(planetPath));
 	planet->name = "planet";
 
+	// planet won't be instanced, so enable normal shader
+	planet->createNormalShaderProgram("lightObjectNormal.vs", "lightObjectNormal.fs",
+		"lightObjectNormal.gs");
+
 	// set planet's starting position in world space
 	glm::vec2 orbit = glm::circularRand(10.0f);
 	float randY = glm::linearRand(-0.5f, 0.5f);
