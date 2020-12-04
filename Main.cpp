@@ -283,8 +283,6 @@ int main()
 	glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glfwWindowHint(GLFW_SAMPLES, SAMPLE_COUNT);
-	//glEnable(GL_MULTISAMPLE);
 	glDisable(GL_MULTISAMPLE);
 
 	MaterialManager matManager = MaterialManager();
@@ -521,6 +519,8 @@ int main()
 	// clean up
 	//instanceShader.tearDown();
 	world.screen.tearDown();
+	world.mirror.tearDown();
+	world.deleteBuffers();
 	//objectShader.tearDown();
 	for (auto& object : objects)
 	{

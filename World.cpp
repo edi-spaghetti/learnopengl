@@ -243,6 +243,25 @@ void World::createFramebuffer(std::string name, GLenum target,
 }
 
 
+void World::deleteBuffers()
+{
+	for (std::map<
+		const std::string, std::vector<unsigned int>
+	>::reverse_iterator it = framebuffers.rbegin();
+		it != framebuffers.rend();
+		++it)
+	{
+		glDeleteFramebuffers(1, &it->second[fboIndex]);
+		glDeleteTextures(1, &it->second[tcbIndex]);
+		glDeleteRenderbuffers(1, &it->second[rboIndex]);
+	}
+
+	// remove all items from framebuffers map
+	framebuffers.clear();
+	printf("Cleared all buffers\n");
+}
+
+
 void World::copyBuffer(std::string src, std::string dst)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[dst][fboIndex]);

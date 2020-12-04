@@ -56,6 +56,7 @@ public:
 	void createFramebuffer(std::string name, GLenum target, 
 		GLboolean doMultiSample);
 	void copyBuffer(std::string src, std::string dst);
+	void deleteBuffers();
 
 	float deltaTime;
 	float lastFrame;

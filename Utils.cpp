@@ -120,9 +120,18 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 
 	if (key == GLFW_KEY_1)
 	{
-		// TODO: reimplement for multiple lights
-		//world->staticLight = !world->staticLight;
-		std::cout << "Moving lights temporarily disabled" << std::endl;
+		if (world->doMultiSample)
+			glDisable(GL_MULTISAMPLE);
+		else
+			glEnable(GL_MULTISAMPLE);
+
+		// clear out existing framebuffers and attachments
+		world->deleteBuffers();
+
+		// regenerate buffers for toggled multisampling
+		world->setupPostProcessing();
+		printf("Toggled anti-alias multisampling: %d\n", world->doMultiSample);
+
 	}
 	if (key == GLFW_KEY_2)
 	{
