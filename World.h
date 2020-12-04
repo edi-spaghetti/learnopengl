@@ -36,12 +36,18 @@ public:
 
 	int screenWidth;
 	int screenHeight;
+	// TODO: convert generation and storage of these variables into a function
 	unsigned int fbo;  // framebuffer object
 	unsigned int fboReverse;  // framebuffer object
 	unsigned int tcb;  // texture colour buffer
 	unsigned int tcbReverse;  // texture colour buffer
 	unsigned int rbo;  // render buffer object
 	unsigned int rboReverse;  // render buffer object
+	// intermediary (if multi-sampling)
+	unsigned int iFBO;
+	unsigned int iTCB;
+	unsigned int iRBO;
+
 
 	float deltaTime;
 	float lastFrame;

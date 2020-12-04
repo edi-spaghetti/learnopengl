@@ -7,7 +7,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-//const unsigned int MAX_PATH = 255;
+#include "Constants.h"
 
 
 class Texture
