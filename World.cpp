@@ -319,10 +319,11 @@ void World::draw()
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-	// now draw each layer on top of the previous
-	// blit fbo into intermediary (that can be read) and draw to quad
+	// now draw each layer on top of the previous	
+	// draw the front view
 	if (doMultiSample)
 	{
+		// blit fbo into intermediary (that can be read) and draw to quad
 		copyBuffer("front", "inter");
 		screen.screenDraw(framebuffers["inter"][tcbIndex]);
 	}
@@ -331,15 +332,18 @@ void World::draw()
 		screen.screenDraw(framebuffers["front"][tcbIndex]);
 	}
 
-	// now blit reverse into intermediary and draw to quad
+	// draw the mirror
 	if (doMultiSample)
 	{
+		// now blit reverse into intermediary and draw to quad
 		copyBuffer("reverse", "inter");
 		mirror.screenDraw(framebuffers["inter"][tcbIndex]);
 	}
 	else
 	{
-		screen.screenDraw(framebuffers["reverse"][tcbIndex]);
+		// no need to switch buffers or update settings here because it uses
+		// the same from the front buffer
+		mirror.screenDraw(framebuffers["reverse"][tcbIndex]);
 	}
 
 	// stop logging after first frame
