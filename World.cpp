@@ -155,86 +155,51 @@ void World::setupPostProcessing()
 	// make sure screen width and height have been set up before 
 	// we write out frame buffers
 	processInput(window, &screenWidth, &screenHeight);
-	
-	// set up frame buffer
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
 	// determine if we're doing multisampling
-	GLboolean doMultiSample;
 	glGetBooleanv(GL_MULTISAMPLE, &doMultiSample);
+	// collect appropriate texture target
 	GLenum target;
 	if (doMultiSample) target = GL_TEXTURE_2D_MULTISAMPLE;
 	else target = GL_TEXTURE_2D;
 
-	// generate textures
-	glGenTextures(1, &tcb);
-	glBindTexture(target, tcb);
+	// Create buffers
+	// --------------------------------------------------------------------------
 	if (doMultiSample)
-		glTexImage2DMultisample(
-			GL_TEXTURE_2D_MULTISAMPLE, SAMPLE_COUNT, GL_RGB, 
-			screenWidth, screenHeight, 
-			GL_TRUE);
+	{
+		createFramebuffer("front", target, doMultiSample);
+		createFramebuffer("reverse", target, doMultiSample);
+		createFramebuffer("inter", GL_TEXTURE_2D, false);
+	}
 	else
-		glTexImage2D(
-			GL_TEXTURE_2D, 0, GL_RGB, 
-			screenWidth, screenHeight, 
-			0, GL_RGB, GL_UNSIGNED_BYTE, NULL
-		);
-	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// attach texture to frame buffer
-	glFramebufferTexture2D(
-		GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, tcb, 0
-	);
-
-	// set up render buffer
-	glGenRenderbuffers(1, &rbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	if (doMultiSample)
-		glRenderbufferStorageMultisample(
-			GL_RENDERBUFFER, SAMPLE_COUNT, GL_DEPTH24_STENCIL8,
-			screenWidth, screenHeight
-		);
-	else
-		glRenderbufferStorage(
-			GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screenWidth, screenHeight
-		);
-
-	// attach renderbuffer to depth and stencil attachment of framebuffer
-	glFramebufferRenderbuffer(
-		GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo
-	);
-
-	// check it completed
-	auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	std::map<int, std::string> result = {
-		{GL_FRAMEBUFFER_COMPLETE, "complete"},
-		{GL_FRAMEBUFFER_UNDEFINED, "undefined"},
-		{GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT, "incomplete attachment"},
-		{GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT, "missing image attachment"},
-		{GL_FRAMEBUFFER_UNSUPPORTED, "unsupported"},
-		{GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE, "incomplete multi-sample"},
-		{GL_INVALID_ENUM, "invalid enum"}
-	};
-	std::cout << "Framebuffer status: " << result[status] << std::endl;
+	{
+		createFramebuffer("front", target, doMultiSample);
+		createFramebuffer("reverse", target, doMultiSample);
+	}
 	
-	
-	// and again for reverse
-	// TODO: some kind of management class for multiple frame buffers
-	// -----------------------------------------------------------------------
-	glGenFramebuffers(1, &fboReverse);
-	glBindFramebuffer(GL_FRAMEBUFFER, fboReverse);
+	// clean up
+	// --------------------------------------------------------------------------
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+
+void World::createFramebuffer(std::string name, GLenum target, 
+	GLboolean doMultiSample)
+{
+	unsigned int FBO;
+	glGenFramebuffers(1, &FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
 	// generate textures
-	glGenTextures(1, &tcbReverse);
-	glBindTexture(GL_TEXTURE_2D, tcbReverse);
+	unsigned int TCB;
+	glGenTextures(1, &TCB);
+	glBindTexture(target, TCB);
 	if (doMultiSample)
 		glTexImage2DMultisample(
 			GL_TEXTURE_2D_MULTISAMPLE, SAMPLE_COUNT, GL_RGB,
 			screenWidth, screenHeight,
-			GL_TRUE);
+			GL_TRUE
+		);
 	else
 		glTexImage2D(
 			GL_TEXTURE_2D, 0, GL_RGB,
@@ -246,12 +211,13 @@ void World::setupPostProcessing()
 
 	// attach texture to frame buffer
 	glFramebufferTexture2D(
-		GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, tcbReverse, 0
+		GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, TCB, 0
 	);
 
 	// set up render buffer
-	glGenRenderbuffers(1, &rboReverse);
-	glBindRenderbuffer(GL_RENDERBUFFER, rboReverse);
+	unsigned int RBO;
+	glGenRenderbuffers(1, &RBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
 	if (doMultiSample)
 		glRenderbufferStorageMultisample(
 			GL_RENDERBUFFER, SAMPLE_COUNT, GL_DEPTH24_STENCIL8,
@@ -264,53 +230,30 @@ void World::setupPostProcessing()
 
 	// attach renderbuffer to depth and stencil attachment of framebuffer
 	glFramebufferRenderbuffer(
-		GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboReverse
+		GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO
 	);
 
 	// check it completed
-	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	std::cout << "Framebuffer Reverse status: " << result[status] << std::endl;
-	
-	
-	// Create Intermediate Buffer if Multi-Sampling
-	// -----------------------------------------------------------------------
-	glGenFramebuffers(1, &iFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, iFBO);
+	auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	printf("Framebuffer %s status: %s\n", name.c_str(), framebufferResult[status].c_str());
 
-	// generate textures
-	glGenTextures(1, &iTCB);
-	glBindTexture(GL_TEXTURE_2D, iTCB);
-	glTexImage2D(
-		GL_TEXTURE_2D, 0, GL_RGB,
-		screenWidth, screenHeight,
-		0, GL_RGB, GL_UNSIGNED_BYTE, NULL
+	// add to a vector in correct order
+	std::vector<unsigned int> framebuffer = {FBO, TCB, RBO};
+	framebuffers[name.c_str()] = framebuffer;
+}
+
+
+void World::copyBuffer(std::string src, std::string dst)
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffers[dst][fboIndex]);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffers[src][fboIndex]);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffers[dst][fboIndex]);
+	glBlitFramebuffer(
+		0, 0, screenWidth, screenHeight,
+		0, 0, screenWidth, screenHeight,
+		GL_COLOR_BUFFER_BIT, GL_NEAREST
 	);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// attach texture to frame buffer
-	glFramebufferTexture2D(
-		GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, iTCB, 0
-	);
-
-	// set up render buffer
-	glGenRenderbuffers(1, &iRBO);
-	glBindRenderbuffer(GL_RENDERBUFFER, iRBO);
-	glRenderbufferStorage(
-		GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screenWidth, screenHeight
-	);
-
-	// attach renderbuffer to depth and stencil attachment of framebuffer
-	glFramebufferRenderbuffer(
-		GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, iRBO
-	);
-
-	// check it completed
-	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	std::cout << "Framebuffer Intermediary status: " << result[status] << std::endl;
-	
-	// clean up
-	// --------------------------------------------------------------------------
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -336,7 +279,7 @@ void World::draw()
 	if (doLogging) std::cout << "--------------------------------------------" << std::endl;
 
 	// draw first pass on custom framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffers["front"][fboIndex]);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_STENCIL_TEST);
 	glEnable(GL_BLEND);
@@ -359,7 +302,7 @@ void World::draw()
 	}
 
 	// re-render to second buffer
-	glBindFramebuffer(GL_FRAMEBUFFER, fboReverse);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffers["reverse"][fboIndex]);
 	glEnable(GL_DEPTH_TEST);
 	// set the colour to green-ish black-ish
 	glClearColor(0.2f, 0.3f, 0.2f, 1.0f);
@@ -378,30 +321,26 @@ void World::draw()
 
 	// now draw each layer on top of the previous
 	// blit fbo into intermediary (that can be read) and draw to quad
-	glBindFramebuffer(GL_FRAMEBUFFER, iFBO);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, iFBO);
-	glBlitFramebuffer(
-		0, 0, screenWidth, screenHeight,
-		0, 0, screenWidth, screenHeight,
-		GL_COLOR_BUFFER_BIT, GL_NEAREST
-	);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	screen.screenDraw(iTCB);
+	if (doMultiSample)
+	{
+		copyBuffer("front", "inter");
+		screen.screenDraw(framebuffers["inter"][tcbIndex]);
+	}
+	else
+	{
+		screen.screenDraw(framebuffers["front"][tcbIndex]);
+	}
 
 	// now blit reverse into intermediary and draw to quad
-	glBindFramebuffer(GL_FRAMEBUFFER, iFBO);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, fboReverse);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, iFBO);
-	glBlitFramebuffer(
-		0, 0, screenWidth, screenHeight,
-		0, 0, screenWidth, screenHeight,
-		GL_COLOR_BUFFER_BIT, GL_NEAREST
-	);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	mirror.screenDraw(iTCB);
+	if (doMultiSample)
+	{
+		copyBuffer("reverse", "inter");
+		mirror.screenDraw(framebuffers["inter"][tcbIndex]);
+	}
+	else
+	{
+		screen.screenDraw(framebuffers["reverse"][tcbIndex]);
+	}
 
 	// stop logging after first frame
 	if (this->doLogging) this->doLogging = false;

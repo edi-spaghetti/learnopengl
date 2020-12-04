@@ -283,8 +283,9 @@ int main()
 	glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glfwWindowHint(GLFW_SAMPLES, 4);
-	glEnable(GL_MULTISAMPLE);
+	//glfwWindowHint(GLFW_SAMPLES, SAMPLE_COUNT);
+	//glEnable(GL_MULTISAMPLE);
+	glDisable(GL_MULTISAMPLE);
 
 	MaterialManager matManager = MaterialManager();
 

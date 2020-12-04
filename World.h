@@ -36,18 +36,26 @@ public:
 
 	int screenWidth;
 	int screenHeight;
-	// TODO: convert generation and storage of these variables into a function
-	unsigned int fbo;  // framebuffer object
-	unsigned int fboReverse;  // framebuffer object
-	unsigned int tcb;  // texture colour buffer
-	unsigned int tcbReverse;  // texture colour buffer
-	unsigned int rbo;  // render buffer object
-	unsigned int rboReverse;  // render buffer object
-	// intermediary (if multi-sampling)
-	unsigned int iFBO;
-	unsigned int iTCB;
-	unsigned int iRBO;
 
+	// framebuffers
+	// -----------------------------------------------------------------------
+	GLboolean doMultiSample;
+	unsigned int fboIndex = 0;
+	unsigned int tcbIndex = 1;
+	unsigned int rboIndex = 2;
+	std::map<const std::string, std::vector<unsigned int>> framebuffers;
+	std::map<int, std::string> framebufferResult = {
+		{GL_FRAMEBUFFER_COMPLETE, "complete"},
+		{GL_FRAMEBUFFER_UNDEFINED, "undefined"},
+		{GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT, "incomplete attachment"},
+		{GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT, "missing image attachment"},
+		{GL_FRAMEBUFFER_UNSUPPORTED, "unsupported"},
+		{GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE, "incomplete multi-sample"},
+		{GL_INVALID_ENUM, "invalid enum"}
+	};
+	void createFramebuffer(std::string name, GLenum target, 
+		GLboolean doMultiSample);
+	void copyBuffer(std::string src, std::string dst);
 
 	float deltaTime;
 	float lastFrame;
