@@ -3,10 +3,15 @@
 #include "stb_image_write.h"
 #include "World.h"
 
-
+// Setup Functions
+// ---------------------------------------------------------------------------
 World::World(GLFWwindow* win, Camera* cam, std::vector<Shader*> objs, 
 	MaterialManager* mng, std::vector<LightSource*> lgts)
 {
+	printf("// World Setup\n%s\n", std::string(79, '-').c_str());
+
+	// set up global settings before we do anything else
+	setupGlobalOpenGLSettings();
 
 	// TODO: multiple objects + layers
 	//       this will allow rendering geo to signify light source's position
@@ -20,13 +25,11 @@ World::World(GLFWwindow* win, Camera* cam, std::vector<Shader*> objs,
 
 	camera->world = this;
 
-	std::cout << " // Setup" << std::endl;
-	std::cout << "---------------------------------------------" << std::endl;
-
 	// set up framebuffer and render buffer for post processing
 	setupPostProcessing();
 
 	// initialise object material uniforms
+	printf("Setting properties on %d objects\n", objects.size());
 	for (auto &object : objects)
 	{
 		if (!object->texLoaded)
@@ -54,9 +57,7 @@ World::World(GLFWwindow* win, Camera* cam, std::vector<Shader*> objs,
 	}
 
 	// initalise light properties on objects
-	std::cout << "Initial Setting " << lights.size() << " lights properties" 
-		<< std::endl;
-
+	printf("Setting properties on %d lights\n", lights.size());
 	int i = -1;
 	for (auto &light : lights)
 	{
@@ -143,13 +144,29 @@ World::World(GLFWwindow* win, Camera* cam, std::vector<Shader*> objs,
 
 }
 
-World::~World()
-{
 
+void World::setupGlobalOpenGLSettings()
+{
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	printf("Depth Test On, LEQUAL\n");
+
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+	glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
+	printf("Stencil Test On, Func=NOTEQUAL, Op=KEEP, REPLACE, REPLACE\n");
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	printf("Blend On, Func=ALPHA, 1-ALPHA\n");
+
+	glDisable(GL_MULTISAMPLE);
+	printf("Multisample Off\n");
+
+	printf("Global OpenGL Settings Done\n");
 }
 
-// main functions to be called mainly from main
-// ---------------------------------------------------------------------------
+
 void World::setupPostProcessing()
 {
 	// make sure screen width and height have been set up before 
@@ -176,13 +193,40 @@ void World::setupPostProcessing()
 		createFramebuffer("front", target, doMultiSample);
 		createFramebuffer("reverse", target, doMultiSample);
 	}
-	
+
 	// clean up
 	// --------------------------------------------------------------------------
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	printf("Post Processing Quads Setup Complete\n");
 }
 
 
+World::~World()
+{
+
+}
+
+
+void World::tearDown()
+{
+	screen.tearDown();
+	mirror.tearDown();
+	deleteBuffers();
+	for (auto& object : objects)
+	{
+		object->tearDown();
+	}
+	for (auto& light : lights)
+	{
+		light->tearDown();
+	}
+
+	printf("All World Shaders and Buffers successfully removed\n");
+}
+
+
+// main functions to be called mainly from main
+// ---------------------------------------------------------------------------
 void World::createFramebuffer(std::string name, GLenum target, 
 	GLboolean doMultiSample)
 {

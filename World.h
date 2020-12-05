@@ -18,6 +18,7 @@ public:
 	World(GLFWwindow* win, Camera* cam, std::vector<Shader*> objs, MaterialManager* mng, 
 		std::vector<LightSource*> lgts);
 	~World();
+	void tearDown();
 
 	GLFWwindow* window;
 	std::vector<Shader*> objects;
@@ -82,6 +83,7 @@ public:
 	//unsigned int lightingType = 0;
 	const unsigned int numLightingTypes = 3;
 
+	void setupGlobalOpenGLSettings();
 	void setupPostProcessing();
 
 	// main update function for everything contained inside world

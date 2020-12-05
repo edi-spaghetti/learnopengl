@@ -274,33 +274,8 @@ int main()
 	int height = 600;
 	GLFWwindow* window = createWindow(width, height);
 
-	// global opengl settings
-	// -----------------------------------------------------------------------
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-	glEnable(GL_STENCIL_TEST);
-	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-	glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_MULTISAMPLE);
 
 	MaterialManager matManager = MaterialManager();
-
-	//const int nTextures = 3;
-	//Texture textures[nTextures] = {
-	//	Texture("container2.png", "material.diffuse"),
-	//	Texture("container2_specular.png", "material.specular"),
-	//	Texture("container2_animated_emission.png", "material.emission", true, GL_REPEAT, GL_NEAREST)
-	//};
-
-	// //construct shaders and load geometry and textures
-	//Shader objectShader = Shader(
-	//	"lightObject.vs", "lightObject.fs", 
-	//	litCube, 
-	//	matManager.emerald,
-	//	textures, nTextures
-	//);
 
 	//std::string preSchool = "mod/pre_school/v1/pre_school.obj";
 	//std::string bulb = "mod/lightbulb/v3/bulb.obj";
@@ -390,60 +365,6 @@ int main()
 	objects.push_back(rock);
 
 	// add objects to list, to later be added to world on initialisation
-
-	//Shader objectShader = Shader(
-	//	"lightObject.vs", "lightObject.fs", Model(backpack)
-	//);
-
-	//Shader instanceShader = Shader(
-	//	std::map<int, std::string> {
-	//		{ GL_VERTEX_SHADER, "instanceTest.vs" },
-	//		{ GL_FRAGMENT_SHADER, "instanceTest.fs" }
-	//	},
-	//	Geometry{
-	//		2, {2, 3}, 20, 6, 120,
-	//		{    // positions     // colors
-	//			-0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
-	//			 0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
-	//			-0.05f, -0.05f,  0.0f, 0.0f, 1.0f,
-
-	//			-0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
-	//			 0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
-	//			 0.05f,  0.05f,  0.0f, 1.0f, 1.0f
-	//		}, false
-	//	}
-	//);
-
-	//std::vector<glm::vec2> translations;
-	//float offset = 0.1f;
-	//for (int y = -10; y < 10; y += 2)
-	//{
-	//	for (int x = -10; x < 10; x += 2)
-	//	{
-	//		glm::vec2 t;
-	//		t.x = (float)x / 10.0f + offset;
-	//		t.y = (float)y / 10.0f + offset;
-	//		
-	//		translations.push_back(t);
-	//	}
-	//}
-
-	//instanceShader.addInstancedVertexAttribute(translations, 1);
-
-	//Shader objectShader = Shader(
-	//	"geomShaderTest.vs", "geomShaderTest.fs", "geomShaderTest.gs",
-	//	Geometry{ 2, {2, 3}, 20, 4, 80,
-	//	{
-	//		-0.5f,  0.5f, 1, 0, 0,
-	//		 0.5f,  0.5f, 0, 1, 0,
-	//		 0.5f, -0.5f, 0, 0, 1,
-	//		-0.5f, -0.5f, 1, 1, 0
-	//	}, false }
-	//	//Geometry{ 2, {2, 3}, 20, 1, 20, {0, 0, 0, 1, 0}, false }
-	//);
-
-	//objectShader.size *= 0.1f;
-
 	std::vector<LightSource*> lights;
 	LightSource* sun = new LightSource(POINT, lightingCube, matManager.sunlight);
 	sun->name = "sun";
@@ -453,9 +374,6 @@ int main()
 	// TODO: move to function
 	for (auto &light : lights)
 	{
-		// set a random height, and make the directional light much higher
-		//float yPos = glm::linearRand(0.0f, 2.0f);
-		//if (light.type == DIRECTIONAL) yPos += 3.0f;
 
 		// set light's starting position in world space
 		light->setPosition(glm::vec3(0, 0, 0));
@@ -474,8 +392,8 @@ int main()
 	}
 
 	Camera camera = Camera();
-	//// set up world with camera, objects and lights
-	//// variables required by objects from lights are also set here
+	// set up world with camera, objects and lights
+	// variables required by objects from lights are also set here
 	World world = World(window, &camera, objects, &matManager, lights);
 
 	// world set up
@@ -504,39 +422,14 @@ int main()
 
 		// render
 		world.draw();
-		//objectShader.draw(GL_POINTS);
-		//glUseProgram(instanceShader.ID);
-		//glBindVertexArray(instanceShader.VAO);
-		//glDrawArraysInstanced(GL_TRIANGLES, 0, 
-		//	instanceShader.geometry.dataLength, translations.size());
-		//if (doLogging)
-		//{
-		//	printf("Drawing triangles from %d vertices x %d instances",
-		//		instanceShader.geometry.dataLength, translations.size());
-		//	doLogging = false;
-		//}
+
 		// check and call events and swap the buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
 	// clean up
-	//instanceShader.tearDown();
-	world.screen.tearDown();
-	world.mirror.tearDown();
-	world.deleteBuffers();
-	//objectShader.tearDown();
-	for (auto& object : objects)
-	{
-		printf("Cleaning up object shader %d\n", object->ID);
-		object->tearDown();
-	}
-	for (auto& light : lights) 
-	{
-		std::cout << "Cleaning Up Shader " << light->ID << std::endl;
-		light->tearDown();
-	}
-
+	world.tearDown();
 
 	glfwTerminate();
 	return 0;

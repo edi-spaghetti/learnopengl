@@ -115,6 +115,8 @@ void Shader::tearDown()
 
 	glDeleteProgram(ID);
 	if (normID) glDeleteProgram(normID);
+
+	printf("Shader %s %d was torn down\n", name, ID);
 }
 
 
