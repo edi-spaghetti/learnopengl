@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 Shader::Shader(
 	std::string vertPath, std::string fragPath, 
-	Geometry geo, Material mat,
+	Geometry* geo, Material* mat,
 	Texture* textures, unsigned int nTex)
 {
 	createShaderProgram(vertPath, fragPath);
@@ -26,7 +26,7 @@ Shader::Shader(
 }
 
 
-Shader::Shader(std::string vertPath, std::string fragPath, Model mod)
+Shader::Shader(std::string vertPath, std::string fragPath, Model* mod)
 {
 	createShaderProgram(vertPath, fragPath);
 	createNormalShaderProgram("lightObjectNormal.vs", "lightObjectNormal.fs", 
@@ -37,7 +37,8 @@ Shader::Shader(std::string vertPath, std::string fragPath, Model mod)
 }
 
 
-Shader::Shader(std::string vertPath, std::string fragPath, std::string geomPath, Model mod)
+Shader::Shader(std::string vertPath, std::string fragPath, std::string geomPath, 
+	Model* mod)
 {
 	createShaderProgram(vertPath, fragPath, geomPath);
 
@@ -46,7 +47,7 @@ Shader::Shader(std::string vertPath, std::string fragPath, std::string geomPath,
 }
 
 
-Shader::Shader(std::string vertPath, std::string fragPath, CubeMap cm)
+Shader::Shader(std::string vertPath, std::string fragPath, CubeMap* cm)
 {
 	createShaderProgram(vertPath, fragPath);
 
@@ -60,7 +61,7 @@ Shader::Shader(std::string vertPath, std::string fragPath, CubeMap cm)
 
 
 Shader::Shader(std::string vertPath, std::string fragPath, std::string geomPath,
-	Geometry geo)
+	Geometry* geo)
 {
 	createShaderProgram(vertPath, fragPath, geomPath);
 
@@ -70,7 +71,7 @@ Shader::Shader(std::string vertPath, std::string fragPath, std::string geomPath,
 }
 
 
-Shader::Shader(std::map<int, std::string> shaders, Geometry geo)
+Shader::Shader(std::map<int, std::string> shaders, Geometry* geo)
 {
 	createShaderProgram(shaders);
 
@@ -79,7 +80,7 @@ Shader::Shader(std::map<int, std::string> shaders, Geometry geo)
 }
 
 
-Shader::Shader(std::map<int, std::string> shaders, Model mod)
+Shader::Shader(std::map<int, std::string> shaders, Model* mod)
 {
 	createShaderProgram(shaders);
 
@@ -95,7 +96,8 @@ void Shader::tearDown()
 {
 	if (modelLoaded)
 	{
-		mod.tearDown();
+		mod->tearDown();
+		delete mod;
 	}
 	else 
 	{
@@ -106,6 +108,8 @@ void Shader::tearDown()
 		{
 			glDeleteBuffers(1, &EBO);
 		}
+
+		if (geometryLoaded) delete geometry;
 	}
 
 	for (auto id : instanceBuffers)
@@ -116,7 +120,7 @@ void Shader::tearDown()
 	glDeleteProgram(ID);
 	if (normID) glDeleteProgram(normID);
 
-	printf("Shader %s %d was torn down\n", name, ID);
+	printf("Shader %s %d was torn down\n", name.c_str(), ID);
 }
 
 
@@ -132,11 +136,11 @@ void Shader::draw(GLenum mode)
 	{
 		
 		if (doLogging) printf("Drawing model, %d instances\n", instances);
-		mod.draw(ID, instances);
+		mod->draw(ID, instances);
 		if (drawNormals && instances == 0)
 		{
 		      if (doLogging) std::cout << "Drawing Normals" << std::endl;
-		      mod.draw(normID);
+		      mod->draw(normID);
 		}
 		if (this->doLogging) this->doLogging = false;
 		return;
@@ -165,25 +169,25 @@ void Shader::draw(GLenum mode)
 	if (cubeMapLoaded)
 	{
 		glDepthMask(GL_FALSE);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.ID);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap->ID);
 		if (doLogging) printf("Loaded cubemap texture\n");
 	}
 
 	// TODO instanced glDraw Elements/Arrays
 	if (elementBuffer) 
 	{
-		glDrawElements(mode, geometry.dataLength, GL_UNSIGNED_INT, 0);
+		glDrawElements(mode, geometry->dataLength, GL_UNSIGNED_INT, 0);
 		if (doLogging)
 		{
-			std::cout << "DrawElements: count=" << geometry.dataLength << std::endl;
+			std::cout << "DrawElements: count=" << geometry->dataLength << std::endl;
 		}
 
 	}
 	else {
-		glDrawArrays(mode, 0, geometry.dataLength);
+		glDrawArrays(mode, 0, geometry->dataLength);
 		if (doLogging)
 		{
-			std::cout << "DrawArrays: count=" << geometry.dataLength << std::endl;
+			std::cout << "DrawArrays: count=" << geometry->dataLength << std::endl;
 		}
 	}
 
@@ -527,7 +531,7 @@ int Shader::createShaderStage(std::string path, GLenum type)
 
 // geometry functions
 // ---------------------------------------------------------------------------
-void Shader::loadGeometry(Geometry geo)
+void Shader::loadGeometry(Geometry* geo)
 {
 	// cache the geometry on the shader
 	geometry = geo;	
@@ -535,7 +539,7 @@ void Shader::loadGeometry(Geometry geo)
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 
-	if (geo.useIndices)
+	if (geo->useIndices)
 	{
 		
 		elementBuffer = true;
@@ -548,46 +552,46 @@ void Shader::loadGeometry(Geometry geo)
 
 	// bind and set data into vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, geo.dataSize, geo.data, GL_STATIC_DRAW);
-	printf("glBufferData(GL_ARRAY_BUFFER, %d, <data>, GL_STATIC_DRAW)\n", geo.dataSize);
+	glBufferData(GL_ARRAY_BUFFER, geo->dataSize, geo->data, GL_STATIC_DRAW);
+	printf("glBufferData(GL_ARRAY_BUFFER, %d, <data>, GL_STATIC_DRAW)\n", geo->dataSize);
 
 	// bind and set element buffers
-	if (geo.useIndices)
+	if (geo->useIndices)
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, geo.iSize, geo.indices, GL_STATIC_DRAW);
-		std::cout << "EBO: size=" << geo.iSize << std::endl;
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, geo->iSize, geo->indices, GL_STATIC_DRAW);
+		std::cout << "EBO: size=" << geo->iSize << std::endl;
 	}
 
 	// generate vertex attributes per attribute in source data
-	for (int attr = 0; attr < geo.numAttributes; attr++)
+	for (int attr = 0; attr < geo->numAttributes; attr++)
 	{
 		int sum = 0;
 		for (int i = 0; i < attr; i++)
 		{
-			sum += geo.attributes[i];
+			sum += geo->attributes[i];
 		}
 
 		unsigned int offset = sum * sizeof(float);
 
 		glVertexAttribPointer(
 			attr,
-			geo.attributes[attr],
+			geo->attributes[attr],
 			GL_FLOAT,
 			GL_FALSE,
-			geo.stride,
+			geo->stride,
 			(void*)offset
 		);
 		glEnableVertexAttribArray(attr);
 		printf("glVertexAttribPointer(%d, %d, GL_FLOAT, GL_FALSE, %d, %d)\n",
-			attr, geo.attributes[attr], geo.stride, offset
+			attr, geo->attributes[attr], geo->stride, offset
 		);
 	}
 	// unbind VBO, VAO and EBO
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	if (geo.useIndices)
+	if (geo->useIndices)
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
@@ -605,7 +609,7 @@ void Shader::addInstancedVertexAttribute(std::vector<glm::vec2> data,
 	glGenBuffers(1, &newVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, newVBO);
 	// assume we're instantiating from geometry for now
-	int attribIndex = geometry.numAttributes + instanceBuffers.size();
+	int attribIndex = geometry->numAttributes + instanceBuffers.size();
 	instanceBuffers.push_back(newVBO);
 
 	int itemSize = sizeof(data[0]);
@@ -646,7 +650,7 @@ void Shader::addInstancedVertexAttribute(std::vector<glm::mat4> data,
 	glBufferData(GL_ARRAY_BUFFER, dataSize, &data[0], GL_STATIC_DRAW);
 	printf("INSTANCE glBufferData(GL_ARRAY_BUFFER, %d, <data>, GL_STATIC_DRAW)\n", dataSize);
 
-	for (auto& mesh : mod.getAllMeshes())
+	for (auto& mesh : mod->getAllMeshes())
 	{
 		glBindVertexArray(mesh->VAO);
 		for (int i = 0; i < 4; i++)
@@ -695,7 +699,7 @@ void Shader::addInstancedVertexAttribute(std::vector<glm::mat3> data,
 	glBufferData(GL_ARRAY_BUFFER, dataSize, &data[0], GL_STATIC_DRAW);
 	printf("INSTANCE glBufferData(GL_ARRAY_BUFFER, %d, <data>, GL_STATIC_DRAW)\n", dataSize);
 
-	for (auto& mesh : mod.getAllMeshes())
+	for (auto& mesh : mod->getAllMeshes())
 	{
 		glBindVertexArray(mesh->VAO);
 		for (int i = 0; i < 3; i++)
@@ -786,8 +790,8 @@ void Shader::generateCubeGeometry()
 	}
 	geo.iSize = geo.iLength * sizeof(int);
 
-	this->geometry = geo;
-	loadGeometry(geo);
+	this->geometry = &geo;
+	loadGeometry(&geo);
 }
 
 
@@ -817,16 +821,16 @@ void Shader::loadTextures(Texture* textures, unsigned int nTex)
 }
 
 
-void Shader::loadCubeMap(CubeMap cubeMap)
+void Shader::loadCubeMap(CubeMap* cubeMap)
 {
 	glUseProgram(ID);
-	setInt(cubeMap.name, 0);
+	setInt(cubeMap->name, 0);
 	this->cubeMap = cubeMap;
-	std::cout
-		<< "Assigned samplerCube to texture unit"
-		<< " name=" << cubeMap.name
-		<< " ID=" << cubeMap.ID
-		<< std::endl;
+	printf(
+		"Assigned sampleCube to texture unit %s %d\n", 
+		cubeMap->name.c_str(),
+		cubeMap->ID
+	);
 }
 
 
@@ -841,23 +845,23 @@ void Shader::useTextureUnit(GLenum target, unsigned int texUnitOffset, unsigned 
 }
 
 
-void Shader::loadMaterials(Material mat) 
+void Shader::loadMaterials(Material* mat) 
 {
-	material = mat;
+	this->material = mat;
 
 	ambient = Attribute<glm::vec3>(
-		material.ambient, glm::vec3(0.0f), glm::vec3(1.0f),
+		material->ambient, glm::vec3(0.0f), glm::vec3(1.0f),
 		glm::vec3(0.05f), LINEAR_SCALE
 		);
 	diffuse = Attribute<glm::vec3>(
-		material.diffuse, glm::vec3(0.0f), glm::vec3(1.0f),
+		material->diffuse, glm::vec3(0.0f), glm::vec3(1.0f),
 		glm::vec3(0.05f), LINEAR_SCALE
 		);
 	specular = Attribute<glm::vec3>(
-		material.specular, glm::vec3(0.0f), glm::vec3(1.0f),
+		material->specular, glm::vec3(0.0f), glm::vec3(1.0f),
 		glm::vec3(0.05f), LINEAR_SCALE
 		);
-	shininess = Attribute<float>(material.shininess * 256, 2.0f, 256.0f, 2.0f, EXPONENTIAL_SCALE);
+	shininess = Attribute<float>(material->shininess * 256, 2.0f, 256.0f, 2.0f, EXPONENTIAL_SCALE);
 }
 
 

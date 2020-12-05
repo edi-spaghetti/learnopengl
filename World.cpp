@@ -25,9 +25,6 @@ World::World(GLFWwindow* win, Camera* cam, std::vector<Shader*> objs,
 
 	camera->world = this;
 
-	// set up framebuffer and render buffer for post processing
-	setupPostProcessing();
-
 	// initialise object material uniforms
 	printf("Setting properties on %d objects\n", objects.size());
 	for (auto &object : objects)
@@ -129,6 +126,9 @@ World::World(GLFWwindow* win, Camera* cam, std::vector<Shader*> objs,
 			<< std::endl;
 	}
 
+	// setup user controls
+	setupUserControls(window, this);
+
 	// TODO: re-implement for multiple lights
 	//if (light->materialLoaded)
 	//{
@@ -209,19 +209,27 @@ World::~World()
 
 void World::tearDown()
 {
-	screen.tearDown();
-	mirror.tearDown();
+	screen->tearDown();
+	mirror->tearDown();
 	deleteBuffers();
 	for (auto& object : objects)
 	{
 		object->tearDown();
+		delete object;
 	}
 	for (auto& light : lights)
 	{
 		light->tearDown();
+		delete light;
 	}
 
-	printf("All World Shaders and Buffers successfully removed\n");
+	delete matManager;
+	delete camera;
+	delete screen;
+	delete mirror;
+	delete skybox;
+
+	printf("All World class objects successfully removed\n");
 }
 
 
@@ -323,8 +331,8 @@ void World::copyBuffer(std::string src, std::string dst)
 
 void World::update()
 {
-	if (doLogging) std::cout << " // Update" << std::endl;
-	if (doLogging) std::cout << "--------------------------------------------" << std::endl;
+
+	if (doLogging) printf("// Update\n%s\n", std::string(79, '-').c_str());
 
 	World::updateTime();
 	World::updateScreen();
@@ -338,8 +346,8 @@ void World::update()
 
 void World::draw()
 {
-	if (doLogging) std::cout << " // Draw" << std::endl;
-	if (doLogging) std::cout << "--------------------------------------------" << std::endl;
+	
+	if (doLogging) printf("// Draw\n%s\n", std::string(79, '-').c_str());
 
 	// draw first pass on custom framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffers["front"][fboIndex]);
@@ -353,7 +361,7 @@ void World::draw()
 	drawObjects();
 
 	// set the reverse view on each object
-	skybox.setMatrix("view", glm::mat4(glm::mat3(reverseView)));
+	skybox->setMatrix("view", glm::mat4(glm::mat3(reverseView)));
 	for (auto& object : objects)
 	{
 		object->setMatrix("view", reverseView);
@@ -388,11 +396,11 @@ void World::draw()
 	{
 		// blit fbo into intermediary (that can be read) and draw to quad
 		copyBuffer("front", "inter");
-		screen.screenDraw(framebuffers["inter"][tcbIndex]);
+		screen->screenDraw(framebuffers["inter"][tcbIndex]);
 	}
 	else
 	{
-		screen.screenDraw(framebuffers["front"][tcbIndex]);
+		screen->screenDraw(framebuffers["front"][tcbIndex]);
 	}
 
 	// draw the mirror
@@ -400,13 +408,13 @@ void World::draw()
 	{
 		// now blit reverse into intermediary and draw to quad
 		copyBuffer("reverse", "inter");
-		mirror.screenDraw(framebuffers["inter"][tcbIndex]);
+		mirror->screenDraw(framebuffers["inter"][tcbIndex]);
 	}
 	else
 	{
 		// no need to switch buffers or update settings here because it uses
 		// the same from the front buffer
-		mirror.screenDraw(framebuffers["reverse"][tcbIndex]);
+		mirror->screenDraw(framebuffers["reverse"][tcbIndex]);
 	}
 
 	// stop logging after first frame
@@ -421,7 +429,7 @@ void World::drawObjects()
 
 	for (auto& object : objects)
 	{
-		object->useTextureUnit(GL_TEXTURE_CUBE_MAP, object->numTextures, skybox.ID);
+		object->useTextureUnit(GL_TEXTURE_CUBE_MAP, object->numTextures, skybox->ID);
 		object->draw();
 	}
 	int i = -1;
@@ -433,8 +441,7 @@ void World::drawObjects()
 			light->draw();
 	}
 
-	if (doLogging) printf("Drawing skybox\n");
-	skybox.draw();
+	skybox->draw();
 
 	// transparency pass
 	if (this->doLogging) std::cout << "Rendering opacity pass" << std::endl;
@@ -444,7 +451,7 @@ void World::drawObjects()
 		{
 			// sort meshes by distance
 			std::map<float, Mesh> meshByDistance;
-			for (Mesh mesh : object->mod.getTransparentMeshes())
+			for (Mesh mesh : object->mod->getTransparentMeshes())
 			{
 				glm::vec3 position = object->position + mesh.localPosition;
 				float distance = glm::length(camera->position - position);
@@ -486,8 +493,8 @@ void World::updateScreen()
 void World::updateAttributes()
 {
 	// set MVP matrices
-	skybox.setMatrix("view", glm::mat4(glm::mat3(view)));
-	skybox.setMatrix("projection", projection);
+	skybox->setMatrix("view", glm::mat4(glm::mat3(view)));
+	skybox->setMatrix("projection", projection);
 	for (auto& object : objects)
 	{
 		if (!object->instances) object->setMatrix("model", object->model);

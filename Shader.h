@@ -35,19 +35,20 @@ public:
 
 	// creates a new shader program
 	Shader() {};
-	Shader(std::map<int, std::string> shaders, Geometry geo);
-	Shader(std::map<int, std::string> shaders, Model mod);
+	Shader(std::map<int, std::string> shaders, Geometry* geo);
+	Shader(std::map<int, std::string> shaders, Model* mod);
 	Shader(std::string vertPath, std::string fragPath, std::string geomPath,
-		Geometry geo);
+		Geometry* geo);
 	Shader(std::string vertPath, std::string fragPath, 
 		float x1 = -1.0f, float y1 = 1.0f, float x2 = 1.0f, float y2 = -1.0f);
 	Shader(
 		std::string vertPath, std::string fragPath,
-		Geometry geo, Material mat,
+		Geometry* geo, Material* mat,
 		Texture* textures = NULL, unsigned int nTex = 0);
-	Shader(std::string vertPath, std::string fragPath, Model mod);
-	Shader(std::string vertPath, std::string fragPath, std::string geomPath, Model mod);
-	Shader(std::string vertPath, std::string fragPath, CubeMap cm);
+	Shader(std::string vertPath, std::string fragPath, Model* mod);
+	Shader(std::string vertPath, std::string fragPath, std::string geomPath, 
+		Model* mod);
+	Shader(std::string vertPath, std::string fragPath, CubeMap* cm);
 	~Shader();
 	void tearDown();
 
@@ -79,10 +80,10 @@ public:
 	void drawWithOutline();
 
 	void generateCubeGeometry();
-	void loadGeometry(Geometry geo);
+	void loadGeometry(Geometry* geo);
 	void loadTextures(Texture* textures = NULL, unsigned int nTex = 0);
-	void loadCubeMap(CubeMap cubeMap);
-	void loadMaterials(Material mat);
+	void loadCubeMap(CubeMap* cubeMap);
+	void loadMaterials(Material* mat);
 
 	void useTextureUnit(GLenum target, unsigned int texUnitOffset, unsigned int texID);
 
@@ -110,12 +111,12 @@ public:
 	Attribute<glm::vec3> specular;
 	Attribute<float> shininess;
 
-	Geometry geometry;
+	Geometry* geometry;
 	unsigned int numTextures;
 	Texture* texList;
-	Material material;
-	Model mod;
-	CubeMap cubeMap;
+	Material* material;
+	Model* mod;
+	CubeMap* cubeMap;
 
 	bool geometryLoaded = false;
 	bool elementBuffer = false;
@@ -182,7 +183,7 @@ class LightSource : public Shader
 public:
 	LightSource(
 		int lightType,
-		Geometry geo, Material mat,
+		Geometry* geo, Material* mat,
 		const char* vertPath = "lightSource.vs", const char* fragPath = "lightSource.fs",
 		Texture* textures = NULL, unsigned int nTex = 0
 	) : Shader(vertPath, fragPath, geo, mat, textures, nTex) {
@@ -190,7 +191,7 @@ public:
 	};
 	LightSource(
 		int lightType,
-		Model mod,
+		Model* mod,
 		const char* vertPath = "lightSource.vs", 
 		const char* fragPath = "lightSource.fs"
 	) : Shader(vertPath, fragPath, mod) {

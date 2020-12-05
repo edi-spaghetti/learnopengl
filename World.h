@@ -15,7 +15,7 @@ class Camera;  // forward declaration
 class World
 {
 public:
-	World(GLFWwindow* win, Camera* cam, std::vector<Shader*> objs, MaterialManager* mng, 
+	World(GLFWwindow* win, Camera* cam, std::vector<Shader*> objs, MaterialManager* mng,
 		std::vector<LightSource*> lgts);
 	~World();
 	void tearDown();
@@ -25,11 +25,9 @@ public:
 	Camera* camera;
 	std::vector<LightSource*> lights;
 	MaterialManager* matManager;
-	Shader screen = Shader("postProcessing.vs", "postProcessing.fs");
-	// get the mirror quad roughly the same aspect ratio as screen
-	// TODO: make this dynamic
-	Shader mirror = Shader("postProcessing.vs", "postProcessing.fs", 0.6f, 0.9f, 0.9f, 0.675f);
-	Shader skybox;
+	Shader* screen;
+	Shader* mirror;
+	Shader* skybox;
 
 	glm::mat4 view;
 	glm::mat4 reverseView;
