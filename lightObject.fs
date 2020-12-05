@@ -45,6 +45,7 @@ uniform highp int toggleGouraudPhong = 0;
 uniform bool invertSpec = false;
 uniform bool addEmission = false;
 uniform bool animateEmission = false;
+uniform bool doBlinn = false;
 uniform float time;
 uniform int numLights;
 uniform highp vec3 viewPos;
@@ -61,6 +62,9 @@ vec3 CalcSpecular(Light light, vec3 lgtDirection, vec3 viewDirection, vec3 norma
 vec3 CalcEmission(bool animated);
 vec3 CalcReflection(vec3 normal, vec3 viewDir);
 vec3 CalcRefraction(float iRefrIndex, float oRefrIndex, vec3 normal, vec3 viewDir);
+
+// constants
+const float kPi = 3.14159265;
 
 
 void main() {
@@ -111,8 +115,20 @@ vec3 CalcDiffuse(Light light, vec3 lgtDirection, vec3 normal) {
 
 vec3 CalcSpecular(Light light, vec3 lgtDirection, vec3 viewDirection, vec3 normal) {
 
-    vec3 reflectDir = reflect(-lgtDirection, normal);
-    float spec = pow(max(dot(viewDirection, reflectDir), 0.0), material.shininess);
+    vec3 pivotVector;
+    float spec;
+    if (doBlinn)
+    {
+        float energyConservation = (8.0 + material.shininess) / (8.0 * kPi);
+        vec3 halfwayDir = normalize(lgtDirection + viewDirection);
+        spec = energyConservation * pow(max(dot(normal, halfwayDir), 0), material.shininess);
+    }
+    else
+    {
+       float energyConservation = (2.0 + material.shininess) / (2.0 * kPi);
+       vec3 reflectDir = reflect(-lgtDirection, normal);
+       spec = energyConservation * pow(max(dot(viewDirection, reflectDir), 0), material.shininess);
+    }
 
     vec3 specTexVec = vec3(texture(material.specular, fs_in.TexCoords));
     if (invertSpec) specTexVec = vec3(1.0f, 1.0f, 1.0f) - specTexVec;

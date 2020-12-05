@@ -71,6 +71,8 @@ public:
 	float currentLightRotationAngle = 0.0f;
 	// 3 Toggle shading in Gouraud or Phong
 	bool toggleGouraudPhong = false;
+	// blinn-phong shading
+	bool doBlinnPhong = false;
 	// 7 Start / Stop Screen Recording
 	bool record = false;
 	unsigned int currentOutputFrame = 0;

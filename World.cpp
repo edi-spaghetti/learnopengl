@@ -547,6 +547,9 @@ void World::updateAttributes()
 		// normal matrix
 		object->setMatrix("normalMatrix", object->getNormalMatrix());
 		if (this->doLogging) std::cout << "object normalMatrix > " << std::endl;
+		// blinn-phong (if false, just do phong)
+		object->setBool("doBlinn", doBlinnPhong);
+		if (doLogging) printf("Set Blinn Shading %d\n", doBlinnPhong);
 
 		// TODO: dict (hash table?) of booleans so we can set all at once
 		// update material uniforms

@@ -135,7 +135,8 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 	}
 	if (key == GLFW_KEY_2)
 	{
-		std::cout << "No command set for key 2 " << std::endl;
+		world->doBlinnPhong = !world->doBlinnPhong;
+		printf("Toggled Blinn-Phong to: %d\n", world->doBlinnPhong);
 	}
 	if (key == GLFW_KEY_3)
 	{
