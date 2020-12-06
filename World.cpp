@@ -389,6 +389,7 @@ void World::draw()
 	glDisable(GL_BLEND);
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	if (gammaCorrection) glEnable(GL_FRAMEBUFFER_SRGB);
 
 	// now draw each layer on top of the previous	
 	// draw the front view
@@ -416,6 +417,8 @@ void World::draw()
 		// the same from the front buffer
 		mirror->screenDraw(framebuffers["reverse"][tcbIndex]);
 	}
+
+	if (gammaCorrection) glDisable(GL_FRAMEBUFFER_SRGB);
 
 	// stop logging after first frame
 	if (this->doLogging) this->doLogging = false;

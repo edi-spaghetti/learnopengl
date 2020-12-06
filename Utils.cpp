@@ -140,10 +140,10 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 	}
 	if (key == GLFW_KEY_3)
 	{
-		world->toggleGouraudPhong = !world->toggleGouraudPhong;
-		std::cout
-			<< "Toggled Gouraud/Phong shading <<deprecated>>" << world->toggleGouraudPhong
-			<< std::endl;
+		world->gammaCorrection = !world->gammaCorrection;
+		printf("Toggled Gamma Correction %d\n", 
+			world->gammaCorrection
+		);
 	}
 	if (key == GLFW_KEY_4)
 	{
