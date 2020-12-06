@@ -53,6 +53,7 @@ Shader::Shader(std::string vertPath, std::string fragPath, CubeMap* cm)
 
 	// generate cube geometry
 	generateCubeGeometry();
+	geometryLoaded = true;
 
 	// load cube map texture
 	loadCubeMap(cm);

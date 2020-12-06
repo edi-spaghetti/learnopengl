@@ -1,5 +1,5 @@
 #include "World.h"
-#include "demo/space.h"
+#include "demo/street.h"
 
 
 int main()
@@ -11,7 +11,7 @@ int main()
 	int height = 600;
 	GLFWwindow* window = createWindow(width, height);
 
-	World* world = spaceGame(window);
+	World* world = streetDemo(window);
 
 	// start render loop
 	while (!glfwWindowShouldClose(window))
