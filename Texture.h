@@ -20,12 +20,15 @@ public:
 
 	Texture() {};
 	Texture(std::string path, const char* varName = NULL,
-		bool flip = true, 
-		int wrapping = GL_REPEAT, int filtering = GL_LINEAR);
+		bool flip = true,
+		int wrapping = GL_REPEAT, int filtering = GL_LINEAR,
+		bool gammaCorrect = true
+	);
 	~Texture();
 
 protected:
 	int getFormat();
+	int getInternalFormat(bool gammaCorrection);
 	bool loaded = false;
 	int width, height, nrChannels;
 	bool doLogging = true;

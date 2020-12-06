@@ -70,7 +70,7 @@ public:
 	bool staticLight = true;
 	float currentLightRotationAngle = 0.0f;
 	// 3 Toggle gamma correction
-	bool gammaCorrection = false;
+	bool gammaCorrection = true;
 	// blinn-phong shading
 	bool doBlinnPhong = false;
 	// 7 Start / Stop Screen Recording

@@ -50,6 +50,7 @@ uniform float time;
 uniform int numLights;
 uniform highp vec3 viewPos;
 uniform samplerCube skybox;
+uniform bool gammaCorrection = true;
 
 // function declarations
 vec4 CalcLight();
@@ -62,6 +63,7 @@ vec3 CalcSpecular(Light light, vec3 lgtDirection, vec3 viewDirection, vec3 norma
 vec3 CalcEmission(bool animated);
 vec3 CalcReflection(vec3 normal, vec3 viewDir);
 vec3 CalcRefraction(float iRefrIndex, float oRefrIndex, vec3 normal, vec3 viewDir);
+float CalcAttenuation(Light light, float dist);
 
 // constants
 const float kPi = 3.14159265;
@@ -212,11 +214,7 @@ vec3 CalcPointLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     // properties
     vec3 lightDir = normalize(light.position - fragPos);
     float dist = length(light.position - fragPos);
-    float attenuation = 1.0 / (
-        light.constant + 
-        light.linear * dist + 
-        light.quadratic * pow(dist, 2)
-    );
+    float attenuation = CalcAttenuation(light, dist);
 
     // calculate
     vec3 ambient = CalcAmbient(light);
@@ -238,11 +236,8 @@ vec3 CalcSpotLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     // properties
     vec3 lightDir = normalize(light.position - fragPos);
     float dist = length(light.position - fragPos);
-    float attenuation = 1.0 / (
-        light.constant + 
-        light.linear * dist + 
-        light.quadratic * pow(dist, 2)
-    );
+    float attenuation = CalcAttenuation(light, dist);
+
     float theta = dot(lightDir, normalize(-light.direction));
     float epsilon = light.innerBeam - light.outerBeam;
     float intensity = clamp((theta - light.outerBeam) / epsilon, 0.0, 1.0);
@@ -261,4 +256,17 @@ vec3 CalcSpotLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir) {
 	}
 
     return (ambient + diffuse + specular);
+}
+
+
+float CalcAttenuation(Light light, float dist)
+{
+    // allegedly this should be 1 / dist if correcting for gamma
+    // but this just turns all objects black for me, so...
+    // leaving the function here in case I need it later though
+    return 1.0 / (
+        light.constant + 
+        light.linear * dist + 
+        light.quadratic * pow(dist, 2)
+    );
 }

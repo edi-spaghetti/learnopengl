@@ -3,7 +3,7 @@
 #include "Texture.h"
 
 Texture::Texture(std::string path, const char* varName, bool flip, 
-	int wrapping, int filtering)
+	int wrapping, int filtering, bool gammaCorrect)
 {
 	// generate name without extension
 	// path expected to be absolute, including path separators
@@ -42,9 +42,10 @@ Texture::Texture(std::string path, const char* varName, bool flip,
 	}
 
 	int format = getFormat();
+	int intFormat = getInternalFormat(gammaCorrect);
 
 	// generate the texture + mipmaps
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+	glTexImage2D(GL_TEXTURE_2D, 0, intFormat,
 		width, height,
 		0, format, GL_UNSIGNED_BYTE,
 		data
@@ -72,6 +73,20 @@ int Texture::getFormat()
 		format = GL_RGB;
 	else if (nrChannels == 4)
 		format = GL_RGBA;
+
+	return format;
+}
+
+
+int Texture::getInternalFormat(bool gammCorrection)
+{
+	int format;
+	if (nrChannels == 1)
+		format = GL_RED;
+	else if (nrChannels == 3)
+		format = gammCorrection ? GL_SRGB : GL_RGB;
+	else if (nrChannels == 4)
+		format = gammCorrection ? GL_SRGB_ALPHA : GL_RGBA;
 
 	return format;
 }
@@ -110,8 +125,9 @@ CubeMap::CubeMap(std::vector<std::string> faces, std::string name)
 		if (data)
 		{
 			int format = getFormat();
+			int intFormat = getFormat();
 			glTexImage2D(faceOrder[i], 
-				0, GL_RGB, width, height, 0,
+				0, intFormat, width, height, 0,
 				format, GL_UNSIGNED_BYTE, data
 			);
 			stbi_image_free(data);

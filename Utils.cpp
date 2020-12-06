@@ -140,7 +140,21 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 	}
 	if (key == GLFW_KEY_3)
 	{
+		// toggle gamma correction setting
 		world->gammaCorrection = !world->gammaCorrection;
+
+		// set uniforms across all shaders that need to know
+		for (auto& object : world->objects)
+		{
+			object->setBool("gammaCorrection", world->gammaCorrection);
+		}
+		world->screen->setBool("gammaCorrection", world->gammaCorrection);
+		world->mirror->setBool("gammaCorrection", world->gammaCorrection);
+
+		// regenerate buffers in new gamma correction mode
+		world->deleteBuffers();
+		world->setupPostProcessing();
+
 		printf("Toggled Gamma Correction %d\n", 
 			world->gammaCorrection
 		);

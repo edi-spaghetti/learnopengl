@@ -51,6 +51,10 @@ World::World(GLFWwindow* win, Camera* cam, std::vector<Shader*> objs,
 		object->setFloat("material.shininess", object->shininess.value);
 		if (this->doLogging) std::cout << "object material.shininess > "
 			<< object->shininess.value << std::endl;
+
+		// gamma
+		object->setBool("gammaCorrection", this->gammaCorrection);
+		if (doLogging) printf("object gamma correction %d\n", this->gammaCorrection);
 	}
 
 	// initalise light properties on objects
@@ -246,15 +250,17 @@ void World::createFramebuffer(std::string name, GLenum target,
 	unsigned int TCB;
 	glGenTextures(1, &TCB);
 	glBindTexture(target, TCB);
+
+	int internalFormat = gammaCorrection ? GL_SRGB_ALPHA : GL_RGBA;
 	if (doMultiSample)
 		glTexImage2DMultisample(
-			GL_TEXTURE_2D_MULTISAMPLE, SAMPLE_COUNT, GL_RGB,
+			GL_TEXTURE_2D_MULTISAMPLE, SAMPLE_COUNT, internalFormat,
 			screenWidth, screenHeight,
 			GL_TRUE
 		);
 	else
 		glTexImage2D(
-			GL_TEXTURE_2D, 0, GL_RGB,
+			GL_TEXTURE_2D, 0, internalFormat,
 			screenWidth, screenHeight,
 			0, GL_RGB, GL_UNSIGNED_BYTE, NULL
 		);
@@ -389,7 +395,6 @@ void World::draw()
 	glDisable(GL_BLEND);
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	if (gammaCorrection) glEnable(GL_FRAMEBUFFER_SRGB);
 
 	// now draw each layer on top of the previous	
 	// draw the front view
@@ -417,8 +422,6 @@ void World::draw()
 		// the same from the front buffer
 		mirror->screenDraw(framebuffers["reverse"][tcbIndex]);
 	}
-
-	if (gammaCorrection) glDisable(GL_FRAMEBUFFER_SRGB);
 
 	// stop logging after first frame
 	if (this->doLogging) this->doLogging = false;
