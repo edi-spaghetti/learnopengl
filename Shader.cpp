@@ -169,8 +169,9 @@ void Shader::draw(GLenum mode)
 	if (cubeMapLoaded)
 	{
 		glDepthMask(GL_FALSE);
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap->ID);
-		if (doLogging) printf("Loaded cubemap texture\n");
+		if (doLogging) printf("Loaded cubemap texture %d\n", cubeMap->ID);
 	}
 
 	// TODO instanced glDraw Elements/Arrays
@@ -759,10 +760,10 @@ void Shader::generateCubeGeometry()
 		2, 3, 0   // top right triangle
 	};
 
-	Geometry geo;
-	geo.numAttributes = 1;
-	geo.attributes[0] = 3;
-	geo.stride = geo.attributes[0] * sizeof(float);
+	Geometry* geo = new Geometry();
+	geo->numAttributes = 1;
+	geo->attributes[0] = 3;
+	geo->stride = geo->attributes[0] * sizeof(float);
 
 	// add unique vertices
 	int k = 0;
@@ -770,28 +771,28 @@ void Shader::generateCubeGeometry()
 	{
 		for (int j = 0; j < 3; j++)
 		{
-			geo.data[k] = vertices[i][j];
+			geo->data[k] = vertices[i][j];
 			k++;
 		}
 	}
-	geo.dataLength = indexOrder.size() * faces.size();
-	geo.dataSize = k * geo.attributes[0] * sizeof(float);
+	geo->dataLength = indexOrder.size() * faces.size();
+	geo->dataSize = k * geo->attributes[0] * sizeof(float);
 
 	// add indices
-	geo.useIndices = true;
-	geo.iLength = 0;
+	geo->useIndices = true;
+	geo->iLength = 0;
 	for (int i = 0; i < faces.size(); i++)
 	{
 		for (int j : indexOrder)
 		{
-			geo.indices[geo.iLength] = static_cast<int>(faces[i][j]);
-			geo.iLength++;
+			geo->indices[geo->iLength] = static_cast<int>(faces[i][j]);
+			geo->iLength++;
 		}
 	}
-	geo.iSize = geo.iLength * sizeof(int);
+	geo->iSize = geo->iLength * sizeof(int);
 
-	this->geometry = &geo;
-	loadGeometry(&geo);
+	this->geometry = geo;
+	loadGeometry(geo);
 }
 
 
